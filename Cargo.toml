@@ -1,0 +1,13 @@
+[package]
+name = "robot-rust"
+version = "0.1.0"
+edition = "2024"
+
+[build-dependencies]
+bindgen = "0.73.2"
+autocxx-build = "0.27"
+miette = { version = "5.10", features = ["fancy"] }
+
+[dependencies]
+autocxx = "0.30.0"
+cxx = "1.0.202"
