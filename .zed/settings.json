@@ -1,0 +1,17 @@
+{
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "target": "arm-unknown-linux-gnueabi",
+          "buildScripts": {
+            "enable": true,
+          },
+        },
+        "procMacro": {
+          "enable": true,
+        },
+      },
+    },
+  },
+}

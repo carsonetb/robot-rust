@@ -52,6 +52,7 @@ fn main() -> miette::Result<()> {
 
     builder
         .flag_if_supported("-std=c++20")
+        .flag_if_supported("-Wno-deprecated-declarations")
         .compile("ctre_bindings");
 
     Ok(())
