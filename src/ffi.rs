@@ -9,7 +9,6 @@ autocxx::include_cpp! {
     safety!(unsafe)
 
     generate!("ctre::phoenix6::hardware::TalonFX")
-    generate!("ctre::phoenix6::controls::DutyCycleOut")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
