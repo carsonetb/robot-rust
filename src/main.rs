@@ -1,10 +1,10 @@
-pub use crate::motor::KrakenX60;
+pub use crate::ctre;
 pub use robot::{Robot, run};
 
+mod ctre;
 mod ds;
 mod ffi;
 mod hal;
-mod motor;
 mod robot;
 
 pub struct MyRobot {
