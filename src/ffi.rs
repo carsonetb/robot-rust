@@ -16,9 +16,12 @@ pub use bindings::*;
 
 autocxx::include_cpp! {
     #include "ctre/phoenix6/TalonFX.hpp"
+    #include "ctre_helpers.hpp"
+
     safety!(unsafe)
 
     generate!("ctre::phoenix6::hardware::TalonFX")
+    generate!("ctre_helpers::set_voltage")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -26,3 +29,4 @@ autocxx::include_cpp! {
 }
 
 pub use ffi::ctre::phoenix6::hardware::TalonFX;
+pub use ffi::ctre_helpers::set_voltage;

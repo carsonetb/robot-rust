@@ -11,6 +11,7 @@ miette = { version = "5.10", features = ["fancy"] }
 [dependencies]
 autocxx = "0.30.0"
 cxx = "1.0.202"
+uom = "0.38.0"
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "allow"

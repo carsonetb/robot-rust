@@ -1,11 +1,11 @@
+pub use crate::motor::KrakenX60;
+pub use robot::{Robot, run};
+
+mod ds;
 mod ffi;
 mod hal;
 mod motor;
 mod robot;
-
-pub use crate::motor::KrakenX60;
-use crate::motor::MotorController;
-pub use robot::{Robot, run};
 
 pub struct MyRobot {
     motor: KrakenX60,
