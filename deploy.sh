@@ -5,9 +5,9 @@ set -e
 
 PROJECT_NAME="robot-rust"
 TEAM=3636
-ROBOT_IP="what's this?"
+ROBOT_IP="10.36.36.2"
 
-cargo build --target arm-unknown-linux-gnueabi
+cargo build --target arm-unknown-linux-gnueabi --release
 
 ssh lvuser@{ROBOT_IP} "/etc/init.d/frcUserProgram stop"
 
