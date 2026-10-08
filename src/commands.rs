@@ -9,9 +9,9 @@ impl<T> Scheduler<T> {
         }
     }
 
-    pub(crate) fn schedule(&mut self, mut command: impl Command<T> + 'static, system: &mut T) {
+    pub(crate) fn schedule(&mut self, mut command: impl IntoCommand<T> + 'static, system: &mut T) {
         command.initialize(system);
-        self.commands.push(Box::new(command));
+        self.commands.push(Box::new(command.into_command()));
     }
 
     pub(crate) fn periodic(&mut self, system: &mut T) {
@@ -28,7 +28,21 @@ impl<T> Scheduler<T> {
     }
 }
 
-type CommandFn<T> = Box<dyn FnMut(&mut T)>;
+pub trait IntoCommand<T> {
+    fn into_command(self) -> impl Command<T>;
+}
+
+impl<C: Command, T> IntoCommand<T> for C {
+    fn into_command(self) -> impl Command<T> {
+        self
+    }
+}
+
+impl<T, F: FnMut(&mut T)> IntoCommand<T> for F {
+    fn into_command(self) -> impl Command<T> {
+        run(self)
+    }
+}
 
 pub trait Command<T> {
     fn initialize(&mut self, system: &mut T) {
@@ -38,7 +52,9 @@ pub trait Command<T> {
         let _ = system;
     }
     fn is_finished(&mut self, system: &mut T) -> bool;
-    fn end(&mut self, system: &mut T, interrupted: bool);
+    fn end(&mut self, system: &mut T, interrupted: bool) {
+        let _ = (system, interrupted);
+    }
 }
 
 pub fn run<T>(function: impl FnMut(&mut T) + 'static) -> impl Command<T> {
@@ -57,6 +73,10 @@ pub fn run_end<T>(
         run: Box::new(run),
         end: Box::new(end),
     }
+}
+
+pub fn run_once<T>(run: impl FnOnce(&mut T) + 'static) -> impl Command<T> {
+    RunOnce { run: Box::new(run) }
 }
 
 struct Run<T> {
@@ -96,5 +116,19 @@ impl<T> Command<T> for RunEnd<T> {
     fn end(&mut self, system: &mut T, _interrupted: bool) {
         self.end.as_mut()(system);
         self.ended = true;
+    }
+}
+
+struct RunOnce<T> {
+    run: Box<dyn FnOnce(&mut T)>,
+}
+
+impl<T> Command<T> for RunOnce<T> {
+    fn initialize(&mut self, system: &mut T) {
+        self.run.as_mut()(system);
+    }
+
+    fn is_finished(&mut self, _system: &mut T) -> bool {
+        true
     }
 }

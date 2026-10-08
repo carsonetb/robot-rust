@@ -1,6 +1,6 @@
 ///! Utilities for creating an all-encompassing robot class.
 use crate::{
-    commands::{Command, Scheduler},
+    commands::{Command, IntoCommand, Scheduler},
     ds::{self, AlertType},
     hal::{self, ControlWord},
 };
@@ -89,7 +89,7 @@ impl<R: Robot> State<R> {
         }
     }
 
-    pub fn schedule(&mut self, robot: &mut R, command: impl Command<R> + 'static) {
+    pub fn schedule(&mut self, robot: &mut R, command: impl IntoCommand<R> + 'static) {
         self.scheduler.schedule(command, robot);
     }
 }

@@ -23,7 +23,7 @@ impl MyRobot {
 
 impl Robot for MyRobot {
     fn teleop_init(&mut self, state: &mut State<Self>) {
-        state.schedule(self, commands::run::<Self>(|robot| robot.motor.set(0.0)));
+        state.schedule::<Self>(self, |robot| robot.motor.set(0.0));
     }
 
     fn teleop_periodic(&mut self, _state: &mut State<Self>) {
