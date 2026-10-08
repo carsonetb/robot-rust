@@ -1,4 +1,4 @@
-pub use robot::{Robot, run};
+pub use robot::{Robot, State, run};
 
 use crate::ctre::KrakenX60;
 
@@ -22,7 +22,11 @@ impl MyRobot {
 }
 
 impl Robot for MyRobot {
-    fn teleop_periodic(&mut self) {
+    fn teleop_init(&mut self, state: &mut State<Self>) {
+        state.schedule(self, commands::run::<Self>(|robot| robot.motor.set(0.0)));
+    }
+
+    fn teleop_periodic(&mut self, _state: &mut State<Self>) {
         self.motor.set(0.2);
     }
 }
