@@ -1,19 +1,5 @@
-pub use commands::Scheduler;
-pub use robot::{Mode, Robot, run};
-pub use state::State;
-pub use systems::System;
-
-use crate::ctre::KrakenX60;
-
-mod commands;
-mod ctre;
-mod ds;
-mod ffi;
-mod hal;
-mod rev;
-mod robot;
-mod state;
-mod systems;
+use robot_rust::ctre::KrakenX60;
+use robot_rust::{Robot, State, System, run};
 
 struct MySystem;
 

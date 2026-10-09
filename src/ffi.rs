@@ -25,10 +25,10 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix6::hardware::TalonFX")
     generate!("ctre_helpers::set_voltage")
 
-    generate!("rev_helpers::neo_create")
-    generate!("rev_helpers::neo_set")
-    generate!("rev_helpers::neo_set_voltage")
-    generate!("rev_helpers::neo_destroy")
+    generate!("rev_helpers::sparkmax_create")
+    generate!("rev_helpers::sparkmax_set")
+    generate!("rev_helpers::sparkmax_set_voltage")
+    generate!("rev_helpers::sparkmax_destroy")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -37,4 +37,6 @@ autocxx::include_cpp! {
 
 pub use ffi::ctre::phoenix6::hardware::TalonFX;
 pub use ffi::ctre_helpers::set_voltage;
-pub use ffi::rev_helpers::{NeoHandle, neo_create, neo_destroy, neo_set, neo_set_voltage};
+pub use ffi::rev_helpers::{
+    SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
+};

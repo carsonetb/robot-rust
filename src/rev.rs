@@ -3,15 +3,15 @@ use uom::si::f64::ElectricPotential;
 
 use crate::ffi;
 
-pub struct Neo {
-    handle: *mut ffi::NeoHandle,
+pub struct SparkMax {
+    handle: *mut ffi::SparkMaxHandle,
     pub inverted: bool,
 }
 
-impl Neo {
+impl SparkMax {
     pub fn new(can_id: i32) -> Self {
         Self {
-            handle: ffi::neo_create(autocxx::c_int(can_id)),
+            handle: ffi::sparkmax_create(autocxx::c_int(can_id)),
             inverted: false,
         }
     }
@@ -21,7 +21,7 @@ impl Neo {
         let speed = speed.clamp(-1.0, 1.0);
 
         unsafe {
-            ffi::neo_set(self.handle, speed);
+            ffi::sparkmax_set(self.handle, speed);
         }
     }
 
@@ -29,15 +29,15 @@ impl Neo {
         let voltage = if self.inverted { -voltage } else { voltage };
 
         unsafe {
-            ffi::neo_set_voltage(self.handle, voltage.get::<volt>());
+            ffi::sparkmax_set_voltage(self.handle, voltage.get::<volt>());
         }
     }
 }
 
-impl Drop for Neo {
+impl Drop for SparkMax {
     fn drop(&mut self) {
         unsafe {
-            ffi::neo_destroy(self.handle);
+            ffi::sparkmax_destroy(self.handle);
         }
     }
 }

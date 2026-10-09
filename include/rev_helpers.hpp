@@ -1,14 +1,12 @@
 #pragma once
 
-#include <memory>
-
 namespace rev_helpers {
 
-struct NeoHandle;
+struct SparkMaxHandle;
 
-NeoHandle* neo_create(int can_id);
-void neo_set(NeoHandle* motor, double speed);
-void neo_set_voltage(NeoHandle* motor, double voltage);
-void neo_destroy(NeoHandle* motor);
+SparkMaxHandle* sparkmax_create(int can_id);
+void sparkmax_set(SparkMaxHandle* motor, double speed);
+void sparkmax_set_voltage(SparkMaxHandle* motor, double voltage);
+void sparkmax_destroy(SparkMaxHandle* motor);
 
 }  // namespace rev_helpers

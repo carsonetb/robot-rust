@@ -19,35 +19,63 @@ pub enum Mode {
 pub trait Robot: Sized {
     /// First function called, you should not interact with hardware before this
     /// function or risk causing a Segmentation Fault.
-    fn init(&mut self, state: &mut State<Self>) {}
+    fn init(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot moves into the disabled state.
-    fn disabled_init(&mut self, state: &mut State<Self>) {}
+    fn disabled_init(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot moves into the teleop state.
-    fn teleop_init(&mut self, state: &mut State<Self>) {}
+    fn teleop_init(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot moves into the autonomous state.
-    fn autonomous_init(&mut self, state: &mut State<Self>) {}
+    fn autonomous_init(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot moves into the test state.
-    fn test_init(&mut self, state: &mut State<Self>) {}
+    fn test_init(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
 
     /// Called when the robot leaves the disabled state.
-    fn disabled_exit(&mut self, state: &mut State<Self>) {}
+    fn disabled_exit(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot leaves the teleop state.
-    fn teleop_exit(&mut self, state: &mut State<Self>) {}
+    fn teleop_exit(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot leaves the autonomous state.
-    fn autonomous_exit(&mut self, state: &mut State<Self>) {}
+    fn autonomous_exit(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called when the robot leaves the test state.
-    fn test_exit(&mut self, state: &mut State<Self>) {}
+    fn test_exit(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
 
     /// Called every ~20ms regardless of the state of the robot.
-    fn periodic(&mut self, state: &mut State<Self>) {}
+    fn periodic(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called every ~20ms when the robot is disabled.
-    fn disabled_periodic(&mut self, state: &mut State<Self>) {}
+    fn disabled_periodic(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called every ~20ms when the robot is in the autonomous state.
-    fn autonomous_periodic(&mut self, state: &mut State<Self>) {}
+    fn autonomous_periodic(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called every ~20ms when the robot is in the teleop state.
-    fn teleop_periodic(&mut self, state: &mut State<Self>) {}
+    fn teleop_periodic(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
     /// Called every ~20ms when the robot is in the test state.
-    fn test_periodic(&mut self, state: &mut State<Self>) {}
+    fn test_periodic(&mut self, state: &mut State<Self>) {
+        let _ = state;
+    }
 }
 
 /// Called to run the robot. This function will block the thread and run until
