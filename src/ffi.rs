@@ -18,10 +18,17 @@ autocxx::include_cpp! {
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre_helpers.hpp"
 
+    #include "rev_helpers.hpp"
+
     safety!(unsafe)
 
     generate!("ctre::phoenix6::hardware::TalonFX")
     generate!("ctre_helpers::set_voltage")
+
+    generate!("rev_helpers::neo_create")
+    generate!("rev_helpers::neo_set")
+    generate!("rev_helpers::neo_set_voltage")
+    generate!("rev_helpers::neo_destroy")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -30,3 +37,4 @@ autocxx::include_cpp! {
 
 pub use ffi::ctre::phoenix6::hardware::TalonFX;
 pub use ffi::ctre_helpers::set_voltage;
+pub use ffi::rev_helpers::{NeoHandle, neo_create, neo_destroy, neo_set, neo_set_voltage};

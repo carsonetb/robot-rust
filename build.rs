@@ -17,6 +17,8 @@ fn main() -> miette::Result<()> {
     println!("cargo:rustc-link-arg=-lCTRE_PhoenixTools");
     println!("cargo:rustc-link-arg=-lCTRE_Phoenix6");
     println!("cargo:rustc-link-arg=-lCTRE_Phoenix6_WPI");
+    println!("cargo:rustc-link-arg=-lREVLib");
+    println!("cargo:rustc-link-arg=-lREVLibDriver");
     println!("cargo:rustc-link-arg=-Wl,--as-needed");
 
     println!("cargo:rerun-if-changed=src/ffi.rs");
@@ -51,6 +53,7 @@ fn main() -> miette::Result<()> {
         .build()?;
 
     builder
+        .file("include/rev_helpers.cpp")
         .flag_if_supported("-std=c++20")
         .flag_if_supported("-Wno-deprecated-declarations")
         .compile("ctre_bindings");
