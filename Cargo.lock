@@ -184,6 +184,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "autolog_macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -799,6 +808,7 @@ version = "0.1.0"
 dependencies = [
  "autocxx",
  "autocxx-build",
+ "autolog_macro",
  "bindgen",
  "cxx",
  "miette",
