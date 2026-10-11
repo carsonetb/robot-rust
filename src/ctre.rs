@@ -82,9 +82,7 @@ impl TalonFX {
     }
 
     pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {
-        TalonFXConfigurator {
-            conf: ffi::talon::get_configurator(self.motor.pin_mut()),
-        }
+        TalonFXConfigurator::new(ffi::talon::get_configurator(self.motor.pin_mut()))
     }
 
     /// Set the speed of the motor. The range is -1.0 to 1.0. Alternatively,
@@ -153,6 +151,10 @@ impl CANCoder {
         Self {
             coder: ffi::cancoder::CANcoder::new(autocxx::c_int(id), bus).within_unique_ptr(),
         }
+    }
+
+    pub fn configurator(&'_ mut self) -> CANCoderConfigurator<'_> {
+        CANCoderConfigurator::new(ffi::cancoder::get_configurator(self.coder.pin_mut()))
     }
 
     pub fn get_position(&mut self, refresh: bool) -> Angle {

@@ -26,18 +26,22 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix::StatusCode")
 
     generate!("ctre::phoenix6::hardware::TalonFX")
+
+    generate!("ctre::phoenix6::hardware::CANcoder")
+    generate!("ctre::phoenix6::configs::CANcoderConfigurator")
+    generate!("ctre::phoenix6::configs::CANcoderConfiguration")
+
+    generate!("ctre::phoenix6::signals::FeedbackSensorSourceValue")
+    generate!("ctre::phoenix6::signals::NeutralModeValue")
+    generate!("ctre::phoenix6::signals::InvertedValue")
+
     generate!("ctre::phoenix6::configs::TalonFXConfigurator")
     generate!("ctre::phoenix6::configs::TalonFXConfiguration")
     generate!("ctre::phoenix6::configs::Slot0Configs")
     generate!("ctre::phoenix6::configs::MotionMagicConfigs")
     generate!("ctre::phoenix6::configs::FeedbackConfigs")
     generate!("ctre::phoenix6::configs::MotorOutputConfigs")
-
-    generate!("ctre::phoenix6::hardware::CANcoder")
-
-    generate!("ctre::phoenix6::signals::FeedbackSensorSourceValue")
-    generate!("ctre::phoenix6::signals::NeutralModeValue")
-    generate!("ctre::phoenix6::signals::InvertedValue")
+    generate!("ctre::phoenix6::configs::MagnetSensorConfigs")
 
     generate!("ctre_helpers::talonfx::set_voltage")
     generate!("ctre_helpers::talonfx::set_position")
@@ -84,6 +88,9 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::cancoder::get_supply_voltage")
     generate!("ctre_helpers::cancoder::set_position")
 
+    generate!("ctre_helpers::magnetsensor::set_magnet_offset")
+    generate!("ctre_helpers::magnetsensor::set_discontinuity_point")
+
     generate!("rev_helpers::sparkmax_create")
     generate!("rev_helpers::sparkmax_set")
     generate!("rev_helpers::sparkmax_set_voltage")
@@ -97,14 +104,7 @@ autocxx::include_cpp! {
 pub mod talon {
     use super::ffi;
 
-    pub use ffi::ctre::phoenix6::configs::{
-        FeedbackConfigs, MotionMagicConfigs, MotorOutputConfigs, Slot0Configs,
-        TalonFXConfiguration, TalonFXConfigurator,
-    };
     pub use ffi::ctre::phoenix6::hardware::TalonFX;
-    pub use ffi::ctre::phoenix6::signals::{
-        FeedbackSensorSourceValue, InvertedValue, NeutralModeValue,
-    };
     pub use ffi::ctre_helpers::talonfx::feedback::{
         set_remote_sensor_id, set_rotor_offset, set_rotor_to_sensor_ratio,
         set_sensor_to_mechanism_ratio, set_velocity_filter_time_constant,
@@ -130,9 +130,19 @@ pub mod cancoder {
         get_absolute_position, get_configurator, get_position, get_position_since_boot,
         get_supply_voltage, get_unfiltered_velocity, get_velocity, set_position,
     };
+    pub use ffi::ctre_helpers::magnetsensor::{set_discontinuity_point, set_magnet_offset};
 }
 
 pub use ffi::ctre::phoenix::StatusCode;
 pub use ffi::rev_helpers::{
     SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
+};
+
+pub use ffi::ctre::phoenix6::configs::{
+    CANcoderConfiguration, CANcoderConfigurator, FeedbackConfigs, MagnetSensorConfigs,
+    MotionMagicConfigs, MotorOutputConfigs, Slot0Configs, TalonFXConfiguration,
+    TalonFXConfigurator,
+};
+pub use ffi::ctre::phoenix6::signals::{
+    FeedbackSensorSourceValue, InvertedValue, NeutralModeValue,
 };

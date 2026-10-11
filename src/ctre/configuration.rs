@@ -11,27 +11,36 @@ use uom::si::{
     time::second,
 };
 
-use super::enums::*;
+use super::prelude::*;
 use crate::ffi;
 
 pub struct TalonFXConfigurator<'a> {
-    pub(in crate::ctre) conf: Pin<&'a mut ffi::talon::TalonFXConfigurator>,
+    conf: Pin<&'a mut ffi::TalonFXConfigurator>,
 }
 
 impl<'a> TalonFXConfigurator<'a> {
-    pub fn apply(&mut self, configuration: TalonFXConfiguration) {
-        let _ = self.conf.as_mut().Apply(&configuration.conf);
+    pub(crate) fn new(conf: Pin<&'a mut ffi::TalonFXConfigurator>) -> Self {
+        Self { conf }
+    }
+
+    pub fn apply(&mut self, configuration: TalonFXConfiguration) -> StatusCode {
+        StatusCode::new(
+            self.conf
+                .as_mut()
+                .Apply(&configuration.conf)
+                .within_unique_ptr(),
+        )
     }
 }
 
 pub struct TalonFXConfiguration {
-    pub(in crate::ctre) conf: cxx::UniquePtr<ffi::talon::TalonFXConfiguration>,
+    conf: cxx::UniquePtr<ffi::TalonFXConfiguration>,
 }
 
 impl TalonFXConfiguration {
     pub fn new() -> Self {
         Self {
-            conf: ffi::talon::TalonFXConfiguration::new().within_unique_ptr(),
+            conf: ffi::TalonFXConfiguration::new().within_unique_ptr(),
         }
     }
 
@@ -57,13 +66,13 @@ impl TalonFXConfiguration {
 }
 
 pub struct Slot0Configs {
-    pub(super) conf: cxx::UniquePtr<ffi::talon::Slot0Configs>,
+    pub(super) conf: cxx::UniquePtr<ffi::Slot0Configs>,
 }
 
 impl Slot0Configs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::talon::Slot0Configs::new().within_unique_ptr(),
+            conf: ffi::Slot0Configs::new().within_unique_ptr(),
         }
     }
 
@@ -104,13 +113,13 @@ impl Slot0Configs {
 }
 
 pub struct MotionMagicConfigs {
-    conf: cxx::UniquePtr<ffi::talon::MotionMagicConfigs>,
+    conf: cxx::UniquePtr<ffi::MotionMagicConfigs>,
 }
 
 impl MotionMagicConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::talon::MotionMagicConfigs::new().within_unique_ptr(),
+            conf: ffi::MotionMagicConfigs::new().within_unique_ptr(),
         }
     }
 
@@ -139,13 +148,13 @@ impl MotionMagicConfigs {
 }
 
 pub struct FeedbackConfigs {
-    conf: cxx::UniquePtr<ffi::talon::FeedbackConfigs>,
+    conf: cxx::UniquePtr<ffi::FeedbackConfigs>,
 }
 
 impl FeedbackConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::talon::FeedbackConfigs::new().within_unique_ptr(),
+            conf: ffi::FeedbackConfigs::new().within_unique_ptr(),
         }
     }
 
@@ -176,34 +185,87 @@ impl FeedbackConfigs {
 
     pub fn with_sensor_source(mut self, source: FeedbackSensorSourceValue) -> Self {
         self.conf.pin_mut().WithFeedbackSensorSource(
-            ffi::talon::FeedbackSensorSourceValue::new(c_int(source as i32)).within_unique_ptr(),
+            ffi::FeedbackSensorSourceValue::new(c_int(source as i32)).within_unique_ptr(),
         );
         self
     }
 }
 
 pub struct MotorOutputConfigs {
-    conf: cxx::UniquePtr<ffi::talon::MotorOutputConfigs>,
+    conf: cxx::UniquePtr<ffi::MotorOutputConfigs>,
 }
 
 impl MotorOutputConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::talon::MotorOutputConfigs::new().within_unique_ptr(),
+            conf: ffi::MotorOutputConfigs::new().within_unique_ptr(),
         }
     }
 
     pub fn with_inverted(mut self, inverted: InvertedValue) -> Self {
-        self.conf.pin_mut().WithInverted(
-            ffi::talon::InvertedValue::new(c_int(inverted as i32)).within_unique_ptr(),
-        );
+        self.conf
+            .pin_mut()
+            .WithInverted(ffi::InvertedValue::new(c_int(inverted as i32)).within_unique_ptr());
         self
     }
 
     pub fn with_neutral_mode(mut self, mode: NeutralModeValue) -> Self {
-        self.conf.pin_mut().WithNeutralMode(
-            ffi::talon::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr(),
-        );
+        self.conf
+            .pin_mut()
+            .WithNeutralMode(ffi::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr());
+        self
+    }
+}
+
+pub struct CANCoderConfigurator<'a> {
+    conf: Pin<&'a mut ffi::CANcoderConfigurator>,
+}
+
+impl<'a> CANCoderConfigurator<'a> {
+    pub(crate) fn new(conf: Pin<&'a mut ffi::CANcoderConfigurator>) -> Self {
+        Self { conf }
+    }
+
+    pub fn apply(&mut self, config: CANCoderConfiguration) -> StatusCode {
+        StatusCode::new(self.conf.as_mut().Apply(&config.conf).within_unique_ptr())
+    }
+}
+
+pub struct CANCoderConfiguration {
+    conf: cxx::UniquePtr<ffi::CANcoderConfiguration>,
+}
+
+impl CANCoderConfiguration {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::CANcoderConfiguration::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_magnet_sensor(mut self, configs: MagnetSensorConfigs) -> Self {
+        self.conf.pin_mut().WithMagnetSensor(configs.conf);
+        self
+    }
+}
+
+pub struct MagnetSensorConfigs {
+    conf: cxx::UniquePtr<ffi::MagnetSensorConfigs>,
+}
+
+impl MagnetSensorConfigs {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::MagnetSensorConfigs::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_magnet_offset(mut self, value: Angle) -> Self {
+        ffi::cancoder::set_magnet_offset(self.conf.pin_mut(), value.get::<revolution>());
+        self
+    }
+
+    pub fn with_discontinuity_point(mut self, value: Angle) -> Self {
+        ffi::cancoder::set_discontinuity_point(self.conf.pin_mut(), value.get::<revolution>());
         self
     }
 }

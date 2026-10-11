@@ -184,6 +184,18 @@ inline ctre::phoenix::StatusCode set_position(ctre::phoenix6::hardware::CANcoder
     return coder.SetPosition(units::angle::turn_t{rotations});
 }
 
+}  // namespace cancoder
+
+namespace magnetsensor {
+
+inline void set_magnet_offset(ctre::phoenix6::configs::MagnetSensorConfigs& conf, double rotations) {
+    conf.MagnetOffset = units::angle::turn_t{rotations};
 }
+
+inline void set_discontinuity_point(ctre::phoenix6::configs::MagnetSensorConfigs& conf, double rotations) {
+    conf.AbsoluteSensorDiscontinuityPoint = units::angle::turn_t{rotations};
+}
+
+}  // namespace mangetsensor
 
 }  // namespace ctre_helpers
