@@ -9,6 +9,7 @@ pub use state::State;
 pub use systems::System;
 pub use units::UnitHelpers;
 
+pub mod chooser;
 pub mod commands;
 pub mod ctre;
 pub mod ds;

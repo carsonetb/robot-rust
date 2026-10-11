@@ -15,6 +15,8 @@ pub mod bindings {
 pub use bindings::*;
 
 autocxx::include_cpp! {
+    #include "chooser_helpers.hpp"
+
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre/phoenix6/CANcoder.hpp"
     #include "ctre/phoenix6/Pigeon2.hpp"
@@ -23,6 +25,14 @@ autocxx::include_cpp! {
     #include "rev_helpers.hpp"
 
     safety!(unsafe)
+
+    generate!("chooser::ChooserHandle")
+    generate!("chooser::chooser_create")
+    generate!("chooser::chooser_destroy")
+    generate!("chooser::chooser_set_default")
+    generate!("chooser::chooser_add_option")
+    generate!("chooser::chooser_publish")
+    generate!("chooser::chooser_get_selected")
 
     generate!("ctre::phoenix::StatusCode")
 
@@ -178,11 +188,11 @@ pub mod pigeon2 {
     }
 }
 
-pub use ffi::ctre::phoenix::StatusCode;
-pub use ffi::rev_helpers::{
-    SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
+pub use ffi::chooser::{
+    ChooserHandle, chooser_add_option, chooser_create, chooser_destroy, chooser_get_selected,
+    chooser_publish, chooser_set_default,
 };
-
+pub use ffi::ctre::phoenix::StatusCode;
 pub use ffi::ctre::phoenix6::configs::{
     CANcoderConfiguration, CANcoderConfigurator, FeedbackConfigs, GyroTrimConfigs,
     MagnetSensorConfigs, MotionMagicConfigs, MotorOutputConfigs, MountPoseConfigs,
@@ -191,4 +201,7 @@ pub use ffi::ctre::phoenix6::configs::{
 };
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
+};
+pub use ffi::rev_helpers::{
+    SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
 };
