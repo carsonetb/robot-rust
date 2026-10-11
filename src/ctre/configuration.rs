@@ -12,7 +12,7 @@ use uom::si::{
 };
 
 use super::prelude::*;
-use crate::ffi;
+use crate::ffi::{self, SensorDirectionValue};
 
 pub struct TalonFXConfigurator<'a> {
     conf: Pin<&'a mut ffi::TalonFXConfigurator>,
@@ -183,7 +183,7 @@ impl FeedbackConfigs {
         self
     }
 
-    pub fn with_sensor_source(mut self, source: FeedbackSensorSourceValue) -> Self {
+    pub fn with_sensor_source(mut self, source: FeedbackSensorSource) -> Self {
         self.conf.pin_mut().WithFeedbackSensorSource(
             ffi::FeedbackSensorSourceValue::new(c_int(source as i32)).within_unique_ptr(),
         );
@@ -202,14 +202,14 @@ impl MotorOutputConfigs {
         }
     }
 
-    pub fn with_inverted(mut self, inverted: InvertedValue) -> Self {
+    pub fn with_inverted(mut self, inverted: Direction) -> Self {
         self.conf
             .pin_mut()
             .WithInverted(ffi::InvertedValue::new(c_int(inverted as i32)).within_unique_ptr());
         self
     }
 
-    pub fn with_neutral_mode(mut self, mode: NeutralModeValue) -> Self {
+    pub fn with_neutral_mode(mut self, mode: NeutralMode) -> Self {
         self.conf
             .pin_mut()
             .WithNeutralMode(ffi::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr());
@@ -259,6 +259,13 @@ impl MagnetSensorConfigs {
         }
     }
 
+    pub fn with_sensor_direction(mut self, direction: Direction) -> Self {
+        self.conf.pin_mut().WithSensorDirection(
+            SensorDirectionValue::new(c_int(direction as i32)).within_unique_ptr(),
+        );
+        self
+    }
+
     pub fn with_magnet_offset(mut self, value: Angle) -> Self {
         ffi::cancoder::set_magnet_offset(self.conf.pin_mut(), value.get::<revolution>());
         self
@@ -266,6 +273,96 @@ impl MagnetSensorConfigs {
 
     pub fn with_discontinuity_point(mut self, value: Angle) -> Self {
         ffi::cancoder::set_discontinuity_point(self.conf.pin_mut(), value.get::<revolution>());
+        self
+    }
+}
+
+pub struct Pigeon2Configurator<'a> {
+    conf: Pin<&'a mut ffi::Pigeon2Configurator>,
+}
+
+impl<'a> Pigeon2Configurator<'a> {
+    pub(crate) fn new(conf: Pin<&'a mut ffi::Pigeon2Configurator>) -> Self {
+        Self { conf }
+    }
+
+    pub fn apply(&mut self, config: Pigeon2Configuration) -> StatusCode {
+        StatusCode::new(self.conf.as_mut().Apply(&config.conf).within_unique_ptr())
+    }
+}
+
+pub struct Pigeon2Configuration {
+    conf: cxx::UniquePtr<ffi::Pigeon2Configuration>,
+}
+
+impl Pigeon2Configuration {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::Pigeon2Configuration::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_mount_pose(mut self, configs: MountPoseConfigs) -> Self {
+        self.conf.pin_mut().WithMountPose(configs.conf);
+        self
+    }
+
+    pub fn with_gyro_trim(mut self, configs: GyroTrimConfigs) -> Self {
+        self.conf.pin_mut().WithGyroTrim(configs.conf);
+        self
+    }
+}
+
+pub struct MountPoseConfigs {
+    conf: cxx::UniquePtr<ffi::MountPoseConfigs>,
+}
+
+impl MountPoseConfigs {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::MountPoseConfigs::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_yaw(mut self, value: Angle) -> Self {
+        ffi::pigeon2::mountpose::set_yaw(self.conf.pin_mut(), value.get::<degree>());
+        self
+    }
+
+    pub fn with_pitch(mut self, value: Angle) -> Self {
+        ffi::pigeon2::mountpose::set_pitch(self.conf.pin_mut(), value.get::<degree>());
+        self
+    }
+
+    pub fn with_roll(mut self, value: Angle) -> Self {
+        ffi::pigeon2::mountpose::set_roll(self.conf.pin_mut(), value.get::<degree>());
+        self
+    }
+}
+
+pub struct GyroTrimConfigs {
+    conf: cxx::UniquePtr<ffi::GyroTrimConfigs>,
+}
+
+impl GyroTrimConfigs {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::GyroTrimConfigs::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_scalar_x(mut self, value: f64) -> Self {
+        ffi::pigeon2::set_scalar_x(self.conf.pin_mut(), value);
+        self
+    }
+
+    pub fn with_scalar_y(mut self, value: f64) -> Self {
+        ffi::pigeon2::set_scalar_y(self.conf.pin_mut(), value);
+        self
+    }
+
+    pub fn with_scalar_z(mut self, value: f64) -> Self {
+        ffi::pigeon2::set_scalar_z(self.conf.pin_mut(), value);
         self
     }
 }

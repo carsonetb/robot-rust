@@ -1,4 +1,4 @@
-pub enum FeedbackSensorSourceValue {
+pub enum FeedbackSensorSource {
     RotorSensor = 0,
     RemoteCANcoder = 1,
     RemotePigeon2Yaw = 2,
@@ -16,12 +16,12 @@ pub enum FeedbackSensorSourceValue {
     SyncCANdiPWM2 = 16,
 }
 
-pub enum InvertedValue {
+pub enum Direction {
     CounterClockwise = 0,
     Clockwise = 1,
 }
 
-pub enum NeutralModeValue {
+pub enum NeutralMode {
     Coast = 0,
     Brake = 1,
 }

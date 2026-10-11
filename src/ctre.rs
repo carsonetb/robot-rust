@@ -1,9 +1,13 @@
 ///! Wrappers for Cross The Road Electronics (CTRE) devices.
 use autocxx::WithinUniquePtr;
-use uom::si::angle::revolution;
+use uom::si::acceleration::meter_per_second_squared;
+use uom::si::angle::{degree, revolution};
 use uom::si::angular_velocity::revolution_per_second;
 use uom::si::electric_potential::volt;
-use uom::si::f64::{Angle, AngularVelocity, ElectricPotential};
+use uom::si::f64::{
+    Acceleration, Angle, AngularVelocity, ElectricPotential, ThermodynamicTemperature,
+};
+use uom::si::thermodynamic_temperature::degree_celsius;
 
 use crate::ffi;
 use prelude::*;
@@ -198,5 +202,71 @@ impl CANCoder {
             ffi::cancoder::set_position(self.coder.pin_mut(), angle.get::<revolution>())
                 .within_unique_ptr(),
         )
+    }
+}
+
+pub struct Pigeon2 {
+    gyro: cxx::UniquePtr<ffi::pigeon2::Pigeon2>,
+}
+
+impl Pigeon2 {
+    pub fn new(id: i32, bus: &str) -> Self {
+        Self {
+            gyro: ffi::pigeon2::Pigeon2::new(autocxx::c_int(id), bus).within_unique_ptr(),
+        }
+    }
+
+    pub fn configurator(&'_ mut self) -> Pigeon2Configurator<'_> {
+        Pigeon2Configurator::new(ffi::pigeon2::get_configurator(self.gyro.pin_mut()))
+    }
+
+    pub fn get_yaw(&mut self) -> Angle {
+        Angle::new::<degree>(ffi::pigeon2::get_yaw(self.gyro.pin_mut()))
+    }
+
+    pub fn get_pitch(&mut self) -> Angle {
+        Angle::new::<degree>(ffi::pigeon2::get_pitch(self.gyro.pin_mut()))
+    }
+
+    pub fn get_roll(&mut self) -> Angle {
+        Angle::new::<degree>(ffi::pigeon2::get_roll(self.gyro.pin_mut()))
+    }
+
+    pub fn get_temperature(&mut self) -> ThermodynamicTemperature {
+        ThermodynamicTemperature::new::<degree_celsius>(ffi::pigeon2::get_temperature(
+            self.gyro.pin_mut(),
+        ))
+    }
+
+    pub fn get_acceleration_x(&mut self) -> Acceleration {
+        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_x(
+            self.gyro.pin_mut(),
+        ))
+    }
+
+    pub fn get_acceleration_y(&mut self) -> Acceleration {
+        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_y(
+            self.gyro.pin_mut(),
+        ))
+    }
+
+    pub fn get_acceleration_z(&mut self) -> Acceleration {
+        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_z(
+            self.gyro.pin_mut(),
+        ))
+    }
+
+    pub fn get_supply_voltage(&mut self) -> ElectricPotential {
+        ElectricPotential::new::<volt>(ffi::pigeon2::get_supply_voltage(self.gyro.pin_mut()))
+    }
+
+    pub fn set_yaw(&mut self, yaw: Angle) -> StatusCode {
+        StatusCode::new(
+            ffi::pigeon2::set_yaw(self.gyro.pin_mut(), yaw.get::<degree>()).within_unique_ptr(),
+        )
+    }
+
+    pub fn reset(&mut self) {
+        self.gyro.pin_mut().Reset();
     }
 }

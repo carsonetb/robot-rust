@@ -2,9 +2,11 @@
 
 #include "ctre/phoenix/StatusCodes.h"
 #include "ctre/phoenix6/CANcoder.hpp"
+#include "ctre/phoenix6/Pigeon2.hpp"
 #include "ctre/phoenix6/TalonFX.hpp"
 #include "ctre/phoenix6/configs/Configs.hpp"
 #include "ctre/phoenix6/core/CoreCANcoder.hpp"
+#include "ctre/phoenix6/core/CorePigeon2.hpp"
 #include "ctre/phoenix6/core/CoreTalonFX.hpp"
 #include "ctre/unit/pid_ff.h"
 #include "units/angle.h"
@@ -197,5 +199,89 @@ inline void set_discontinuity_point(ctre::phoenix6::configs::MagnetSensorConfigs
 }
 
 }  // namespace mangetsensor
+
+namespace pigeon2 {
+
+inline ctre::phoenix6::configs::Pigeon2Configurator& get_configurator(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetConfigurator();
+}
+
+/** degrees */
+inline double get_yaw(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetYaw().GetValueAsDouble();
+}
+
+/** degrees */
+inline double get_pitch(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetPitch().GetValueAsDouble();
+}
+
+/** degrees */
+inline double get_roll(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetRoll().GetValueAsDouble();
+}
+
+/** degrees celsius */
+inline double get_temperature(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetTemperature().GetValueAsDouble();
+}
+
+/** meters per second squared */
+inline double get_acceleration_x(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetAccelerationX().GetValueAsDouble();
+}
+
+/** meters per second squared */
+inline double get_acceleration_y(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetAccelerationY().GetValueAsDouble();
+}
+
+/** meters per second squared */
+inline double get_acceleration_z(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetAccelerationZ().GetValueAsDouble();
+}
+
+/** volts */
+inline double get_supply_voltage(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetSupplyVoltage().GetValueAsDouble();
+}
+
+inline ctre::phoenix::StatusCode set_yaw(ctre::phoenix6::hardware::Pigeon2& gyro, double degrees) {
+    return gyro.SetYaw(units::angle::degree_t{degrees});
+}
+
+}  // namespace pigeon2
+
+namespace mountpose {
+
+inline void set_yaw(ctre::phoenix6::configs::MountPoseConfigs& conf, double degrees) {
+    conf.MountPoseYaw = units::angle::degree_t{degrees};
+}
+
+inline void set_pitch(ctre::phoenix6::configs::MountPoseConfigs& conf, double degrees) {
+    conf.MountPosePitch = units::angle::degree_t{degrees};
+}
+
+inline void set_roll(ctre::phoenix6::configs::MountPoseConfigs& conf, double degrees) {
+    conf.MountPoseRoll = units::angle::degree_t{degrees};
+}
+
+}  // namespace mountpose
+
+namespace gyrotrim {
+
+inline void set_scalar_x(ctre::phoenix6::configs::GyroTrimConfigs& conf, double value) {
+    conf.GyroScalarX = value;
+}
+
+inline void set_scalar_y(ctre::phoenix6::configs::GyroTrimConfigs& conf, double value) {
+    conf.GyroScalarY = value;
+}
+
+inline void set_scalar_z(ctre::phoenix6::configs::GyroTrimConfigs& conf, double value) {
+    conf.GyroScalarZ = value;
+}
+
+}  // namespace gyrotrim
 
 }  // namespace ctre_helpers

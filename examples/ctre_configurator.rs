@@ -32,15 +32,15 @@ impl Robot for MyRobot {
                 )
                 .with_feedback(
                     FeedbackConfigs::new()
-                        .with_sensor_source(FeedbackSensorSourceValue::RemoteCANcoder)
+                        .with_sensor_source(FeedbackSensorSource::RemoteCANcoder)
                         .with_remote_sensor_id(43)
                         .with_sensor_to_mechanism_ratio(32.0 / 12.0)
                         .with_rotor_to_sensor_ratio(4.0),
                 )
                 .with_motor_output(
                     MotorOutputConfigs::new()
-                        .with_neutral_mode(NeutralModeValue::Brake)
-                        .with_inverted(InvertedValue::CounterClockwise),
+                        .with_neutral_mode(NeutralMode::Brake)
+                        .with_inverted(Direction::CounterClockwise),
                 ),
         );
     }

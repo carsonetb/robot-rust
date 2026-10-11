@@ -17,6 +17,7 @@ pub use bindings::*;
 autocxx::include_cpp! {
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre/phoenix6/CANcoder.hpp"
+    #include "ctre/phoenix6/Pigeon2.hpp"
     #include "ctre_helpers.hpp"
 
     #include "rev_helpers.hpp"
@@ -26,14 +27,13 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix::StatusCode")
 
     generate!("ctre::phoenix6::hardware::TalonFX")
-
     generate!("ctre::phoenix6::hardware::CANcoder")
-    generate!("ctre::phoenix6::configs::CANcoderConfigurator")
-    generate!("ctre::phoenix6::configs::CANcoderConfiguration")
+    generate!("ctre::phoenix6::hardware::Pigeon2")
 
     generate!("ctre::phoenix6::signals::FeedbackSensorSourceValue")
     generate!("ctre::phoenix6::signals::NeutralModeValue")
     generate!("ctre::phoenix6::signals::InvertedValue")
+    generate!("ctre::phoenix6::signals::SensorDirectionValue")
 
     generate!("ctre::phoenix6::configs::TalonFXConfigurator")
     generate!("ctre::phoenix6::configs::TalonFXConfiguration")
@@ -41,7 +41,16 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix6::configs::MotionMagicConfigs")
     generate!("ctre::phoenix6::configs::FeedbackConfigs")
     generate!("ctre::phoenix6::configs::MotorOutputConfigs")
+
+    generate!("ctre::phoenix6::configs::CANcoderConfigurator")
+    generate!("ctre::phoenix6::configs::CANcoderConfiguration")
     generate!("ctre::phoenix6::configs::MagnetSensorConfigs")
+
+    generate!("ctre::phoenix6::configs::Pigeon2Configurator")
+    generate!("ctre::phoenix6::configs::Pigeon2Configuration")
+    generate!("ctre::phoenix6::configs::MountPoseConfigs")
+    generate!("ctre::phoenix6::configs::GyroTrimConfigs")
+    generate!("ctre::phoenix6::configs::Pigeon2FeaturesConfigs")
 
     generate!("ctre_helpers::talonfx::set_voltage")
     generate!("ctre_helpers::talonfx::set_position")
@@ -91,6 +100,25 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::magnetsensor::set_magnet_offset")
     generate!("ctre_helpers::magnetsensor::set_discontinuity_point")
 
+    generate!("ctre_helpers::pigeon2::get_configurator")
+    generate!("ctre_helpers::pigeon2::get_yaw")
+    generate!("ctre_helpers::pigeon2::get_pitch")
+    generate!("ctre_helpers::pigeon2::get_roll")
+    generate!("ctre_helpers::pigeon2::get_temperature")
+    generate!("ctre_helpers::pigeon2::get_acceleration_x")
+    generate!("ctre_helpers::pigeon2::get_acceleration_y")
+    generate!("ctre_helpers::pigeon2::get_acceleration_z")
+    generate!("ctre_helpers::pigeon2::get_supply_voltage")
+    generate!("ctre_helpers::pigeon2::set_yaw")
+
+    generate!("ctre_helpers::mountpose::set_yaw")
+    generate!("ctre_helpers::mountpose::set_pitch")
+    generate!("ctre_helpers::mountpose::set_roll")
+
+    generate!("ctre_helpers::gyrotrim::set_scalar_x")
+    generate!("ctre_helpers::gyrotrim::set_scalar_y")
+    generate!("ctre_helpers::gyrotrim::set_scalar_z")
+
     generate!("rev_helpers::sparkmax_create")
     generate!("rev_helpers::sparkmax_set")
     generate!("rev_helpers::sparkmax_set_voltage")
@@ -133,16 +161,34 @@ pub mod cancoder {
     pub use ffi::ctre_helpers::magnetsensor::{set_discontinuity_point, set_magnet_offset};
 }
 
+pub mod pigeon2 {
+    use super::ffi;
+
+    pub use ffi::ctre::phoenix6::hardware::Pigeon2;
+    pub use ffi::ctre_helpers::gyrotrim::{set_scalar_x, set_scalar_y, set_scalar_z};
+    pub use ffi::ctre_helpers::pigeon2::{
+        get_acceleration_x, get_acceleration_y, get_acceleration_z, get_configurator, get_pitch,
+        get_roll, get_supply_voltage, get_temperature, get_yaw, set_yaw,
+    };
+
+    pub mod mountpose {
+        use super::ffi;
+
+        pub use ffi::ctre_helpers::mountpose::{set_pitch, set_roll, set_yaw};
+    }
+}
+
 pub use ffi::ctre::phoenix::StatusCode;
 pub use ffi::rev_helpers::{
     SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
 };
 
 pub use ffi::ctre::phoenix6::configs::{
-    CANcoderConfiguration, CANcoderConfigurator, FeedbackConfigs, MagnetSensorConfigs,
-    MotionMagicConfigs, MotorOutputConfigs, Slot0Configs, TalonFXConfiguration,
-    TalonFXConfigurator,
+    CANcoderConfiguration, CANcoderConfigurator, FeedbackConfigs, GyroTrimConfigs,
+    MagnetSensorConfigs, MotionMagicConfigs, MotorOutputConfigs, MountPoseConfigs,
+    Pigeon2Configuration, Pigeon2Configurator, Pigeon2FeaturesConfigs, Slot0Configs,
+    TalonFXConfiguration, TalonFXConfigurator,
 };
 pub use ffi::ctre::phoenix6::signals::{
-    FeedbackSensorSourceValue, InvertedValue, NeutralModeValue,
+    FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
 };
