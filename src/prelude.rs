@@ -5,4 +5,8 @@ pub use crate::rev::SparkMax;
 pub use crate::robot::{Mode, Robot, run};
 pub use crate::state::State;
 pub use crate::systems::System;
+pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;
+pub use crate::units::revolution_per_second_squared::revolution_per_second_squared;
+pub use crate::units::rpm::rpm;
+pub use crate::units::*;
 pub use autolog_macro::AutoLog;

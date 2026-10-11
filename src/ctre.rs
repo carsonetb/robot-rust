@@ -1,15 +1,15 @@
 ///! Wrappers for Cross The Road Electronics (CTRE) devices.
 use autocxx::WithinUniquePtr;
-use uom::si::acceleration::meter_per_second_squared;
 use uom::si::angle::{degree, revolution};
-use uom::si::angular_velocity::revolution_per_second;
 use uom::si::electric_potential::volt;
 use uom::si::f64::{
-    Acceleration, Angle, AngularVelocity, ElectricPotential, ThermodynamicTemperature,
+    Acceleration, Angle, AngularAcceleration, AngularVelocity, ElectricPotential,
+    ThermodynamicTemperature,
 };
-use uom::si::thermodynamic_temperature::degree_celsius;
 
 use crate::ffi;
+use crate::prelude::*;
+
 use prelude::*;
 
 pub mod configuration;
@@ -123,16 +123,16 @@ impl TalonFX {
         self.motor.Get()
     }
 
-    pub fn get_position(&mut self) -> f64 {
-        ffi::talon::get_position(self.motor.pin_mut())
+    pub fn get_position(&mut self) -> Angle {
+        ffi::talon::get_position(self.motor.pin_mut()).rotations()
     }
 
-    pub fn get_velocity(&mut self) -> f64 {
-        ffi::talon::get_velocity(self.motor.pin_mut())
+    pub fn get_velocity(&mut self) -> AngularVelocity {
+        ffi::talon::get_velocity(self.motor.pin_mut()).rotations_per_second()
     }
 
-    pub fn get_acceleration(&mut self) -> f64 {
-        ffi::talon::get_acceleration(self.motor.pin_mut())
+    pub fn get_acceleration(&mut self) -> AngularAcceleration {
+        ffi::talon::get_acceleration(self.motor.pin_mut()).rotations_per_second_squared()
     }
 
     /// Disable the motor controller.
@@ -162,39 +162,27 @@ impl CANCoder {
     }
 
     pub fn get_position(&mut self, refresh: bool) -> Angle {
-        Angle::new::<revolution>(ffi::cancoder::get_position(self.coder.pin_mut(), refresh))
+        ffi::cancoder::get_position(self.coder.pin_mut(), refresh).rotations()
     }
 
     pub fn get_absolute_position(&mut self, refresh: bool) -> Angle {
-        Angle::new::<revolution>(ffi::cancoder::get_absolute_position(
-            self.coder.pin_mut(),
-            refresh,
-        ))
+        ffi::cancoder::get_absolute_position(self.coder.pin_mut(), refresh).rotations()
     }
 
     pub fn get_position_since_boot(&mut self, refresh: bool) -> Angle {
-        Angle::new::<revolution>(ffi::cancoder::get_position_since_boot(
-            self.coder.pin_mut(),
-            refresh,
-        ))
+        ffi::cancoder::get_position_since_boot(self.coder.pin_mut(), refresh).rotations()
     }
 
     pub fn get_velocity(&mut self, refresh: bool) -> AngularVelocity {
-        AngularVelocity::new::<revolution_per_second>(ffi::cancoder::get_velocity(
-            self.coder.pin_mut(),
-            refresh,
-        ))
+        ffi::cancoder::get_velocity(self.coder.pin_mut(), refresh).rotations_per_second()
     }
 
     pub fn get_unfiltered_velocity(&mut self, refresh: bool) -> AngularVelocity {
-        AngularVelocity::new::<revolution_per_second>(ffi::cancoder::get_unfiltered_velocity(
-            self.coder.pin_mut(),
-            refresh,
-        ))
+        ffi::cancoder::get_unfiltered_velocity(self.coder.pin_mut(), refresh).rotations_per_second()
     }
 
     pub fn get_supply_voltage(&mut self, refresh: bool) -> ElectricPotential {
-        ElectricPotential::new::<volt>(ffi::cancoder::get_velocity(self.coder.pin_mut(), refresh))
+        ffi::cancoder::get_velocity(self.coder.pin_mut(), refresh).volts()
     }
 
     pub fn set_position(&mut self, angle: Angle) -> StatusCode {
@@ -221,43 +209,35 @@ impl Pigeon2 {
     }
 
     pub fn get_yaw(&mut self) -> Angle {
-        Angle::new::<degree>(ffi::pigeon2::get_yaw(self.gyro.pin_mut()))
+        ffi::pigeon2::get_yaw(self.gyro.pin_mut()).degrees()
     }
 
     pub fn get_pitch(&mut self) -> Angle {
-        Angle::new::<degree>(ffi::pigeon2::get_pitch(self.gyro.pin_mut()))
+        ffi::pigeon2::get_pitch(self.gyro.pin_mut()).degrees()
     }
 
     pub fn get_roll(&mut self) -> Angle {
-        Angle::new::<degree>(ffi::pigeon2::get_roll(self.gyro.pin_mut()))
+        ffi::pigeon2::get_roll(self.gyro.pin_mut()).degrees()
     }
 
     pub fn get_temperature(&mut self) -> ThermodynamicTemperature {
-        ThermodynamicTemperature::new::<degree_celsius>(ffi::pigeon2::get_temperature(
-            self.gyro.pin_mut(),
-        ))
+        ffi::pigeon2::get_temperature(self.gyro.pin_mut()).celsius()
     }
 
     pub fn get_acceleration_x(&mut self) -> Acceleration {
-        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_x(
-            self.gyro.pin_mut(),
-        ))
+        ffi::pigeon2::get_acceleration_x(self.gyro.pin_mut()).meters_per_second_squared()
     }
 
     pub fn get_acceleration_y(&mut self) -> Acceleration {
-        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_y(
-            self.gyro.pin_mut(),
-        ))
+        ffi::pigeon2::get_acceleration_y(self.gyro.pin_mut()).meters_per_second_squared()
     }
 
     pub fn get_acceleration_z(&mut self) -> Acceleration {
-        Acceleration::new::<meter_per_second_squared>(ffi::pigeon2::get_acceleration_z(
-            self.gyro.pin_mut(),
-        ))
+        ffi::pigeon2::get_acceleration_z(self.gyro.pin_mut()).meters_per_second_squared()
     }
 
     pub fn get_supply_voltage(&mut self) -> ElectricPotential {
-        ElectricPotential::new::<volt>(ffi::pigeon2::get_supply_voltage(self.gyro.pin_mut()))
+        ffi::pigeon2::get_supply_voltage(self.gyro.pin_mut()).volts()
     }
 
     pub fn set_yaw(&mut self, yaw: Angle) -> StatusCode {

@@ -1,9 +1,5 @@
 use robot_rust::ctre::prelude::*;
 use robot_rust::prelude::*;
-use uom::si::angular_acceleration::degree_per_second_squared;
-use uom::si::angular_jerk::degree_per_second_cubed;
-use uom::si::angular_velocity::degree_per_second;
-use uom::si::f64::{AngularAcceleration, AngularJerk, AngularVelocity};
 
 struct MyRobot {
     motor: KrakenX60,
@@ -24,11 +20,9 @@ impl Robot for MyRobot {
                 .with_slot0(Slot0Configs::new().with_kp(120.0).with_kd(0.5))
                 .with_motion_magic(
                     MotionMagicConfigs::new()
-                        .with_cruise_velocity(AngularVelocity::new::<degree_per_second>(320.0))
-                        .with_acceleration(AngularAcceleration::new::<degree_per_second_squared>(
-                            400.0,
-                        ))
-                        .with_jerk(AngularJerk::new::<degree_per_second_cubed>(20.0)),
+                        .with_cruise_velocity(320.0.degrees_per_second())
+                        .with_acceleration(400.0.degrees_per_second_squared())
+                        .with_jerk(20.0.degrees_per_second_cubed()),
                 )
                 .with_feedback(
                     FeedbackConfigs::new()

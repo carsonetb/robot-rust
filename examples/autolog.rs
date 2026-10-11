@@ -2,8 +2,8 @@ use robot_rust::prelude::*;
 
 #[derive(AutoLog, Clone, Copy)]
 struct MotorState {
-    velocity: f64,
-    angle: f64,
+    velocity: AngularVelocity,
+    angle: Angle,
 }
 
 struct MyRobot {
@@ -17,8 +17,8 @@ impl MyRobot {
         Self {
             motor: KrakenX60::new(0, "canivore"),
             motor_state: MotorState {
-                velocity: 0.0,
-                angle: 0.0,
+                velocity: 0.0.rotations_per_second(),
+                angle: 0.0.rotations(),
             },
             logger: Logger::new("match.wpilog"),
         }
