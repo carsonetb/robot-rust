@@ -1,8 +1,15 @@
 ///! Wrappers for Cross The Road Electronics (CTRE) devices.
 use autocxx::WithinUniquePtr;
-use uom::si::{electric_potential::volt, f64::ElectricPotential};
+use uom::si::angle::revolution;
+use uom::si::electric_potential::volt;
+use uom::si::f64::{Angle, ElectricPotential};
 
 use crate::ffi;
+use prelude::*;
+
+pub mod configuration;
+pub mod enums;
+pub mod prelude;
 
 pub type KrakenX60 = TalonFX;
 pub type KrakenX44 = TalonFX;
@@ -26,6 +33,12 @@ impl TalonFX {
         }
     }
 
+    pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {
+        TalonFXConfigurator {
+            conf: ffi::get_configurator(self.motor.pin_mut()),
+        }
+    }
+
     /// Set the speed of the motor. The range is -1.0 to 1.0. Alternatively,
     /// you can use the `set_voltage` function to specify the exact voltage.
     ///
@@ -45,6 +58,29 @@ impl TalonFX {
     pub fn set_voltage(&mut self, voltage: ElectricPotential) {
         let voltage = if self.inverted { -voltage } else { voltage };
         ffi::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
+    }
+
+    pub fn set_position(&mut self, position: Angle) {
+        // TODO: Handle status code.
+        let _ = ffi::set_position(self.motor.pin_mut(), position.get::<revolution>());
+    }
+
+    /// Get the current set speed of the motor controller. The value returned
+    /// will be between -1.0 and 1.0.
+    pub fn get(&self) -> f64 {
+        self.motor.Get()
+    }
+
+    pub fn get_position(&mut self) -> f64 {
+        ffi::get_position(self.motor.pin_mut())
+    }
+
+    pub fn get_velocity(&mut self) -> f64 {
+        ffi::get_velocity(self.motor.pin_mut())
+    }
+
+    pub fn get_acceleration(&mut self) -> f64 {
+        ffi::get_acceleration(self.motor.pin_mut())
     }
 
     /// Disable the motor controller.

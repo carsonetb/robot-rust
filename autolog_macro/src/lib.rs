@@ -29,7 +29,7 @@ pub fn derive_auto_log(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl AutoLog for #struct_name {
-            fn append_to(&self, logger: &mut robot_rust::logging::Logger, path: &str) {
+            fn append_to(self, logger: &mut robot_rust::logging::Logger, path: &str) {
                 #(#generate_fields)*
             }
         }

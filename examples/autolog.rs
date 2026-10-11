@@ -1,7 +1,6 @@
-use robot_rust::ctre::KrakenX60;
-use robot_rust::{AutoLog, Logger, Robot, State, run};
+use robot_rust::prelude::*;
 
-#[derive(AutoLog)]
+#[derive(AutoLog, Clone, Copy)]
 struct MotorState {
     velocity: f64,
     angle: f64,
@@ -28,8 +27,11 @@ impl MyRobot {
 
 impl Robot for MyRobot {
     fn periodic(&mut self, _state: &mut State<Self>) {
-        // TODO: Get motor angle and velocity
-        self.logger.append("Motor", &self.motor_state);
+        self.motor_state = MotorState {
+            velocity: self.motor.get_velocity(),
+            angle: self.motor.get_position(),
+        };
+        self.logger.append("Motor", self.motor_state);
     }
 
     fn teleop_init(&mut self, state: &mut State<Self>) {

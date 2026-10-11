@@ -1,5 +1,4 @@
-use robot_rust::ctre::KrakenX60;
-use robot_rust::{Robot, State, System, run};
+use robot_rust::prelude::*;
 
 struct MySystem;
 

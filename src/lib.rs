@@ -11,6 +11,7 @@ pub mod ds;
 pub mod ffi;
 pub mod hal;
 pub mod logging;
+pub mod prelude;
 pub mod rev;
 pub mod robot;
 pub mod state;

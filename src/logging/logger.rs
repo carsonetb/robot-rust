@@ -1,14 +1,7 @@
 use std::collections::HashMap;
 
-use crate::logging::{Loggable, now};
+use crate::logging::{Loggable, now, str_to_wpi};
 use crate::{AutoLog, ffi};
-
-fn str_to_wpi(s: &str) -> ffi::WPI_String {
-    ffi::WPI_String {
-        str_: s.as_ptr(),
-        len: s.len(),
-    }
-}
 
 pub struct Logger {
     datalog: *mut ffi::WPI_DataLog,
@@ -43,7 +36,7 @@ impl Logger {
         T::append(self.datalog, entry, now(), value);
     }
 
-    pub fn append<T: AutoLog>(&mut self, path: &str, value: &T) {
+    pub fn append<T: AutoLog>(&mut self, path: &str, value: T) {
         value.append_to(self, path);
     }
 }

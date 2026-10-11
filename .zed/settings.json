@@ -1,4 +1,9 @@
 {
+  "languages": {
+    "C++": {
+      "format_on_save": "off"
+    }
+  },
   "lsp": {
     "rust-analyzer": {
       "initialization_options": {

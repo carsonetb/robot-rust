@@ -1671,7 +1671,7 @@ public:
 
 /**
  * \brief Assess the status of the motor output with respect to load and supply.
- * 
+ *
  * \details This routine can be used to determine the general status of motor
  *          commutation.
  */
@@ -2119,13 +2119,13 @@ public:
 
 /**
  * \brief Gravity Feedforward/Feedback Type.
- *        
+ *
  *        This determines the type of the gravity feedforward/feedback.
- *        
+ *
  *        Choose Elevator_Static for systems where the gravity feedforward is
  *        constant, such as an elevator. The gravity feedforward output will
  *        always have the same sign.
- *        
+ *
  *        Choose Arm_Cosine for systems where the gravity feedback is dependent
  *        on the angular position of the mechanism, such as an arm. The gravity
  *        feedback output will vary depending on the mechanism angular position.
@@ -2373,18 +2373,18 @@ public:
  * \brief Choose what sensor source is reported via API and used by closed-loop
  *        and limit features.  The default is RotorSensor, which uses the
  *        internal rotor sensor in the Talon.
- *        
+ *
  *        Choose Remote* to use another sensor on the same CAN bus (this also
  *        requires setting FeedbackRemoteSensorID).  Talon will update its
  *        position and velocity whenever the remote sensor publishes its
  *        information on CAN bus, and the Talon internal rotor will not be used.
- *        
+ *
  *        Choose Fused* (requires Phoenix Pro) and Talon will fuse another
  *        sensor's information with the internal rotor, which provides the best
  *        possible position and velocity for accuracy and bandwidth (this also
  *        requires setting FeedbackRemoteSensorID).  This was developed for
  *        applications such as swerve-azimuth.
- *        
+ *
  *        Choose Sync* (requires Phoenix Pro) and Talon will synchronize its
  *        internal rotor position against another sensor, then continue to use
  *        the rotor sensor for closed loop control (this also requires setting
@@ -2394,13 +2394,13 @@ public:
  *        the sensor failing in such a way that it reports a position that does
  *        not match the mechanism, such as the sensor mounting assembly breaking
  *        off.
- *        
+ *
  *        Choose RemotePigeon2_Yaw, RemotePigeon2_Pitch, and RemotePigeon2_Roll
  *        to use another Pigeon2 on the same CAN bus (this also requires setting
  *        FeedbackRemoteSensorID).  Talon will update its position to match the
  *        selected value whenever Pigeon2 publishes its information on CAN bus.
  *        Note that the Talon position will be in rotations and not degrees.
- * 
+ *
  * \details Note: When the feedback source is changed to Fused* or Sync*, the
  *          Talon needs a period of time to fuse before sensor-based
  *          (soft-limit, closed loop, etc.) features are used. This period of
@@ -2457,7 +2457,7 @@ public:
      *        position against another CANcoder, then continue to use the rotor
      *        sensor for closed loop control (this also requires setting
      *        FeedbackRemoteSensorID).  The Talon will report if its internal
-     *        position differs significantly from the reported CANcoder position. 
+     *        position differs significantly from the reported CANcoder position.
      *        SyncCANcoder was developed for mechanisms where there is a risk of the
      *        CANcoder failing in such a way that it reports a position that does
      *        not match the mechanism, such as the sensor mounting assembly breaking
@@ -2489,7 +2489,7 @@ public:
      * \brief Requires Phoenix Pro; Talon will fuse a pulse-width encoder remotely
      *        attached to the Sensor Input 1 (S1IN) on the CTR Electronics' CANdi™,
      *        which provides the best possible position and velocity for accuracy
-     *        and bandwidth (this also requires setting FeedbackRemoteSensorID). 
+     *        and bandwidth (this also requires setting FeedbackRemoteSensorID).
      *        FusedCANdi was developed for applications such as swerve-azimuth.
      */
     static constexpr int FusedCANdiPWM1 = 12;
@@ -2497,7 +2497,7 @@ public:
      * \brief Requires Phoenix Pro; Talon will fuse a pulse-width encoder remotely
      *        attached to the Sensor Input 2 (S2IN) on the CTR Electronics' CANdi™,
      *        which provides the best possible position and velocity for accuracy
-     *        and bandwidth (this also requires setting FeedbackRemoteSensorID). 
+     *        and bandwidth (this also requires setting FeedbackRemoteSensorID).
      *        FusedCANdi was developed for applications such as swerve-azimuth.
      */
     static constexpr int FusedCANdiPWM2 = 13;
@@ -2685,15 +2685,15 @@ public:
 /**
  * \brief Determines where to poll the forward limit switch.  This defaults to
  *        the forward limit switch pin on the limit switch connector.
- *        
+ *
  *        Choose RemoteTalonFX to use the forward limit switch attached to
  *        another Talon FX on the same CAN bus (this also requires setting
  *        ForwardLimitRemoteSensorID).
- *        
+ *
  *        Choose RemoteCANifier to use the forward limit switch attached to
  *        another CANifier on the same CAN bus (this also requires setting
  *        ForwardLimitRemoteSensorID).
- *        
+ *
  *        Choose RemoteCANcoder to use another CANcoder on the same CAN bus
  *        (this also requires setting ForwardLimitRemoteSensorID).  The forward
  *        limit will assert when the CANcoder magnet strength changes from BAD
@@ -2895,15 +2895,15 @@ public:
 /**
  * \brief Determines where to poll the reverse limit switch.  This defaults to
  *        the reverse limit switch pin on the limit switch connector.
- *        
+ *
  *        Choose RemoteTalonFX to use the reverse limit switch attached to
  *        another Talon FX on the same CAN bus (this also requires setting
  *        ReverseLimitRemoteSensorID).
- *        
+ *
  *        Choose RemoteCANifier to use the reverse limit switch attached to
  *        another CANifier on the same CAN bus (this also requires setting
  *        ReverseLimitRemoteSensorID).
- *        
+ *
  *        Choose RemoteCANcoder to use another CANcoder on the same CAN bus
  *        (this also requires setting ReverseLimitRemoteSensorID).  The reverse
  *        limit will assert when the CANcoder magnet strength changes from BAD
@@ -3030,7 +3030,7 @@ public:
 
 /**
  * \brief Magnet health as measured by CANcoder.
- *        
+ *
  *        Red indicates too close or too far, Orange is adequate but with
  *        reduced accuracy, green is ideal. Invalid means the accuracy cannot be
  *        determined.
@@ -3216,21 +3216,21 @@ public:
  *        setting the DifferentialTalonFXSensorID, as the average of this Talon
  *        FX's sensor and the remote TalonFX's sensor is used for the
  *        differential controller's primary targets.
- *        
- *        Choose RemoteTalonFX_Diff to use another TalonFX on the same CAN bus. 
+ *
+ *        Choose RemoteTalonFX_Diff to use another TalonFX on the same CAN bus.
  *        Talon FX will update its differential position and velocity whenever
  *        the remote TalonFX publishes its information on CAN bus.  The
  *        differential controller will use the difference between this TalonFX's
  *        sensor and the remote Talon FX's sensor for the differential component
  *        of the output.
- *        
+ *
  *        Choose RemotePigeon2_Yaw, RemotePigeon2_Pitch, and RemotePigeon2_Roll
  *        to use another Pigeon2 on the same CAN bus (this also requires setting
  *        DifferentialRemoteSensorID).  Talon FX will update its differential
  *        position to match the selected value whenever Pigeon2 publishes its
  *        information on CAN bus. Note that the Talon FX differential position
  *        will be in rotations and not degrees.
- *        
+ *
  *        Choose RemoteCANcoder to use another CANcoder on the same CAN bus
  *        (this also requires setting DifferentialRemoteSensorID).  Talon FX
  *        will update its differential position and velocity to match the
@@ -3353,13 +3353,13 @@ public:
 
 /**
  * \brief Static Feedforward Sign during position closed loop.
- *        
+ *
  *        This determines the sign of the applied kS during position closed-loop
  *        modes. The default behavior uses the velocity reference sign. This
  *        works well with velocity closed loop, Motion Magic® controls, and
  *        position closed loop when velocity reference is specified (motion
  *        profiling).
- *        
+ *
  *        However, when using position closed loop with zero velocity reference
  *        (no motion profiling), the application may want to apply static
  *        feedforward based on the sign of closed loop error instead. When doing
@@ -3449,7 +3449,7 @@ public:
 
 /**
  * \brief The type of motor attached to the Talon.
- * 
+ *
  * \details This can be used to determine what motor is attached to the Talon
  *          FX.  Return will be "Unknown" if firmware is too old or device is
  *          not present.
@@ -3841,11 +3841,11 @@ public:
 
 /**
  * \brief Selects the motor and motor connections used with Talon.
- *        
+ *
  *        This setting determines what kind of motor and sensors are used with
  *        the Talon.  This also determines what signals are used on the JST and
  *        Gadgeteer port.
- *        
+ *
  *        Motor drive will not function correctly if this setting does not match
  *        the physical setup.
  */
@@ -4345,19 +4345,19 @@ public:
  * \brief Choose what sensor source is reported via API and used by closed-loop
  *        and limit features.  The default is Commutation, which uses the
  *        external sensor used for motor commutation.
- *        
+ *
  *        Choose Remote* to use another sensor on the same CAN bus (this also
  *        requires setting FeedbackRemoteSensorID).  Talon will update its
  *        position and velocity whenever the remote sensor publishes its
  *        information on CAN bus, and the Talon commutation sensor will not be
  *        used.
- *        
+ *
  *        Choose Fused* (requires Phoenix Pro) and Talon will fuse another
  *        sensor's information with the commutation sensor, which provides the
  *        best possible position and velocity for accuracy and bandwidth (this
  *        also requires setting FeedbackRemoteSensorID).  This was developed for
  *        applications such as swerve-azimuth.
- *        
+ *
  *        Choose Sync* (requires Phoenix Pro) and Talon will synchronize its
  *        commutation sensor position against another sensor, then continue to
  *        use the rotor sensor for closed loop control (this also requires
@@ -4367,21 +4367,21 @@ public:
  *        risk of the sensor failing in such a way that it reports a position
  *        that does not match the mechanism, such as the sensor mounting
  *        assembly breaking off.
- *        
+ *
  *        Choose RemotePigeon2_Yaw, RemotePigeon2_Pitch, and RemotePigeon2_Roll
  *        to use another Pigeon2 on the same CAN bus (this also requires setting
  *        FeedbackRemoteSensorID).  Talon will update its position to match the
  *        selected value whenever Pigeon2 publishes its information on CAN bus.
  *        Note that the Talon position will be in rotations and not degrees.
- *        
+ *
  *        Choose Quadrature to use a quadrature encoder directly attached to the
  *        Talon data port. This provides velocity and relative position
  *        measurements.
- *        
+ *
  *        Choose PulseWidth to use a pulse-width encoder directly attached to
  *        the Talon data port. This provides velocity and absolute position
  *        measurements.
- * 
+ *
  * \details Note: When the feedback source is changed to Fused* or Sync*, the
  *          Talon needs a period of time to fuse before sensor-based
  *          (soft-limit, closed loop, etc.) features are used. This period of
@@ -4438,7 +4438,7 @@ public:
      *        position against another CANcoder, then continue to use the rotor
      *        sensor for closed loop control (this also requires setting
      *        FeedbackRemoteSensorID).  The Talon will report if its internal
-     *        position differs significantly from the reported CANcoder position. 
+     *        position differs significantly from the reported CANcoder position.
      *        SyncCANcoder was developed for mechanisms where there is a risk of the
      *        CANcoder failing in such a way that it reports a position that does
      *        not match the mechanism, such as the sensor mounting assembly breaking
@@ -4605,12 +4605,12 @@ public:
  * \brief The relationship between the motor controlled by a Talon and the
  *        external sensor connected to the data port. This does not affect the
  *        commutation sensor or remote sensors.
- *        
+ *
  *        To determine the sensor phase, set this config to Aligned and drive
  *        the motor with positive output. If the reported sensor velocity is
  *        positive, then the phase is Aligned. If the reported sensor velocity
  *        is negative, then the phase is Opposed.
- *        
+ *
  *        The sensor direction is automatically inverted along with motor
  *        invert, so the sensor phase does not need to be changed when motor
  *        invert changes.
@@ -4694,7 +4694,7 @@ public:
 /**
  * \brief What value the Signal 1 input (S1IN) needs to be for the CTR
  *        Electronics' CANdi™ to detect as Closed.
- * 
+ *
  * \details Devices using the S1 input as a remote limit switch will treat the
  *          switch as closed when the S1 input is this state.
  */
@@ -4797,7 +4797,7 @@ public:
 /**
  * \brief What value the Signal 2 input (S2IN) needs to be for the CTR
  *        Electronics' CANdi™ to detect as Closed.
- * 
+ *
  * \details Devices using the S2 input as a remote limit switch will treat the
  *          switch as closed when the S2 input is this state.
  */
