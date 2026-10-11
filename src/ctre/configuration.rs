@@ -15,7 +15,7 @@ use super::enums::*;
 use crate::ffi;
 
 pub struct TalonFXConfigurator<'a> {
-    pub(in crate::ctre) conf: Pin<&'a mut ffi::TalonFXConfigurator>,
+    pub(in crate::ctre) conf: Pin<&'a mut ffi::talon::TalonFXConfigurator>,
 }
 
 impl<'a> TalonFXConfigurator<'a> {
@@ -25,13 +25,13 @@ impl<'a> TalonFXConfigurator<'a> {
 }
 
 pub struct TalonFXConfiguration {
-    pub(in crate::ctre) conf: cxx::UniquePtr<ffi::TalonFXConfiguration>,
+    pub(in crate::ctre) conf: cxx::UniquePtr<ffi::talon::TalonFXConfiguration>,
 }
 
 impl TalonFXConfiguration {
     pub fn new() -> Self {
         Self {
-            conf: ffi::TalonFXConfiguration::new().within_unique_ptr(),
+            conf: ffi::talon::TalonFXConfiguration::new().within_unique_ptr(),
         }
     }
 
@@ -57,70 +57,70 @@ impl TalonFXConfiguration {
 }
 
 pub struct Slot0Configs {
-    pub(super) conf: cxx::UniquePtr<ffi::Slot0Configs>,
+    pub(super) conf: cxx::UniquePtr<ffi::talon::Slot0Configs>,
 }
 
 impl Slot0Configs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::Slot0Configs::new().within_unique_ptr(),
+            conf: ffi::talon::Slot0Configs::new().within_unique_ptr(),
         }
     }
 
     pub fn with_ka(mut self, value: f64) -> Self {
-        ffi::set_kA(self.conf.pin_mut(), value);
+        ffi::talon::set_kA(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_kg(mut self, value: f64) -> Self {
-        ffi::set_kG(self.conf.pin_mut(), value);
+        ffi::talon::set_kG(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_ki(mut self, value: f64) -> Self {
-        ffi::set_kI(self.conf.pin_mut(), value);
+        ffi::talon::set_kI(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_kp(mut self, value: f64) -> Self {
-        ffi::set_kP(self.conf.pin_mut(), value);
+        ffi::talon::set_kP(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_kd(mut self, value: f64) -> Self {
-        ffi::set_kD(self.conf.pin_mut(), value);
+        ffi::talon::set_kD(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_ks(mut self, value: f64) -> Self {
-        ffi::set_kS(self.conf.pin_mut(), value);
+        ffi::talon::set_kS(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_kv(mut self, value: f64) -> Self {
-        ffi::set_kV(self.conf.pin_mut(), value);
+        ffi::talon::set_kV(self.conf.pin_mut(), value);
         self
     }
 }
 
 pub struct MotionMagicConfigs {
-    conf: cxx::UniquePtr<ffi::MotionMagicConfigs>,
+    conf: cxx::UniquePtr<ffi::talon::MotionMagicConfigs>,
 }
 
 impl MotionMagicConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::MotionMagicConfigs::new().within_unique_ptr(),
+            conf: ffi::talon::MotionMagicConfigs::new().within_unique_ptr(),
         }
     }
 
     pub fn with_cruise_velocity(mut self, value: AngularVelocity) -> Self {
-        ffi::set_cruise_velocity(self.conf.pin_mut(), value.get::<revolution_per_second>());
+        ffi::talon::set_cruise_velocity(self.conf.pin_mut(), value.get::<revolution_per_second>());
         self
     }
 
     pub fn with_acceleration(mut self, value: AngularAcceleration) -> Self {
-        ffi::set_cruise_velocity(
+        ffi::talon::set_cruise_velocity(
             self.conf.pin_mut(),
             value.get::<radian_per_second_squared>() / TAU,
         );
@@ -128,7 +128,7 @@ impl MotionMagicConfigs {
     }
 
     pub fn with_jerk(mut self, value: AngularJerk) -> Self {
-        ffi::set_jerk(
+        ffi::talon::set_jerk(
             self.conf.pin_mut(),
             value.get::<radian_per_second_cubed>() / TAU,
         );
@@ -139,71 +139,71 @@ impl MotionMagicConfigs {
 }
 
 pub struct FeedbackConfigs {
-    conf: cxx::UniquePtr<ffi::FeedbackConfigs>,
+    conf: cxx::UniquePtr<ffi::talon::FeedbackConfigs>,
 }
 
 impl FeedbackConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::FeedbackConfigs::new().within_unique_ptr(),
+            conf: ffi::talon::FeedbackConfigs::new().within_unique_ptr(),
         }
     }
 
     pub fn with_rotor_offset(mut self, value: Angle) -> Self {
-        ffi::set_rotor_offset(self.conf.pin_mut(), value.get::<revolution>());
+        ffi::talon::set_rotor_offset(self.conf.pin_mut(), value.get::<revolution>());
         self
     }
 
     pub fn with_sensor_to_mechanism_ratio(mut self, value: f64) -> Self {
-        ffi::set_sensor_to_mechanism_ratio(self.conf.pin_mut(), value);
+        ffi::talon::set_sensor_to_mechanism_ratio(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_rotor_to_sensor_ratio(mut self, value: f64) -> Self {
-        ffi::set_rotor_to_sensor_ratio(self.conf.pin_mut(), value);
+        ffi::talon::set_rotor_to_sensor_ratio(self.conf.pin_mut(), value);
         self
     }
 
     pub fn with_remote_sensor_id(mut self, value: i32) -> Self {
-        ffi::set_remote_sensor_id(self.conf.pin_mut(), c_int(value));
+        ffi::talon::set_remote_sensor_id(self.conf.pin_mut(), c_int(value));
         self
     }
 
     pub fn with_velocity_filter_time_constant(mut self, value: Time) -> Self {
-        ffi::set_velocity_filter_time_constant(self.conf.pin_mut(), value.get::<second>());
+        ffi::talon::set_velocity_filter_time_constant(self.conf.pin_mut(), value.get::<second>());
         self
     }
 
     pub fn with_sensor_source(mut self, source: FeedbackSensorSourceValue) -> Self {
         self.conf.pin_mut().WithFeedbackSensorSource(
-            ffi::FeedbackSensorSourceValue::new(c_int(source as i32)).within_unique_ptr(),
+            ffi::talon::FeedbackSensorSourceValue::new(c_int(source as i32)).within_unique_ptr(),
         );
         self
     }
 }
 
 pub struct MotorOutputConfigs {
-    conf: cxx::UniquePtr<ffi::MotorOutputConfigs>,
+    conf: cxx::UniquePtr<ffi::talon::MotorOutputConfigs>,
 }
 
 impl MotorOutputConfigs {
     pub fn new() -> Self {
         Self {
-            conf: ffi::MotorOutputConfigs::new().within_unique_ptr(),
+            conf: ffi::talon::MotorOutputConfigs::new().within_unique_ptr(),
         }
     }
 
     pub fn with_inverted(mut self, inverted: InvertedValue) -> Self {
-        self.conf
-            .pin_mut()
-            .WithInverted(ffi::InvertedValue::new(c_int(inverted as i32)).within_unique_ptr());
+        self.conf.pin_mut().WithInverted(
+            ffi::talon::InvertedValue::new(c_int(inverted as i32)).within_unique_ptr(),
+        );
         self
     }
 
     pub fn with_neutral_mode(mut self, mode: NeutralModeValue) -> Self {
-        self.conf
-            .pin_mut()
-            .WithNeutralMode(ffi::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr());
+        self.conf.pin_mut().WithNeutralMode(
+            ffi::talon::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr(),
+        );
         self
     }
 }
