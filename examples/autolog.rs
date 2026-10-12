@@ -25,24 +25,27 @@ impl MyRobot {
     }
 }
 
-impl Robot for MyRobot {
-    fn periodic(&mut self, _state: &mut State<Self>) {
-        self.motor_state = MotorState {
-            velocity: self.motor.get_velocity(),
-            angle: self.motor.get_position(),
-        };
-        self.logger.append("Motor", self.motor_state);
-    }
+fn periodic(mut robot: ResourceMut<MyRobot>) {
+    robot.motor_state = MotorState {
+        velocity: robot.motor.get_velocity(),
+        angle: robot.motor.get_position(),
+    };
 
-    fn teleop_init(&mut self, state: &mut State<Self>) {
-        state.schedule_run(self, |robot| robot.motor.set(0.0));
-    }
+    let state = robot.motor_state;
+    robot.logger.append("Motor", state);
+}
 
-    fn teleop_periodic(&mut self, _state: &mut State<Self>) {
-        self.motor.set(0.2);
-    }
+fn teleop_periodic(mut robot: ResourceMut<MyRobot>) {
+    robot.motor.set(0.2);
 }
 
 fn main() {
-    run(MyRobot::new());
+    let mut state = State::new().unwrap();
+
+    state.add_systems(Periodic, periodic);
+    state.add_systems(TeleopPeriodic, teleop_periodic);
+
+    state.insert_resource(MyRobot::new());
+
+    state.run();
 }

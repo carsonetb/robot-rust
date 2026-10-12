@@ -1,4 +1,5 @@
 use proc_macro::TokenStream;
+use proc_macro_crate::{crate_name, FoundCrate};
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
@@ -27,9 +28,18 @@ pub fn derive_auto_log(input: TokenStream) -> TokenStream {
         panic!("AutoLog only supports structs");
     };
 
+    let found = crate_name("robot-rust").expect("robot-rust is present in `Cargo.toml`.");
+    let crate_name = match found {
+        FoundCrate::Itself => quote!(robot_rust),
+        FoundCrate::Name(name) => {
+            let ident = proc_macro2::Ident::new(&name, proc_macro2::Span::call_site());
+            quote!( ::#ident )
+        }
+    };
+
     let expanded = quote! {
         impl AutoLog for #struct_name {
-            fn append_to(self, logger: &mut robot_rust::logging::Logger, path: &str) {
+            fn append_to(self, logger: &mut #crate_name::logging::Logger, path: &str) {
                 #(#generate_fields)*
             }
         }

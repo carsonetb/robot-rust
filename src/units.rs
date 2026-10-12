@@ -8,10 +8,11 @@ pub use uom::si::angle::{degree, radian, revolution};
 pub use uom::si::angular_acceleration::{degree_per_second_squared, radian_per_second_squared};
 pub use uom::si::angular_jerk::{degree_per_second_cubed, radian_per_second_cubed};
 pub use uom::si::angular_velocity::{degree_per_second, radian_per_second, revolution_per_second};
+pub use uom::si::electric_current::{ampere, milliampere};
 pub use uom::si::electric_potential::{millivolt, volt};
 pub use uom::si::f64::{
-    Acceleration, Angle, AngularAcceleration, AngularJerk, AngularVelocity, ElectricPotential,
-    Force, Frequency, Length, Mass, ThermodynamicTemperature, Time, Velocity,
+    Acceleration, Angle, AngularAcceleration, AngularJerk, AngularVelocity, ElectricCurrent,
+    ElectricPotential, Force, Frequency, Length, Mass, ThermodynamicTemperature, Time, Velocity,
 };
 pub use uom::si::force::newton;
 pub use uom::si::frequency::{hertz, millihertz};
@@ -75,6 +76,10 @@ macro_rules! define_unit_helpers {
     };
 }
 
+pub type Voltage = ElectricPotential;
+pub type Amps = ElectricCurrent;
+pub type Current = ElectricCurrent;
+
 define_unit_helpers! {
     pub trait UnitHelpers for f64 {
         fn meters -> Length<meter>;
@@ -125,6 +130,9 @@ define_unit_helpers! {
 
         fn volts -> ElectricPotential<volt>;
         fn millivolts -> ElectricPotential<millivolt>;
+
+        fn amps -> ElectricCurrent<ampere>;
+        fn milliamps -> ElectricCurrent<milliampere>;
 
         fn kelvin -> ThermodynamicTemperature<kelvin>;
         fn celsius -> ThermodynamicTemperature<degree_celsius>;

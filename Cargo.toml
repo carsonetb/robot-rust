@@ -13,6 +13,7 @@ autocxx = "0.30.0"
 cxx = "1.0.202"
 autolog_macro = { path = "./autolog_macro" }
 uom = "0.38.0"
+bevy_ecs = "0.20.0"
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "allow"

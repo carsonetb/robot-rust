@@ -110,6 +110,10 @@ impl Slot0Configs {
         ffi::talon::set_kV(self.conf.pin_mut(), value);
         self
     }
+
+    pub fn with_pid(self, pid: PIDGains) -> Self {
+        self.with_kp(pid.p).with_ki(pid.i).with_kd(pid.d)
+    }
 }
 
 pub struct MotionMagicConfigs {

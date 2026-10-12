@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
-use crate::logging::{Loggable, now, str_to_wpi};
-use crate::{AutoLog, ffi};
+use crate::ffi;
+use crate::logging::{now, str_to_wpi};
+use crate::prelude::*;
 
 pub struct Logger {
     datalog: *mut ffi::WPI_DataLog,

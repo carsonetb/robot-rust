@@ -1,4 +1,4 @@
-use crate::{Loggable, logging::Logger};
+use crate::prelude::*;
 
 pub trait AutoLog {
     fn append_to(self, logger: &mut Logger, path: &str);
