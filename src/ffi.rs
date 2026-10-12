@@ -22,6 +22,7 @@ autocxx::include_cpp! {
     #include "ctre/phoenix6/Pigeon2.hpp"
     #include "ctre_helpers.hpp"
 
+    #include "rev/SparkMax.h"
     #include "rev_helpers.hpp"
 
     safety!(unsafe)
@@ -129,10 +130,7 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::gyrotrim::set_scalar_y")
     generate!("ctre_helpers::gyrotrim::set_scalar_z")
 
-    generate!("rev_helpers::sparkmax_create")
-    generate!("rev_helpers::sparkmax_set")
-    generate!("rev_helpers::sparkmax_set_voltage")
-    generate!("rev_helpers::sparkmax_destroy")
+    generate!("rev::spark::SparkMax")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -202,6 +200,4 @@ pub use ffi::ctre::phoenix6::configs::{
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
 };
-pub use ffi::rev_helpers::{
-    SparkMaxHandle, sparkmax_create, sparkmax_destroy, sparkmax_set, sparkmax_set_voltage,
-};
+pub use ffi::rev::spark::SparkMax;

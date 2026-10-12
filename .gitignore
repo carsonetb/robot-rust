@@ -1,2 +1,4 @@
 /target
 *.zip
+/wpilib
+compile_flags.txt

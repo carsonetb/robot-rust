@@ -6,7 +6,7 @@ fn main() -> miette::Result<()> {
 
     println!("cargo:rustc-link-search=native=libraries/linux/athena/shared");
     println!(
-        "cargo:rustc-link-arg=-Wl,-rpath-link=libraries/linux/athena/shared:/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib:/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
+        "cargo:rustc-link-arg=-Wl,-rpath-link=libraries/linux/athena/shared:wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib:wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
     );
 
     println!("cargo:rustc-link-arg=-Wl,--no-as-needed");
@@ -40,15 +40,19 @@ fn main() -> miette::Result<()> {
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
+    let home = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap();
+
     // Build CTRE bindings
     let mut builder = autocxx_build::Builder::new("src/ffi.rs", &[&include_path])
         .extra_clang_args(&[
             "--target=arm-linux-gnueabi",
             "-std=c++20",
-            "--sysroot=/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot",
-            "-isystem/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include/c++/12",
-            "-isystem/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include/c++/12/arm-nilrt-linux-gnueabi",
-            "-isystem/home/carsonetb/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include",
+            &format!("--sysroot={}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot", home),
+            &format!("-isystem{}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include/c++/12", home),
+            &format!("-isystem{}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include/c++/12/arm-nilrt-linux-gnueabi", home),
+            &format!("-isystem{}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/include", home),
         ])
         .build()?;
 
