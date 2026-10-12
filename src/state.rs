@@ -123,4 +123,8 @@ impl<R: Robot + 'static> State<R> {
     pub fn schedule_run(&mut self, robot: &mut R, function: impl FnMut(&mut R) + 'static) {
         self.robot_scheduler.schedule_run(robot, function);
     }
+
+    pub fn cancel_all(&mut self, robot: &mut R) {
+        self.robot_scheduler.cancel_all(robot);
+    }
 }

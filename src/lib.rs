@@ -15,6 +15,7 @@ pub mod ctre;
 pub mod ds;
 pub mod ffi;
 pub mod hal;
+pub mod initialize;
 pub mod logging;
 pub mod prelude;
 pub mod rev;

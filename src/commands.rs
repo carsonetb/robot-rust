@@ -28,6 +28,13 @@ impl<T: 'static> Scheduler<T> {
         self.schedule(system, run(function));
     }
 
+    pub fn cancel_all(&mut self, system: &mut T) {
+        for command in &mut self.commands {
+            command.end(system, true);
+        }
+        self.commands.clear();
+    }
+
     pub(crate) fn periodic(&mut self, system: &mut T) {
         self.commands.retain_mut(|command| {
             let out = if command.is_finished(system) {
@@ -63,6 +70,10 @@ pub trait Command<T> {
     fn end(&mut self, system: &mut T, interrupted: bool) {
         let _ = (system, interrupted);
     }
+}
+
+pub fn none<T>() -> impl Command<T> {
+    ()
 }
 
 pub fn run<T>(function: impl FnMut(&mut T) + 'static) -> impl Command<T> {
@@ -104,6 +115,12 @@ pub fn race<T>(commands: impl IntoIterator<Item = impl Command<T> + 'static>) ->
             .into_iter()
             .map(|c| Box::new(c) as Box<dyn Command<T>>)
             .collect(),
+    }
+}
+
+impl<T> Command<T> for () {
+    fn is_finished(&mut self, _system: &mut T) -> bool {
+        true
     }
 }
 
