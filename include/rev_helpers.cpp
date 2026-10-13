@@ -1,23 +1,72 @@
 #include "rev_helpers.hpp"
-#include <memory>
-#include "rev/SparkMax.h"
-#include "rev/SparkLowLevel.h"
-#include "units/voltage.h"
+#include "rev/ConfigureTypes.h"
+#include "rev/config/AbsoluteEncoderConfig.h"
+#include "rev/config/AnalogSensorConfig.h"
+#include "rev/config/ClosedLoopConfig.h"
+#include "rev/config/EncoderConfig.h"
+#include "rev/config/SparkBaseConfig.h"
 
 namespace rev_helpers {
 
-struct SparkMaxHandle {
-  rev::spark::SparkMax motor;
+namespace spark {
 
-  SparkMaxHandle(int id) : motor(id, rev::spark::SparkLowLevel::MotorType::kBrushless) {}
+struct SparkConfigWrapper {
+    rev::spark::SparkBaseConfig config;
+
+    public:
+
+        SparkConfigWrapper() = default;
+        SparkConfigWrapper(rev::spark::SparkBaseConfig config): config{config} {}
 };
 
-SparkMaxHandle* sparkmax_create(int can_id) { return new SparkMaxHandle(can_id); }
+void configure(rev::spark::SparkMax &motor, SparkConfigWrapper *config, rev::ResetMode reset, rev::PersistMode persist) {
+    motor.Configure(config->config, reset, persist);
+}
 
-void sparkmax_set(SparkMaxHandle* handle, double speed) { handle->motor.Set(speed); }
+SparkConfigWrapper* config_create() {
+    return new SparkConfigWrapper();
+}
 
-void sparkmax_set_voltage(SparkMaxHandle* handle, double voltage) { handle->motor.SetVoltage(units::volt_t{voltage}); }
+void config_delete(SparkConfigWrapper *config) {
+    delete config;
+}
 
-void sparkmax_destroy(SparkMaxHandle* handle) { delete handle; }
+SparkConfigWrapper* config_neo() {
+    return new SparkConfigWrapper(rev::spark::SparkBaseConfig::Presets::REV_NEO());
+}
+
+SparkConfigWrapper* config_neo_2() {
+    return new SparkConfigWrapper(rev::spark::SparkBaseConfig::Presets::REV_NEO_2());
+}
+
+SparkConfigWrapper* config_neo_550() {
+    return new SparkConfigWrapper(rev::spark::SparkBaseConfig::Presets::REV_NEO_550());
+}
+
+SparkConfigWrapper* config_vortex() {
+    return new SparkConfigWrapper(rev::spark::SparkBaseConfig::Presets::REV_Vortex());
+}
+
+SparkConfigWrapper* config_ctre_minion() {
+    return new SparkConfigWrapper(rev::spark::SparkBaseConfig::Presets::CTRE_Minion());
+}
+
+void apply_absolute_encoder(SparkConfigWrapper* wrapper, rev::spark::AbsoluteEncoderConfig& config) {
+    wrapper->config.Apply(config);
+}
+
+void apply_analog_sensor(SparkConfigWrapper* wrapper, rev::spark::AnalogSensorConfig& config) {
+    wrapper->config.Apply(config);
+}
+
+void apply_encoder(SparkConfigWrapper* wrapper, rev::spark::EncoderConfig& config) {
+    wrapper->config.Apply(config);
+}
+
+void apply_closed_loop(SparkConfigWrapper* wrapper, rev::spark::ClosedLoopConfig& config) {
+    wrapper->config.Apply(config);
+}
+
+}
 
 }  // namespace rev_helpers

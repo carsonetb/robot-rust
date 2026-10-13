@@ -1,12 +1,79 @@
 #pragma once
 
+#include <memory>
+#include "rev/ConfigureTypes.h"
+#include "rev/REVLibError.h"
+#include "rev/SparkAbsoluteEncoder.h"
+#include "rev/SparkLowLevel.h"
+#include "rev/SparkMax.h"
+#include "rev/SparkRelativeEncoder.h"
+#include "rev/config/SparkBaseConfig.h"
+#include "units/voltage.h"
+
 namespace rev_helpers {
 
-struct SparkMaxHandle;
+namespace spark {
 
-SparkMaxHandle* sparkmax_create(int can_id);
-void sparkmax_set(SparkMaxHandle* motor, double speed);
-void sparkmax_set_voltage(SparkMaxHandle* motor, double voltage);
-void sparkmax_destroy(SparkMaxHandle* motor);
+inline std::unique_ptr<rev::spark::SparkMax> create(int can_id, int motor_type) {
+    return std::make_unique<rev::spark::SparkMax>(rev::spark::SparkMax(can_id, rev::spark::SparkLowLevel::MotorType{motor_type}));
+}
+
+inline void set(rev::spark::SparkMax& spark, double speed) {
+    spark.Set(speed);
+}
+
+inline void set_voltage(rev::spark::SparkMax& spark, double voltage) {
+    spark.SetVoltage(units::voltage::volt_t{voltage});
+}
+
+inline void disable(rev::spark::SparkMax& spark) {
+    spark.Disable();
+}
+
+inline void stop(rev::spark::SparkMax& spark) {
+    spark.StopMotor();
+}
+
+inline double get(rev::spark::SparkMax& spark) {
+    return spark.Get();
+}
+
+inline rev::spark::SparkRelativeEncoder& get_encoder(rev::spark::SparkMax& spark) {
+    return spark.GetEncoder();
+}
+
+inline rev::spark::SparkAbsoluteEncoder& get_absolute_encoder(rev::spark::SparkMax& spark) {
+    return spark.GetAbsoluteEncoder();
+}
+
+inline double get_bus_voltage(rev::spark::SparkMax& spark) {
+    return spark.GetBusVoltage();
+}
+
+inline double get_output_current(rev::spark::SparkMax& spark) {
+    return spark.GetOutputCurrent();
+}
+
+inline double get_motor_temperature(rev::spark::SparkMax& spark) {
+    return spark.GetMotorTemperature();
+}
+
+struct SparkConfigWrapper;
+
+void configure(rev::spark::SparkMax& motor, SparkConfigWrapper* config, rev::ResetMode reset, rev::PersistMode persist);
+
+SparkConfigWrapper* config_create();
+void config_delete(SparkConfigWrapper* config);
+SparkConfigWrapper* config_neo();
+SparkConfigWrapper* config_neo_2();
+SparkConfigWrapper* config_neo_550();
+SparkConfigWrapper* config_vortex();
+SparkConfigWrapper* config_ctre_minion();
+void apply_absolute_encoder(SparkConfigWrapper* wrapper, rev::spark::AbsoluteEncoderConfig& config);
+void apply_analog_sensor(SparkConfigWrapper* wrapper, rev::spark::AnalogSensorConfig& config);
+void apply_encoder(SparkConfigWrapper* wrapper, rev::spark::EncoderConfig& config);
+void apply_closed_loop(SparkConfigWrapper* wrapper, rev::spark::ClosedLoopConfig& config);
+
+}
 
 }  // namespace rev_helpers

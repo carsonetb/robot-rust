@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#[allow(warnings)]
 #[allow(dead_code)]
 #[allow(unused_variables)]
 #[allow(non_snake_case)]
@@ -23,6 +24,15 @@ autocxx::include_cpp! {
     #include "ctre_helpers.hpp"
 
     #include "rev/SparkMax.h"
+    #include "rev/ClosedLoopTypes.h"
+    #include "rev/ConfigureTypes.h"
+    #include "rev/config/AbsoluteEncoderConfig.h"
+    #include "rev/config/AnalogSensorConfig.h"
+    #include "rev/config/EncoderConfig.h"
+    #include "rev/config/LimitSwitchConfig.h"
+    #include "rev/config/SoftLimitConfig.h"
+    #include "rev/config/ClosedLoopConfig.h"
+    #include "rev/config/SignalsConfig.h"
     #include "rev_helpers.hpp"
 
     safety!(unsafe)
@@ -131,6 +141,45 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::gyrotrim::set_scalar_z")
 
     generate!("rev::spark::SparkMax")
+    block_constructors!("rev::spark::SparkMax")
+
+    generate!("rev::spark::AbsoluteEncoderConfig")
+    generate!("rev::spark::AnalogSensorConfig")
+    generate!("rev::spark::EncoderConfig")
+    generate!("rev::spark::LimitSwitchConfig")
+    generate!("rev::spark::SoftLimitConfig")
+    generate!("rev::spark::ClosedLoopConfig")
+    generate!("rev::spark::SignalsConfig")
+
+    generate!("rev::spark::ClosedLoopSlot")
+    generate!("rev::spark::FeedbackSensor")
+    generate!("rev::ResetMode")
+    generate!("rev::PersistMode")
+
+    generate!("rev_helpers::spark::create")
+    generate!("rev_helpers::spark::set")
+    generate!("rev_helpers::spark::set_voltage")
+    generate!("rev_helpers::spark::disable")
+    generate!("rev_helpers::spark::stop")
+    generate!("rev_helpers::spark::get")
+    generate!("rev_helpers::spark::get_encoder")
+    generate!("rev_helpers::spark::get_absolute_encoder")
+    generate!("rev_helpers::spark::get_bus_voltage")
+    generate!("rev_helpers::spark::get_output_current")
+    generate!("rev_helpers::spark::get_motor_temperature")
+    generate!("rev_helpers::spark::configure")
+
+    generate!("rev_helpers::spark::config_create")
+    generate!("rev_helpers::spark::config_delete")
+    generate!("rev_helpers::spark::config_neo")
+    generate!("rev_helpers::spark::config_neo_2")
+    generate!("rev_helpers::spark::config_neo_550")
+    generate!("rev_helpers::spark::config_vortex")
+    generate!("rev_helpers::spark::config_ctre_minion")
+    generate!("rev_helpers::spark::apply_absolute_encoder")
+    generate!("rev_helpers::spark::apply_analog_sensor")
+    generate!("rev_helpers::spark::apply_encoder")
+    generate!("rev_helpers::spark::apply_closed_loop")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -186,6 +235,21 @@ pub mod pigeon2 {
     }
 }
 
+pub mod rev {
+    use super::ffi;
+
+    pub use ffi::rev::spark::{
+        AbsoluteEncoderConfig, AnalogSensorConfig, ClosedLoopConfig, ClosedLoopSlot, EncoderConfig,
+        FeedbackSensor, LimitSwitchConfig, SignalsConfig, SoftLimitConfig, SparkMax,
+    };
+    pub use ffi::rev::{PersistMode, ResetMode};
+    pub use ffi::rev_helpers::spark::{
+        SparkConfigWrapper, apply_absolute_encoder, apply_analog_sensor, apply_closed_loop,
+        apply_encoder, config_create, config_ctre_minion, config_delete, config_neo, config_neo_2,
+        config_neo_550, config_vortex, configure, create as sparkmax_create,
+    };
+}
+
 pub use ffi::chooser::{
     ChooserHandle, chooser_add_option, chooser_create, chooser_destroy, chooser_get_selected,
     chooser_publish, chooser_set_default,
@@ -200,4 +264,3 @@ pub use ffi::ctre::phoenix6::configs::{
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
 };
-pub use ffi::rev::spark::SparkMax;

@@ -100,7 +100,7 @@ public:
 
 private:
     SparkMaxAlternateEncoder m_AltEncoder;
-    std::atomic<bool> m_altEncoderCreated{false};
+    char m_altEncoderCreated{false};
 
     void CheckDataPortAlternateEncoder();
     void CheckDataPortAbsoluteEncoder();

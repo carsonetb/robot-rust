@@ -593,28 +593,28 @@ protected:
 
 protected:
     SparkRelativeEncoder m_RelativeEncoder;
-    std::atomic<bool> m_relativeEncoderCreated{false};
+    char m_relativeEncoderCreated{false};
 
     SparkAnalogSensor m_AnalogSensor;
-    std::atomic<bool> m_analogSensorCreated{false};
+    char m_analogSensorCreated{false};
 
     SparkAbsoluteEncoder m_AbsoluteEncoder;
-    std::atomic<bool> m_absoluteEncoderCreated{false};
+    char m_absoluteEncoderCreated{false};
 
     SparkClosedLoopController m_ClosedLoopController;
-    std::atomic<bool> m_closedLoopControllerCreated{false};
+    char m_closedLoopControllerCreated{false};
 
     SparkLimitSwitch m_ForwardLimitSwitch;
-    std::atomic<bool> m_forwardLimitSwitchCreated{false};
+    char m_forwardLimitSwitchCreated{false};
 
     SparkLimitSwitch m_ReverseLimitSwitch;
-    std::atomic<bool> m_reverseLimitSwitchCreated{false};
+    char m_reverseLimitSwitchCreated{false};
 
     SparkSoftLimit m_ForwardSoftLimit;
-    std::atomic<bool> m_forwardSoftLimitCreated{false};
+    char m_forwardSoftLimitCreated{false};
 
     SparkSoftLimit m_ReverseSoftLimit;
-    std::atomic<bool> m_reverseSoftLimitCreated{false};
+    char m_reverseSoftLimitCreated{false};
 };
 
 }  // namespace rev::spark

@@ -1,7 +1,14 @@
-use uom::si::electric_potential::volt;
-use uom::si::f64::ElectricPotential;
+use autocxx::c_int;
 
 use crate::ffi;
+
+use enums::MotorType;
+
+pub mod configs;
+pub mod enums;
+
+use configs::SparkBaseConfig;
+use enums::*;
 
 // pub struct SparkMax {
 //     handle: *mut ffi::SparkMaxHandle,
@@ -41,3 +48,28 @@ use crate::ffi;
 //         }
 //     }
 // }
+
+pub struct SparkMax {
+    spark: cxx::UniquePtr<ffi::rev::SparkMax>,
+    pub inverted: bool,
+}
+
+impl SparkMax {
+    pub fn new(id: i32, motor_type: MotorType) -> Self {
+        Self {
+            spark: ffi::rev::sparkmax_create(c_int(id), c_int(motor_type as i32)),
+            inverted: false,
+        }
+    }
+
+    pub fn configure(&mut self, config: SparkBaseConfig, reset: ResetMode, persist: PersistMode) {
+        unsafe {
+            ffi::rev::configure(
+                self.spark.pin_mut(),
+                config.conf,
+                reset.to_ffi(),
+                persist.to_ffi(),
+            );
+        }
+    }
+}
