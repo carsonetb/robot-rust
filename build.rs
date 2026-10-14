@@ -6,12 +6,12 @@ use std::{env, fs};
 const SO_TARGET_DIR: &str = "libraries/linux/athena/shared";
 
 fn download(url: &str, so: &str) {
-    let dir = Path::new(SO_TARGET_DIR);
+    let dir = &Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
     if !dir.exists() {
         fs::create_dir_all(dir).unwrap();
     }
 
-    let dest_str = format!("{SO_TARGET_DIR}/{so}");
+    let dest_str = format!("{}/{so}", dir.to_str().unwrap());
     let dest = Path::new(&dest_str);
     if dest.exists() {
         return;
@@ -33,7 +33,8 @@ fn download(url: &str, so: &str) {
 }
 
 fn local(path: &str, so: &str) {
-    let dest_str = format!("{SO_TARGET_DIR}/{so}");
+    let dir = Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
+    let dest_str = format!("{}/{so}", dir.to_str().unwrap());
     let dest = Path::new(&dest_str);
     if dest.exists() {
         return;
@@ -127,7 +128,8 @@ fn main() -> miette::Result<()> {
         "libFRC_NetworkCommunication.so.25",
     );
 
-    let dest_str = format!("{SO_TARGET_DIR}/libNiFpgaLv.so.13");
+    let dir = Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
+    let dest_str = format!("{}/libNiFpgaLv.so.13", dir.to_str().unwrap());
     let dest = Path::new(&dest_str);
     if !dest.exists() {
         println!(
@@ -149,7 +151,8 @@ fn main() -> miette::Result<()> {
             }
             if file.name() == "libembcanshim.so" {
                 let mut out =
-                    File::create(&format!("{SO_TARGET_DIR}/libnirio_emb_can.so.23")).unwrap();
+                    File::create(&format!("{}/libnirio_emb_can.so.23", dir.to_str().unwrap()))
+                        .unwrap();
                 copy(&mut file, &mut out).unwrap();
             }
         }
@@ -157,27 +160,29 @@ fn main() -> miette::Result<()> {
 
     let include_path = PathBuf::from("include");
 
-    println!("cargo:rustc-link-search=native=libraries/linux/athena/shared");
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let home = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap();
+
+    println!("cargo:rustc-link-search=native={out_dir}/libraries/linux/athena/shared");
     println!(
-        "cargo:rustc-link-arg=-Wl,-rpath-link=libraries/linux/athena/shared:wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib:wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
+        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib"
+    );
+    println!(
+        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
     );
 
-    println!("cargo:rustc-link-arg=-Wl,--no-as-needed");
-    println!("cargo:rustc-link-arg=-lwpiHal");
-    println!("cargo:rustc-link-arg=-lwpiutil");
-    println!("cargo:rustc-link-arg=-lwpimath");
-    println!("cargo:rustc-link-arg=-lntcore");
-    println!("cargo:rustc-link-arg=-lCTRE_PhoenixTools");
-    println!("cargo:rustc-link-arg=-lCTRE_Phoenix6");
-    println!("cargo:rustc-link-arg=-lCTRE_Phoenix6_WPI");
-    println!("cargo:rustc-link-arg=-lREVLib");
-    println!("cargo:rustc-link-arg=-lREVLibDriver");
-    println!("cargo:rustc-link-arg=-Wl,--as-needed");
+    println!("cargo:rustc-link-lib=wpiHal");
+    println!("cargo:rustc-link-lib=wpiutil");
+    println!("cargo:rustc-link-lib=wpimath");
+    println!("cargo:rustc-link-lib=ntcore");
+    println!("cargo:rustc-link-lib=CTRE_PhoenixTools");
+    println!("cargo:rustc-link-lib=CTRE_Phoenix6");
+    println!("cargo:rustc-link-lib=CTRE_Phoenix6_WPI");
+    println!("cargo:rustc-link-lib=REVLib");
+    println!("cargo:rustc-link-lib=REVLibDriver");
 
-    println!("cargo:rerun-if-changed=src/ffi.rs");
-    println!("cargo:rerun-if-changed=include");
-
-    // Build HAL and C libraries
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let bindings = bindgen::Builder::default()
