@@ -1,26 +1,9 @@
-use std::env;
 use std::fs::File;
 use std::io::{Cursor, copy};
 use std::path::{Path, PathBuf};
-
-use zip::ZipArchive;
+use std::{env, fs};
 
 const SO_TARGET_DIR: &str = "libraries/linux/athena/shared";
-
-const LOCAL_LIBS: &[&str] = &[
-    "libBackendDriver.so",
-    "libFRC_NetworkCommunication.so",
-    "libNiFpgaLv.so",
-    "libnirio_emb_can.so",
-    "libRoboRIO_FRC_ChipObject.so",
-    "libvisa.so",
-    "libwpiHal.so",
-    "libwpilibc.so",
-    "libwpimath.so",
-    "libwpinet.so",
-    "libwpiutil.so",
-    "libntcore.so",
-];
 
 fn download(url: &str, so: &str) {
     let dest_str = format!("{SO_TARGET_DIR}/{so}");
@@ -35,9 +18,37 @@ fn download(url: &str, so: &str) {
     let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        if file.name().ends_with(".so") && file.name().contains("athena") {
+        if file.name().ends_with(".so") {
             let mut out = File::create(&dest).unwrap();
             copy(&mut file, &mut out).unwrap();
+            return;
+        }
+    }
+    panic!("Could not find .so file.");
+}
+
+fn local(path: &str, so: &str) {
+    let dest_str = format!("{SO_TARGET_DIR}/{so}");
+    let dest = Path::new(&dest_str);
+    if dest.exists() {
+        return;
+    }
+
+    println!("Copying {}", path);
+
+    let home = home::home_dir().unwrap();
+    let from = home.join(path);
+    if !from.exists() {
+        panic!("Couldn't find file, is wpilib 2026 installed?")
+    }
+    let bytes = fs::read(from).unwrap();
+    let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).unwrap();
+        if file.name().ends_with(".so") {
+            let mut out = File::create(&dest).unwrap();
+            copy(&mut file, &mut out).unwrap();
+            return;
         }
     }
     panic!("Could not find .so file.");
@@ -73,6 +84,71 @@ fn main() -> miette::Result<()> {
         "https://maven.revrobotics.com/com/revrobotics/frc/REVLib-cpp/2026.0.5/REVLib-cpp-2026.0.5-linuxathena.zip",
         "libREVLib.so",
     );
+
+    local(
+        "wpilib/2026/maven/edu/wpi/first/hal/hal-cpp/2026.2.1/hal-cpp-2026.2.1-linuxathena.zip",
+        "libwpiHal.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpilibc/wpilibc-cpp/2026.2.1/wpilibc-cpp-2026.2.1-linuxathena.zip",
+        "libwpilibc.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpimath/wpimath-cpp/2026.2.1/wpimath-cpp-2026.2.1-linuxathena.zip",
+        "libwpimath.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpinet/wpinet-cpp/2026.2.1/wpinet-cpp-2026.2.1-linuxathena.zip",
+        "libwpinet.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpiutil/wpiutil-cpp/2026.2.1/wpiutil-cpp-2026.2.1-linuxathena.zip",
+        "libwpiutil.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ntcore/ntcore-cpp/2026.2.1/ntcore-cpp-2026.2.1-linuxathena.zip",
+        "libntcore.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/visa/2026.1.2/visa-2026.1.2-linuxathena.zip",
+        "libvisa.so",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/chipobject/2026.1.2/chipobject-2026.1.2-linuxathena.zip",
+        "libRoboRIO_FRC_ChipObject.so.26",
+    );
+    local(
+        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/netcomm/2026.1.2/netcomm-2026.1.2-linuxathena.zip",
+        "libFRC_NetworkCommunication.so.25",
+    );
+
+    let dest_str = format!("{SO_TARGET_DIR}/libNiFpgaLv.so.13");
+    let dest = Path::new(&dest_str);
+    if !dest.exists() {
+        println!(
+            "Copying /home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/runtime/2026.1.2/runtime-2026.1.2-linuxathena.zip"
+        );
+
+        let home = home::home_dir().unwrap();
+        let from = home.join("/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/runtime/2026.1.2/runtime-2026.1.2-linuxathena.zip");
+        if !from.exists() {
+            panic!("Couldn't find file, is wpilib 2026 installed?")
+        }
+        let bytes = fs::read(from).unwrap();
+        let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i).unwrap();
+            if file.name() == "libfpgalvshim.so" {
+                let mut out = File::create(&dest).unwrap();
+                copy(&mut file, &mut out).unwrap();
+            }
+            if file.name() == "libembcanshim.so" {
+                let mut out =
+                    File::create(&format!("{SO_TARGET_DIR}/libnirio_emb_can.so.23")).unwrap();
+                copy(&mut file, &mut out).unwrap();
+            }
+        }
+    }
 
     let include_path = PathBuf::from("include");
 
