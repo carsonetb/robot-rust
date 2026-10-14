@@ -6,6 +6,11 @@ use std::{env, fs};
 const SO_TARGET_DIR: &str = "libraries/linux/athena/shared";
 
 fn download(url: &str, so: &str) {
+    let dir = Path::new(SO_TARGET_DIR);
+    if !dir.exists() {
+        fs::create_dir_all(dir).unwrap();
+    }
+
     let dest_str = format!("{SO_TARGET_DIR}/{so}");
     let dest = Path::new(&dest_str);
     if dest.exists() {
@@ -45,7 +50,7 @@ fn local(path: &str, so: &str) {
     let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        if file.name().ends_with(".so") {
+        if file.name().contains(".so") && !file.name().contains(".so.debug") {
             let mut out = File::create(&dest).unwrap();
             copy(&mut file, &mut out).unwrap();
             return;
