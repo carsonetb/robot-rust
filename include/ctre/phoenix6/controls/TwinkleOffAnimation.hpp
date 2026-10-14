@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include "ctre/phoenix6/signals/RGBWColor.hpp"
 #include <units/frequency.h>
 #include <units/time.h>
@@ -25,25 +22,8 @@ namespace controls {
  * 
  * 
  */
-class TwinkleOffAnimation : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<TwinkleOffAnimation *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<TwinkleOffAnimation>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlTwinkleOffAnimation(network, deviceHash, UpdateFreqHz.to<double>(), LEDStartIndex, LEDEndIndex, Slot, Color.Red, Color.Green, Color.Blue, Color.White, MaxLEDsOnProportion.to<double>(), FrameRate.to<double>());
-    }
+class TwinkleOffAnimation final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -83,9 +63,11 @@ public:
     units::frequency::hertz_t FrameRate = 25_Hz;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -101,17 +83,29 @@ public:
      * 
      * \details 
      * 
-     * \param LEDStartIndex    The index of the first LED this animation controls
-     *                         (inclusive). Indices 0-7 control the onboard LEDs,
-     *                         and 8-399 control an attached LED strip.
-     * \param LEDEndIndex    The index of the last LED this animation controls
-     *                       (inclusive). Indices 0-7 control the onboard LEDs, and
-     *                       8-399 control an attached LED strip.
+     * \param LEDStartIndex The index of the first LED this animation controls
+     *                      (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                      8-399 control an attached LED strip.
+     * \param LEDEndIndex The index of the last LED this animation controls
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
      */
-    TwinkleOffAnimation(int LEDStartIndex, int LEDEndIndex) : ControlRequest{"TwinkleOffAnimation"},
+    constexpr TwinkleOffAnimation(int LEDStartIndex, int LEDEndIndex) : ControlRequest{},
         LEDStartIndex{std::move(LEDStartIndex)},
         LEDEndIndex{std::move(LEDEndIndex)}
     {}
+
+    constexpr ~TwinkleOffAnimation() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "TwinkleOffAnimation";
+    }
     
     /**
      * \brief Modifies this Control Request's LEDStartIndex parameter and returns itself for
@@ -123,7 +117,7 @@ public:
      * \param newLEDStartIndex Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithLEDStartIndex(int newLEDStartIndex)
+    constexpr TwinkleOffAnimation &WithLEDStartIndex(int newLEDStartIndex)
     {
         LEDStartIndex = std::move(newLEDStartIndex);
         return *this;
@@ -139,7 +133,7 @@ public:
      * \param newLEDEndIndex Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithLEDEndIndex(int newLEDEndIndex)
+    constexpr TwinkleOffAnimation &WithLEDEndIndex(int newLEDEndIndex)
     {
         LEDEndIndex = std::move(newLEDEndIndex);
         return *this;
@@ -155,7 +149,7 @@ public:
      * \param newSlot Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithSlot(int newSlot)
+    constexpr TwinkleOffAnimation &WithSlot(int newSlot)
     {
         Slot = std::move(newSlot);
         return *this;
@@ -170,7 +164,7 @@ public:
      * \param newColor Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithColor(signals::RGBWColor newColor)
+    constexpr TwinkleOffAnimation &WithColor(signals::RGBWColor newColor)
     {
         Color = std::move(newColor);
         return *this;
@@ -185,7 +179,7 @@ public:
      * \param newMaxLEDsOnProportion Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithMaxLEDsOnProportion(units::dimensionless::scalar_t newMaxLEDsOnProportion)
+    constexpr TwinkleOffAnimation &WithMaxLEDsOnProportion(units::dimensionless::scalar_t newMaxLEDsOnProportion)
     {
         MaxLEDsOnProportion = std::move(newMaxLEDsOnProportion);
         return *this;
@@ -207,15 +201,18 @@ public:
      * \param newFrameRate Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithFrameRate(units::frequency::hertz_t newFrameRate)
+    constexpr TwinkleOffAnimation &WithFrameRate(units::frequency::hertz_t newFrameRate)
     {
         FrameRate = std::move(newFrameRate);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -226,47 +223,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    TwinkleOffAnimation &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr TwinkleOffAnimation &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: TwinkleOffAnimation" << std::endl;
-        ss << "    LEDStartIndex: " << LEDStartIndex << std::endl;
-        ss << "    LEDEndIndex: " << LEDEndIndex << std::endl;
-        ss << "    Slot: " << Slot << std::endl;
-        ss << "    Color: " << Color << std::endl;
-        ss << "    MaxLEDsOnProportion: " << MaxLEDsOnProportion.to<double>() << std::endl;
-        ss << "    FrameRate: " << FrameRate.to<double>() << " Hz" << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << LEDStartIndex; controlInfo["LEDStartIndex"] = ss.str(); ss.str(std::string{});
-        ss << LEDEndIndex; controlInfo["LEDEndIndex"] = ss.str(); ss.str(std::string{});
-        ss << Slot; controlInfo["Slot"] = ss.str(); ss.str(std::string{});
-        ss << Color; controlInfo["Color"] = ss.str(); ss.str(std::string{});
-        ss << MaxLEDsOnProportion.to<double>(); controlInfo["MaxLEDsOnProportion"] = ss.str(); ss.str(std::string{});
-        ss << FrameRate.to<double>(); controlInfo["FrameRate"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

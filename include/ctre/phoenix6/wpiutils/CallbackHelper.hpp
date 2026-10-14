@@ -12,8 +12,7 @@ namespace ctre {
 namespace phoenix6 {
 namespace wpiutils {
 
-class CallbackHelper
-{
+class CallbackHelper final {
 public:
     static double GetRawValue(HAL_Value const *value)
     {

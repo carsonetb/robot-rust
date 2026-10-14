@@ -7,13 +7,24 @@
 #pragma once
 
 #include "ctre/phoenix6/swerve/impl/SwerveModuleImpl.hpp"
-#include "ctre/phoenix6/CANcoder.hpp"
-#include "ctre/phoenix6/CANdi.hpp"
-#include "ctre/phoenix6/TalonFX.hpp"
-#include "ctre/phoenix6/TalonFXS.hpp"
 
 namespace ctre {
 namespace phoenix6 {
+
+/* forward decls */
+namespace hardware {
+    class CANcoder;
+    class CANdi;
+    class TalonFX;
+    class TalonFXS;
+}
+namespace configs {
+    class CANcoderConfiguration;
+    class CANdiConfiguration;
+    class TalonFXConfiguration;
+    class TalonFXSConfiguration;
+}
+
 namespace swerve {
 
 using impl::SteerRequestType;
@@ -31,17 +42,13 @@ using impl::DriveRequestType;
  * Getters for these hardware devices are available.
  */
 template <
-    typename DriveMotorT,
-    typename SteerMotorT,
-    typename EncoderT,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, DriveMotorT>>,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, SteerMotorT>>,
-    typename = std::enable_if_t<std::disjunction_v<
-        std::is_same<hardware::CANcoder, EncoderT>,
-        std::is_same<hardware::CANdi, EncoderT>,
-        std::is_same<hardware::TalonFXS, EncoderT>
-    >>
+    std::derived_from<hardware::traits::CommonTalon> DriveMotorT,
+    std::derived_from<hardware::traits::CommonTalon> SteerMotorT,
+    typename EncoderT
 >
+    requires std::same_as<EncoderT, hardware::CANcoder> ||
+        std::same_as<EncoderT, hardware::CANdi> ||
+        std::same_as<EncoderT, hardware::TalonFXS>
 class SwerveModule {
 public:
     /**
@@ -65,19 +72,19 @@ public:
     /**
      * \brief Construct a SwerveModule with the specified constants.
      *
-     * \param constants  Constants used to construct the module
-     * \param canbusName The name of the CAN bus this module is on
-     * \param module     The impl#SwerveModuleImpl to use
+     * \param constants Constants used to construct the module
+     * \param canbus    The CAN bus this module is on
+     * \param module    The impl#SwerveModuleImpl to use
      */
     SwerveModule(
         SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration> const &constants,
-        std::string_view canbusName,
+        CANBus canbus,
         impl::SwerveModuleImpl &module
     ) :
         _module{&module},
-        _driveMotor{constants.DriveMotorId, std::string{canbusName}},
-        _steerMotor{constants.SteerMotorId, std::string{canbusName}},
-        _encoder{constants.EncoderId, std::string{canbusName}}
+        _driveMotor{constants.DriveMotorId, canbus},
+        _steerMotor{constants.SteerMotorId, canbus},
+        _encoder{constants.EncoderId, canbus}
     {
         ctre::phoenix::StatusCode response{};
 
@@ -85,14 +92,17 @@ public:
         driveConfigs.MotorOutput.NeutralMode = signals::NeutralModeValue::Brake;
 
         driveConfigs.Slot0 = constants.DriveMotorGains;
-        if constexpr (!std::is_same_v<configs::TalonFXSConfiguration, decltype(driveConfigs)>) {
+        if constexpr (!std::same_as<configs::TalonFXSConfiguration, decltype(driveConfigs)>) {
             driveConfigs.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
             driveConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
         }
         driveConfigs.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
         driveConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        if constexpr (std::is_same_v<configs::TalonFXSConfiguration, decltype(driveConfigs)>) {
+        if constexpr (std::same_as<configs::TalonFXSConfiguration, decltype(driveConfigs)>) {
+            driveConfigs.ExternalFeedback.RotorToSensorRatio = 1.0;
+            driveConfigs.ExternalFeedback.SensorToMechanismRatio = 1.0;
+
             switch (constants.DriveMotorType) {
                 case DriveMotorArrangement::TalonFX_Integrated:
                     printf(
@@ -109,6 +119,9 @@ public:
                     break;
             }
         } else {
+            driveConfigs.Feedback.RotorToSensorRatio = 1.0;
+            driveConfigs.Feedback.SensorToMechanismRatio = 1.0;
+
             if (constants.DriveMotorType != DriveMotorArrangement::TalonFX_Integrated) {
                 printf("Drive motor Talon FX ID %d only supports TalonFX_Integrated.", GetDriveMotor().GetDeviceID());
             }
@@ -129,7 +142,7 @@ public:
 
         steerConfigs.Slot0 = constants.SteerMotorGains;
 
-        if constexpr (std::is_same_v<configs::TalonFXSConfiguration, decltype(steerConfigs)>) {
+        if constexpr (std::same_as<configs::TalonFXSConfiguration, decltype(steerConfigs)>) {
             switch (constants.SteerMotorType) {
                 case SteerMotorArrangement::TalonFX_Integrated:
                     printf(
@@ -205,6 +218,7 @@ public:
                     break;
             }
             steerConfigs.ExternalFeedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+            steerConfigs.ExternalFeedback.SensorToMechanismRatio = 1.0;
         } else {
             if (constants.SteerMotorType != SteerMotorArrangement::TalonFX_Integrated) {
                 printf("Steer motor Talon FX ID %d only supports TalonFX_Integrated.", GetSteerMotor().GetDeviceID());
@@ -250,10 +264,11 @@ public:
                     break;
             }
             steerConfigs.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+            steerConfigs.Feedback.SensorToMechanismRatio = 1.0;
         }
 
         steerConfigs.MotionMagic.MotionMagicExpo_kV = 0.12_V / 1_tps * constants.SteerMotorGearRatio;
-        steerConfigs.MotionMagic.MotionMagicExpo_kA = 0.8_V / 1_tr_per_s_sq / constants.SteerMotorGearRatio;
+        steerConfigs.MotionMagic.MotionMagicExpo_kA = 1.2_V / 1_tr_per_s_sq / constants.SteerMotorGearRatio;
 
         steerConfigs.ClosedLoopGeneral.ContinuousWrap = true; // Enable continuous wrap for swerve modules
 
@@ -269,7 +284,7 @@ public:
         }
 
         typename EncoderT::Configuration encoderConfigs = constants.EncoderInitialConfigs;
-        if constexpr (std::is_same_v<configs::CANcoderConfiguration, decltype(encoderConfigs)>) {
+        if constexpr (std::same_as<configs::CANcoderConfiguration, decltype(encoderConfigs)>) {
             encoderConfigs.MagnetSensor.MagnetOffset = constants.EncoderOffset;
             encoderConfigs.MagnetSensor.SensorDirection = constants.EncoderInverted
                     ? signals::SensorDirectionValue::Clockwise_Positive
@@ -282,7 +297,7 @@ public:
             if (!response.IsOK()) {
                 printf("Encoder ID %d failed config with error %s\n", GetEncoder().GetDeviceID(), response.GetName());
             }
-        } else if constexpr (std::is_same_v<configs::CANdiConfiguration, decltype(encoderConfigs)>) {
+        } else if constexpr (std::same_as<configs::CANdiConfiguration, decltype(encoderConfigs)>) {
             for (int i = 0; i < kNumConfigAttempts; ++i) {
                 response = GetEncoder().GetConfigurator().Apply(encoderConfigs.DigitalInputs);
                 if (response.IsOK()) break;
@@ -356,7 +371,10 @@ public:
      * \param driveRequest The control request to apply to the drive motor
      * \param steerRequest The control request to apply to the steer motor
      */
-    template <typename DriveReq, typename SteerReq>
+    template <
+        std::derived_from<controls::ControlRequest> DriveReq,
+        std::derived_from<controls::ControlRequest> SteerReq
+    >
     void Apply(DriveReq &&driveRequest, SteerReq &&steerRequest)
     {
         return _module->Apply(std::forward<DriveReq>(driveRequest), std::forward<SteerReq>(steerRequest));
@@ -453,6 +471,18 @@ public:
     {
         return _driveMotor;
     }
+    /**
+     * \brief Gets this module's Drive Motor reference.
+     *
+     * This should be used only to access signals and change configurations that the
+     * swerve drivetrain does not configure itself.
+     *
+     * \returns This module's Drive Motor reference
+     */
+    DriveMotorT const &GetDriveMotor() const
+    {
+        return _driveMotor;
+    }
 
     /**
      * \brief Gets this module's Steer Motor reference.
@@ -466,6 +496,18 @@ public:
     {
         return _steerMotor;
     }
+    /**
+     * \brief Gets this module's Steer Motor reference.
+     *
+     * This should be used only to access signals and change configurations that the
+     * swerve drivetrain does not configure itself.
+     *
+     * \returns This module's Steer Motor reference
+     */
+    SteerMotorT const &GetSteerMotor() const
+    {
+        return _steerMotor;
+    }
 
     /**
      * \brief Gets this module's azimuth encoder reference.
@@ -476,6 +518,18 @@ public:
      * \returns This module's azimuth encoder reference
      */
     EncoderT &GetEncoder()
+    {
+        return _encoder;
+    }
+    /**
+     * \brief Gets this module's azimuth encoder reference.
+     *
+     * This should be used only to access signals and change configurations that the
+     * swerve drivetrain does not configure itself.
+     *
+     * \returns This module's azimuth encoder reference
+     */
+    EncoderT const &GetEncoder() const
     {
         return _encoder;
     }

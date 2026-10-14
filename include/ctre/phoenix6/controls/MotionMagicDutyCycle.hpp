@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/angle.h>
@@ -31,25 +28,8 @@ namespace controls {
  * control mode is duty cycle based, so relevant closed-loop gains will use fractional duty cycle for the
  * numerator:  +1.0 represents full forward output.
  */
-class MotionMagicDutyCycle : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<MotionMagicDutyCycle *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<MotionMagicDutyCycle>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlMotionMagicDutyCycle(network, deviceHash, UpdateFreqHz.to<double>(), Position.to<double>(), EnableFOC, FeedForward.to<double>(), Slot, OverrideBrakeDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class MotionMagicDutyCycle final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -74,7 +54,8 @@ public:
      */
     bool EnableFOC = true;
     /**
-     * \brief Feedforward to apply in fractional units between -1 and +1.
+     * \brief Feedforward to apply in fractional units between -1 and +1. This is
+     * added to the output of the onboard feedforward terms.
      * 
      * - Units: fractional
      * 
@@ -119,6 +100,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -131,9 +122,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -158,11 +151,23 @@ public:
      *          based, so relevant closed-loop gains will use fractional duty cycle
      *          for the numerator:  +1.0 represents full forward output.
      * 
-     * \param Position    Position to drive toward in rotations.
+     * \param Position Position to drive toward in rotations.
      */
-    MotionMagicDutyCycle(units::angle::turn_t Position) : ControlRequest{"MotionMagicDutyCycle"},
+    constexpr MotionMagicDutyCycle(units::angle::turn_t Position) : ControlRequest{},
         Position{std::move(Position)}
     {}
+
+    constexpr ~MotionMagicDutyCycle() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "MotionMagicDutyCycle";
+    }
     
     /**
      * \brief Modifies this Control Request's Position parameter and returns itself for
@@ -176,7 +181,7 @@ public:
      * \param newPosition Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithPosition(units::angle::turn_t newPosition)
+    constexpr MotionMagicDutyCycle &WithPosition(units::angle::turn_t newPosition)
     {
         Position = std::move(newPosition);
         return *this;
@@ -201,7 +206,7 @@ public:
      * \param newEnableFOC Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithEnableFOC(bool newEnableFOC)
+    constexpr MotionMagicDutyCycle &WithEnableFOC(bool newEnableFOC)
     {
         EnableFOC = std::move(newEnableFOC);
         return *this;
@@ -211,7 +216,8 @@ public:
      * \brief Modifies this Control Request's FeedForward parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Feedforward to apply in fractional units between -1 and +1.
+     * Feedforward to apply in fractional units between -1 and +1. This is added to
+     * the output of the onboard feedforward terms.
      * 
      * - Units: fractional
      * 
@@ -219,7 +225,7 @@ public:
      * \param newFeedForward Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithFeedForward(units::dimensionless::scalar_t newFeedForward)
+    constexpr MotionMagicDutyCycle &WithFeedForward(units::dimensionless::scalar_t newFeedForward)
     {
         FeedForward = std::move(newFeedForward);
         return *this;
@@ -236,7 +242,7 @@ public:
      * \param newSlot Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithSlot(int newSlot)
+    constexpr MotionMagicDutyCycle &WithSlot(int newSlot)
     {
         Slot = std::move(newSlot);
         return *this;
@@ -254,7 +260,7 @@ public:
      * \param newOverrideBrakeDurNeutral Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
+    constexpr MotionMagicDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
     {
         OverrideBrakeDurNeutral = std::move(newOverrideBrakeDurNeutral);
         return *this;
@@ -271,7 +277,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr MotionMagicDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -288,7 +294,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr MotionMagicDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -311,9 +317,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr MotionMagicDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr MotionMagicDutyCycle &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -333,15 +360,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithUseTimesync(bool newUseTimesync)
+    constexpr MotionMagicDutyCycle &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -352,53 +382,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    MotionMagicDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr MotionMagicDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: MotionMagicDutyCycle" << std::endl;
-        ss << "    Position: " << Position.to<double>() << " rotations" << std::endl;
-        ss << "    EnableFOC: " << EnableFOC << std::endl;
-        ss << "    FeedForward: " << FeedForward.to<double>() << " fractional" << std::endl;
-        ss << "    Slot: " << Slot << std::endl;
-        ss << "    OverrideBrakeDurNeutral: " << OverrideBrakeDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << Position.to<double>(); controlInfo["Position"] = ss.str(); ss.str(std::string{});
-        ss << EnableFOC; controlInfo["EnableFOC"] = ss.str(); ss.str(std::string{});
-        ss << FeedForward.to<double>(); controlInfo["FeedForward"] = ss.str(); ss.str(std::string{});
-        ss << Slot; controlInfo["Slot"] = ss.str(); ss.str(std::string{});
-        ss << OverrideBrakeDurNeutral; controlInfo["OverrideBrakeDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

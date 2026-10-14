@@ -7,9 +7,7 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
+#include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include <units/frequency.h>
 #include <units/time.h>
 
@@ -20,48 +18,37 @@ namespace controls {
 /**
  * Follow the differential motor output of another Talon.
  * 
- * If Talon is in torque control, the torque is copied - which will increase the total torque applied. If
- * Talon is in percent supply output control, the duty cycle is matched.  Motor direction either matches
- * master's configured direction or opposes it based on OpposeMasterDirection.
+ * If Talon is in torque control, the differential torque is copied - which will increase the total torque
+ * applied. If Talon is in duty cycle output control, the differential duty cycle is matched. If Talon is in
+ * voltage output control, the differential motor voltage is matched. Motor direction either matches leader's
+ * configured direction or opposes it based on the MotorAlignment.
+ * 
+ * The leader must enable its DifferentialOutput status signal. The update rate of the status signal
+ * determines the update rate of the follower's output and should be no slower than 20 Hz.
  */
-class DifferentialFollower : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<DifferentialFollower *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<DifferentialFollower>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlDifferentialFollower(network, deviceHash, UpdateFreqHz.to<double>(), MasterID, OpposeMasterDirection);
-    }
+class DifferentialFollower final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
-     * \brief Device ID of the differential master to follow.
+     * \brief Device ID of the differential leader to follow.
      */
-    int MasterID;
+    int LeaderID;
     /**
-     * \brief Set to false for motor invert to match the master's configured Invert
-     * - which is typical when master and follower are mechanically linked and spin
-     * in the same direction.  Set to true for motor invert to oppose the master's
-     * configured Invert - this is typical where the the master and follower
-     * mechanically spin in opposite directions.
+     * \brief Set to Aligned for motor invert to match the leader's configured
+     * Invert - which is typical when leader and follower are mechanically linked
+     * and spin in the same direction.  Set to Opposed for motor invert to oppose
+     * the leader's configured Invert - this is typical where the leader and
+     * follower mechanically spin in opposite directions.
      */
-    bool OpposeMasterDirection;
+    signals::MotorAlignmentValue MotorAlignment;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -74,64 +61,83 @@ public:
     /**
      * \brief Follow the differential motor output of another Talon.
      * 
-     * \details If Talon is in torque control, the torque is copied - which will
-     *          increase the total torque applied. If Talon is in percent supply
-     *          output control, the duty cycle is matched.  Motor direction either
-     *          matches master's configured direction or opposes it based on
-     *          OpposeMasterDirection.
+     * \details If Talon is in torque control, the differential torque is copied -
+     *          which will increase the total torque applied. If Talon is in duty
+     *          cycle output control, the differential duty cycle is matched. If
+     *          Talon is in voltage output control, the differential motor voltage
+     *          is matched. Motor direction either matches leader's configured
+     *          direction or opposes it based on the MotorAlignment.
+     *          
+     *          The leader must enable its DifferentialOutput status signal. The
+     *          update rate of the status signal determines the update rate of the
+     *          follower's output and should be no slower than 20 Hz.
      * 
-     * \param MasterID    Device ID of the differential master to follow.
-     * \param OpposeMasterDirection    Set to false for motor invert to match the
-     *                                 master's configured Invert - which is typical
-     *                                 when master and follower are mechanically
-     *                                 linked and spin in the same direction.  Set
-     *                                 to true for motor invert to oppose the
-     *                                 master's configured Invert - this is typical
-     *                                 where the the master and follower
-     *                                 mechanically spin in opposite directions.
+     * \param LeaderID Device ID of the differential leader to follow.
+     * \param MotorAlignment Set to Aligned for motor invert to match the leader's
+     *                       configured Invert - which is typical when leader and
+     *                       follower are mechanically linked and spin in the same
+     *                       direction.  Set to Opposed for motor invert to oppose
+     *                       the leader's configured Invert - this is typical where
+     *                       the leader and follower mechanically spin in opposite
+     *                       directions.
      */
-    DifferentialFollower(int MasterID, bool OpposeMasterDirection) : ControlRequest{"DifferentialFollower"},
-        MasterID{std::move(MasterID)},
-        OpposeMasterDirection{std::move(OpposeMasterDirection)}
+    constexpr DifferentialFollower(int LeaderID, signals::MotorAlignmentValue MotorAlignment) : ControlRequest{},
+        LeaderID{std::move(LeaderID)},
+        MotorAlignment{std::move(MotorAlignment)}
     {}
+
+    constexpr ~DifferentialFollower() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "DifferentialFollower";
+    }
     
     /**
-     * \brief Modifies this Control Request's MasterID parameter and returns itself for
+     * \brief Modifies this Control Request's LeaderID parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Device ID of the differential master to follow.
+     * Device ID of the differential leader to follow.
      *
-     * \param newMasterID Parameter to modify
+     * \param newLeaderID Parameter to modify
      * \returns Itself
      */
-    DifferentialFollower &WithMasterID(int newMasterID)
+    constexpr DifferentialFollower &WithLeaderID(int newLeaderID)
     {
-        MasterID = std::move(newMasterID);
+        LeaderID = std::move(newLeaderID);
         return *this;
     }
     
     /**
-     * \brief Modifies this Control Request's OpposeMasterDirection parameter and returns itself for
+     * \brief Modifies this Control Request's MotorAlignment parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Set to false for motor invert to match the master's configured Invert - which
-     * is typical when master and follower are mechanically linked and spin in the
-     * same direction.  Set to true for motor invert to oppose the master's
-     * configured Invert - this is typical where the the master and follower
+     * Set to Aligned for motor invert to match the leader's configured Invert -
+     * which is typical when leader and follower are mechanically linked and spin in
+     * the same direction.  Set to Opposed for motor invert to oppose the leader's
+     * configured Invert - this is typical where the leader and follower
      * mechanically spin in opposite directions.
      *
-     * \param newOpposeMasterDirection Parameter to modify
+     * \param newMotorAlignment Parameter to modify
      * \returns Itself
      */
-    DifferentialFollower &WithOpposeMasterDirection(bool newOpposeMasterDirection)
+    constexpr DifferentialFollower &WithMotorAlignment(signals::MotorAlignmentValue newMotorAlignment)
     {
-        OpposeMasterDirection = std::move(newOpposeMasterDirection);
+        MotorAlignment = std::move(newMotorAlignment);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -142,39 +148,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    DifferentialFollower &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr DifferentialFollower &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: DifferentialFollower" << std::endl;
-        ss << "    MasterID: " << MasterID << std::endl;
-        ss << "    OpposeMasterDirection: " << OpposeMasterDirection << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << MasterID; controlInfo["MasterID"] = ss.str(); ss.str(std::string{});
-        ss << OpposeMasterDirection; controlInfo["OpposeMasterDirection"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

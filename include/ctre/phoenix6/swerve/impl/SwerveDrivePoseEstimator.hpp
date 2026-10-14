@@ -316,9 +316,22 @@ public:
     void ResetTranslation(Translation2d const &translation)
     {
         m_odometry.ResetTranslation(translation);
+
+        std::optional<std::pair<units::second_t, VisionUpdate>> latestVisionUpdate =
+            m_visionUpdates.empty() ? std::nullopt : std::optional{*m_visionUpdates.crbegin()};
         m_odometryPoseBuffer.Clear();
         m_visionUpdates.clear();
-        m_poseEstimate = m_odometry.Pose();
+
+        if (latestVisionUpdate) {
+            VisionUpdate const visionUpdate{
+                Pose2d{translation, latestVisionUpdate->second.visionPose.Rotation()},
+                Pose2d{translation, latestVisionUpdate->second.odometryPose.Rotation()}
+            };
+            m_visionUpdates[latestVisionUpdate->first] = visionUpdate;
+            m_poseEstimate = visionUpdate.Compensate(m_odometry.Pose());
+        } else {
+            m_poseEstimate = m_odometry.Pose();
+        }
     }
 
     /**
@@ -329,9 +342,22 @@ public:
     void ResetRotation(Rotation2d const &rotation)
     {
         m_odometry.ResetRotation(rotation);
+
+        std::optional<std::pair<units::second_t, VisionUpdate>> latestVisionUpdate =
+            m_visionUpdates.empty() ? std::nullopt : std::optional{*m_visionUpdates.crbegin()};
         m_odometryPoseBuffer.Clear();
         m_visionUpdates.clear();
-        m_poseEstimate = m_odometry.Pose();
+
+        if (latestVisionUpdate) {
+            VisionUpdate const visionUpdate{
+                Pose2d{latestVisionUpdate->second.visionPose.Translation(), rotation},
+                Pose2d{latestVisionUpdate->second.odometryPose.Translation(), rotation}
+            };
+            m_visionUpdates[latestVisionUpdate->first] = visionUpdate;
+            m_poseEstimate = visionUpdate.Compensate(m_odometry.Pose());
+        } else {
+            m_poseEstimate = m_odometry.Pose();
+        }
     }
 
     /**

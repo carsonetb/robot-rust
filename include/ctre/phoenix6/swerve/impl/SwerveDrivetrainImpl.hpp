@@ -6,13 +6,13 @@
  */
 #pragma once
 
+#include "ctre/phoenix6/StatusSignalCollection.hpp"
 #include "ctre/phoenix6/swerve/impl/SwerveModuleImpl.hpp"
 #include "ctre/phoenix6/swerve/impl/SwerveDrivePoseEstimator.hpp"
 #include "ctre/phoenix6/swerve/SwerveDrivetrainConstants.hpp"
-#include "ctre/phoenix6/swerve/utility/LinearFilter.hpp"
-#include "ctre/phoenix6/CANBus.hpp"
 
 #include <atomic>
+#include <span>
 #include <thread>
 
 namespace ctre {
@@ -33,9 +33,8 @@ public:
     class OdometryThread {
     protected:
         static constexpr int START_THREAD_PRIORITY = 1; // Testing shows 1 (minimum realtime) is sufficient for tighter
-                                                        // odometry loops.
-                                                        // If the odometry period is far away from the desired frequency,
-                                                        // increasing this may help
+                                                        // odometry loops. If the odometry period is far away from the
+                                                        // desired frequency, increasing this may help.
 
         SwerveDrivetrainImpl *_drivetrain;
 
@@ -43,14 +42,10 @@ public:
         std::mutex _threadMtx;
         std::atomic<bool> _isRunning = false;
 
-        std::vector<BaseStatusSignal *> _allSignals;
+        StatusSignalCollection _allSignals;
+        StatusSignalCollection _encSignals;
 
-        static constexpr int kLowPassTaps = 50;
-        LinearFilter<units::second_t> _lowPass = LinearFilter<units::second_t>::MovingAverage(kLowPassTaps);
-        bool _lastTimeValid = false;
-        units::second_t _lastTime{};
         units::second_t _averageLoopTime{};
-
         std::atomic<int32_t> _successfulDaqs{};
         std::atomic<int32_t> _failedDaqs{};
 
@@ -164,7 +159,7 @@ public:
         units::second_t updatePeriod;
     };
 
-    using SwerveRequestFunc = std::function<ctre::phoenix::StatusCode(ControlParameters const &, std::vector<std::unique_ptr<SwerveModuleImpl>> const &)>;
+    using SwerveRequestFunc = std::function<ctre::phoenix::StatusCode(ControlParameters const &, std::span<std::unique_ptr<SwerveModuleImpl> const>)>;
 
 private:
     friend class OdometryThread;
@@ -186,7 +181,7 @@ private:
 
     Rotation2d _operatorForwardDirection{};
 
-    SwerveRequestFunc _requestToApply = [](auto&, auto&) { return ctre::phoenix::StatusCode::OK; };
+    SwerveRequestFunc _requestToApply = [](auto&, auto) { return ctre::phoenix::StatusCode::OK; };
     ControlParameters _requestParameters{};
 
     mutable std::recursive_mutex _stateLock;
@@ -208,10 +203,14 @@ public:
      * \param drivetrainConstants Drivetrain-wide constants for the swerve drive
      * \param modules             Constants for each specific module
      */
-    template <typename DriveMotorConfigsT, typename SteerMotorConfigsT, typename EncoderConfigsT>
+    template <
+        std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> EncoderConfigsT
+    >
     SwerveDrivetrainImpl(
         SwerveDrivetrainConstants const &drivetrainConstants,
-        span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
+        std::span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
     ) :
         SwerveDrivetrainImpl{drivetrainConstants, 0_Hz, modules}
     {}
@@ -228,11 +227,15 @@ public:
      *                                   CAN FD, and 100 Hz on CAN 2.0.
      * \param modules                    Constants for each specific module
      */
-    template <typename DriveMotorConfigsT, typename SteerMotorConfigsT, typename EncoderConfigsT>
+    template <
+        std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> EncoderConfigsT
+    >
     SwerveDrivetrainImpl(
         SwerveDrivetrainConstants const &drivetrainConstants,
         units::hertz_t odometryUpdateFrequency,
-        span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
+        std::span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
     ) :
         SwerveDrivetrainImpl{drivetrainConstants, odometryUpdateFrequency, std::array{0.1, 0.1, 0.1}, std::array{0.9, 0.9, 0.9}, modules}
     {}
@@ -255,13 +258,17 @@ public:
      *                                   and radians
      * \param modules                    Constants for each specific module
      */
-    template <typename DriveMotorConfigsT, typename SteerMotorConfigsT, typename EncoderConfigsT>
+    template <
+        std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> EncoderConfigsT
+    >
     SwerveDrivetrainImpl(
         SwerveDrivetrainConstants const &drivetrainConstants,
         units::hertz_t odometryUpdateFrequency,
         std::array<double, 3> const &odometryStandardDeviation,
         std::array<double, 3> const &visionStandardDeviation,
-        span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
+        std::span<SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const> modules
     );
 
     /**
@@ -313,7 +320,7 @@ public:
         if (request) {
             _requestToApply = std::move(request);
         } else {
-            _requestToApply = [](auto&, auto&) { return ctre::phoenix::StatusCode::OK; };
+            _requestToApply = [](auto&, auto) { return ctre::phoenix::StatusCode::OK; };
         }
     }
 
@@ -368,13 +375,14 @@ public:
      * \brief Configures the neutral mode to use for all modules' drive motors.
      *
      * \param neutralMode The drive motor neutral mode
+     * \param timeoutSeconds Maximum amount of time to wait when performing each configuration
      * \returns Status code of the first failed config call, or OK if all succeeded
      */
-    ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode)
+    ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode, units::second_t timeoutSeconds = 0.100_s)
     {
         ctre::phoenix::StatusCode retval = ctre::phoenix::StatusCode::OK;
         for (auto &module : _modules) {
-            auto status = module->ConfigNeutralMode(neutralMode);
+            auto status = module->ConfigNeutralMode(neutralMode, timeoutSeconds);
             if (retval.IsOK()) {
                 retval = status;
             }
@@ -401,17 +409,19 @@ public:
     }
 
     /**
-     * \brief Resets the rotation of the robot pose to 0 from the
-     * requests#ForwardPerspectiveValue#OperatorPerspective perspective.
-     * This makes the current orientation of the robot X forward for
-     * field-centric maneuvers.
+     * \brief Resets the rotation of the robot pose to the given value
+     * from the requests#ForwardPerspectiveValue#OperatorPerspective
+     * perspective. This makes the current orientation of the robot minus
+     * `rotation` the X forward for field-centric maneuvers.
      *
-     * This is equivalent to calling ResetRotation with the operator
-     * perspective rotation.
+     * This is equivalent to calling ResetRotation with `rotation +
+     * GetOperatorForwardDirection()`.
+     *
+     * \param rotation Rotation to make the current rotation
      */
-    void SeedFieldCentric()
+    void SeedFieldCentric(Rotation2d const &rotation = Rotation2d{})
     {
-        ResetRotation(_operatorForwardDirection);
+        ResetRotation(rotation + _operatorForwardDirection);
     }
 
     /**
@@ -614,7 +624,7 @@ public:
      * \returns The pose at the given timestamp (or std::nullopt if the buffer is
      * empty).
      */
-    std::optional<Pose2d> SamplePoseAt(units::second_t timestamp)
+    std::optional<Pose2d> SamplePoseAt(units::second_t timestamp) const
     {
         std::lock_guard<std::recursive_mutex> lock{_stateLock};
         return _odometry.SampleAt(timestamp);
@@ -642,11 +652,11 @@ public:
      *
      * \returns Reference to the SwerveModuleImpl array
      */
-    std::vector<std::unique_ptr<SwerveModuleImpl>> const &GetModules() const { return _modules; }
+    std::span<std::unique_ptr<SwerveModuleImpl> const> GetModules() const { return _modules; }
 
     /**
      * \brief Gets the locations of the swerve modules.
-     * 
+     *
      * \returns Reference to the array of swerve module locations
      */
     std::vector<Translation2d> const &GetModuleLocations() const { return _moduleLocations; }
@@ -660,6 +670,15 @@ public:
      * \returns This drivetrain's Pigeon 2 reference
      */
     hardware::core::CorePigeon2 &GetPigeon2() { return _pigeon2; }
+    /**
+     * \brief Gets this drivetrain's Pigeon 2 reference.
+     *
+     * This should be used only to access signals and change configurations that the
+     * swerve drivetrain does not configure itself.
+     *
+     * \returns This drivetrain's Pigeon 2 reference
+     */
+    hardware::core::CorePigeon2 const &GetPigeon2() const { return _pigeon2; }
 };
 
 }

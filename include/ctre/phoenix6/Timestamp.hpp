@@ -7,17 +7,14 @@
 #pragma once
 
 #include "ctre/phoenix6/Utils.hpp"
-#include <units/time.h>
 
 namespace ctre {
 namespace phoenix6 {
 
-    class AllTimestamps;
-
     /**
      * \brief Information about the timestamp of a signal.
      */
-    class Timestamp {
+    class Timestamp final {
     public:
         /**
          * \brief Source of the timestamp.
@@ -61,11 +58,16 @@ namespace phoenix6 {
         };
 
     private:
-        units::time::second_t time;
-        TimestampSource source;
-        bool valid;
+        units::time::second_t time{};
+        TimestampSource source{};
+        bool valid{false};
 
     public:
+        /**
+         * \brief Construct a new invalid Timestamp.
+         */
+        constexpr Timestamp() = default;
+
         /**
          * \brief Construct a new Timestamp for the given source.
          *
@@ -73,28 +75,18 @@ namespace phoenix6 {
          * \param source The timestamp source
          * \param valid Whether the timestamp is valid
          */
-        Timestamp(units::time::second_t time, TimestampSource source, bool valid = true) :
+        constexpr Timestamp(units::time::second_t time, TimestampSource source, bool valid = true) :
             time{time},
             source{source},
             valid{valid}
-        {
-        }
-        /**
-         * \brief Construct a new invalid Timestamp.
-         */
-        Timestamp() :
-            time{},
-            source{},
-            valid{false}
-        {
-        }
+        {}
 
         /**
          * \brief Get the time in seconds as reported from this timestamp
          *
          * \returns Time in seconds
          */
-        units::time::second_t GetTime() const
+        constexpr units::time::second_t GetTime() const
         {
             return this->time;
         }
@@ -103,7 +95,7 @@ namespace phoenix6 {
          *
          * \returns Source of this timestamp
          */
-        TimestampSource GetSource() const
+        constexpr TimestampSource GetSource() const
         {
             return this->source;
         }
@@ -121,7 +113,7 @@ namespace phoenix6 {
          *
          * \returns true when this is valid
          */
-        bool IsValid() const
+        constexpr bool IsValid() const
         {
             return this->valid;
         }
@@ -130,19 +122,20 @@ namespace phoenix6 {
     /**
      * \brief A collection of timestamps for a received signal.
      */
-    class AllTimestamps {
+    class AllTimestamps final {
     private:
         Timestamp systemTimestamp{};
         Timestamp canivoreTimestamp{};
         Timestamp deviceTimestamp{};
 
     public:
-        void Update(const Timestamp &newSystemTimestamp, const Timestamp &newCanivoreTimestamp, const Timestamp &newDeviceTimestamp)
+        void Update(Timestamp const &newSystemTimestamp, Timestamp const &newCanivoreTimestamp, Timestamp const &newDeviceTimestamp)
         {
             systemTimestamp = newSystemTimestamp;
             canivoreTimestamp = newCanivoreTimestamp;
             deviceTimestamp = newDeviceTimestamp;
         }
+
         /**
          * \brief Get the most accurate timestamp available.
          *
@@ -156,7 +149,7 @@ namespace phoenix6 {
          *
          * \returns The most accurate timestamp available
          */
-        const Timestamp &GetBestTimestamp() const
+        Timestamp const &GetBestTimestamp() const
         {
             if (deviceTimestamp.IsValid()) {
                 return deviceTimestamp;
@@ -167,24 +160,25 @@ namespace phoenix6 {
             /* System timestamp is always available */
             return systemTimestamp;
         }
+
         /**
          * \brief Get the timestamp as reported by the Timestamp#TimestampSource#System source.
          *
          * \returns Timestamp as reported by the System
          */
-        const Timestamp &GetSystemTimestamp() const { return systemTimestamp; }
+        Timestamp const &GetSystemTimestamp() const { return systemTimestamp; }
         /**
          * \brief Get the timestamp as reported by the Timestamp#TimestampSource#CANivore source.
          *
          * \returns Timestamp as reported by the CANivore
          */
-        const Timestamp &GetCANivoreTimestamp() const { return canivoreTimestamp; }
+        Timestamp const &GetCANivoreTimestamp() const { return canivoreTimestamp; }
         /**
          * \brief Get the timestamp as reported by the Timestamp#TimestampSource#Device source.
          *
          * \returns Timestamp as reported by the device
          */
-        const Timestamp &GetDeviceTimestamp() const { return deviceTimestamp; }
+        Timestamp const &GetDeviceTimestamp() const { return deviceTimestamp; }
     };
 
 }

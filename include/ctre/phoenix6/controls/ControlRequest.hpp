@@ -6,12 +6,10 @@
  */
 #pragma once
 
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
 #include "ctre/phoenix/StatusCodes.h"
 #include <units/frequency.h>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <string>
 
 namespace ctre {
@@ -24,36 +22,32 @@ namespace hardware {
 namespace controls {
 
     /**
-     * \brief Abstract Control Request class that other control requests extend for use.
+     * \brief Common interface implemented by all control requests.
      */
-    class ControlRequest
-    {
+    class ControlRequest {
         friend hardware::ParentDevice;
         virtual ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const = 0;
 
     protected:
-        std::string name;
-
         /* don't allow copy and move of the base class, only derived classes */
-        ControlRequest(ControlRequest const &) = default;
-        ControlRequest(ControlRequest &&) = default;
-        ControlRequest &operator=(ControlRequest const &) = default;
-        ControlRequest &operator=(ControlRequest &&) = default;
+        constexpr ControlRequest(ControlRequest const &) = default;
+        constexpr ControlRequest(ControlRequest &&) = default;
+        constexpr ControlRequest &operator=(ControlRequest const &) = default;
+        constexpr ControlRequest &operator=(ControlRequest &&) = default;
 
     public:
         /**
-         * \brief Constructs a new Control Request with the given name.
-         *
-         * \param name Name of the control request
+         * \brief Constructs a new Control Request.
          */
-        ControlRequest(std::string name) : name{std::move(name)}
-        {
-        }
+        constexpr ControlRequest() = default;
+        constexpr virtual ~ControlRequest() {}
 
-        std::string const &GetName() const
-        {
-            return name;
-        }
+        /**
+         * \brief Gets the name of this control request.
+         *
+         * \returns Name of the control request
+         */
+        constexpr virtual std::string_view GetName() const = 0;
 
         /**
          * \brief Gets information about this control request.
@@ -62,39 +56,35 @@ namespace controls {
          */
         virtual std::map<std::string, std::string> GetControlInfo() const = 0;
 
-        virtual ~ControlRequest() = default;
         virtual std::string ToString() const = 0;
     };
 
     /**
      * \brief Generic Empty Control class used to do nothing.
      */
-    class EmptyControl : public ControlRequest
-    {
-        ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-        {
-            if (req.get() != this)
-            {
-                auto const reqCast = dynamic_cast<EmptyControl *>(req.get());
-                if (reqCast != nullptr)
-                {
-                    *reqCast = *this;
-                }
-                else
-                {
-                    req = std::make_shared<EmptyControl>(*this);
-                }
-            }
-
-            return c_ctre_phoenix6_RequestControlEmpty(network, deviceHash, 0);
-        }
+    class EmptyControl final : public ControlRequest {
+        ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
     public:
         /**
          * \brief Constructs an empty control request.
          */
-        EmptyControl() : ControlRequest{"EmptyControl"}
+        constexpr EmptyControl() = default;
+        constexpr ~EmptyControl() override {}
+
+        /**
+         * \brief Gets the name of this control request.
+         *
+         * \returns Name of the control request
+         */
+        constexpr std::string_view GetName() const override
         {
+            return "EmptyControl";
+        }
+
+        std::string ToString() const override
+        {
+            return "class: EmptyControl";
         }
 
         /**
@@ -102,21 +92,9 @@ namespace controls {
          *
          * \returns Map of control parameter names and corresponding applied values
          */
-        std::map<std::string, std::string> GetControlInfo() const override
-        {
-            std::map<std::string, std::string> controlInfo;
-            controlInfo["Name"] = GetName();
-            return controlInfo;
-        }
+        std::map<std::string, std::string> GetControlInfo() const override;
 
-        std::string ToString() const override
-        {
-            std::stringstream ss;
-            ss << "class: EmptyControl" << std::endl;
-            return ss.str();
-        }
-
-        EmptyControl &WithUpdateFreqHz(units::frequency::hertz_t) { return *this; }
+        constexpr EmptyControl &WithUpdateFreqHz(units::frequency::hertz_t) { return *this; }
     };
 
 }

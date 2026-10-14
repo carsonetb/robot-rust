@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 
@@ -20,25 +17,8 @@ namespace controls {
 /**
  * Plays a single tone at the user specified frequency.
  */
-class MusicTone : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<MusicTone *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<MusicTone>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlMusicTone(network, deviceHash, UpdateFreqHz.to<double>(), AudioFrequency.to<double>());
-    }
+class MusicTone final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -53,9 +33,11 @@ public:
     units::frequency::hertz_t AudioFrequency;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -68,15 +50,27 @@ public:
     /**
      * \brief Plays a single tone at the user specified frequency.
      * 
-     * \param AudioFrequency    Sound frequency to play.  A value of zero will
-     *                          silence the device. The effective frequency range is
-     *                          10-20000 Hz.  Any nonzero frequency less than 10 Hz
-     *                          will be capped to 10 Hz.  Any frequency above 20 kHz
-     *                          will be capped to 20 kHz.
+     * \param AudioFrequency Sound frequency to play.  A value of zero will silence
+     *                       the device. The effective frequency range is 10-20000
+     *                       Hz.  Any nonzero frequency less than 10 Hz will be
+     *                       capped to 10 Hz.  Any frequency above 20 kHz will be
+     *                       capped to 20 kHz.
      */
-    MusicTone(units::frequency::hertz_t AudioFrequency) : ControlRequest{"MusicTone"},
+    constexpr MusicTone(units::frequency::hertz_t AudioFrequency) : ControlRequest{},
         AudioFrequency{std::move(AudioFrequency)}
     {}
+
+    constexpr ~MusicTone() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "MusicTone";
+    }
     
     /**
      * \brief Modifies this Control Request's AudioFrequency parameter and returns itself for
@@ -93,15 +87,18 @@ public:
      * \param newAudioFrequency Parameter to modify
      * \returns Itself
      */
-    MusicTone &WithAudioFrequency(units::frequency::hertz_t newAudioFrequency)
+    constexpr MusicTone &WithAudioFrequency(units::frequency::hertz_t newAudioFrequency)
     {
         AudioFrequency = std::move(newAudioFrequency);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -112,37 +109,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    MusicTone &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr MusicTone &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: MusicTone" << std::endl;
-        ss << "    AudioFrequency: " << AudioFrequency.to<double>() << " Hz" << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << AudioFrequency.to<double>(); controlInfo["AudioFrequency"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

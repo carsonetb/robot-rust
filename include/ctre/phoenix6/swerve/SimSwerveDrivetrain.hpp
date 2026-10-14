@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "ctre/phoenix6/core/CorePigeon2.hpp"
+#include "ctre/phoenix6/sim/Pigeon2SimState.hpp"
 #include "ctre/phoenix6/swerve/impl/SwerveDriveKinematics.hpp"
 #include "ctre/phoenix6/swerve/SwerveModule.hpp"
 #include <frc/simulation/DCMotorSim.h>
@@ -32,17 +32,13 @@ namespace swerve {
  * expand this model for their own use.
  */
 template <
-    typename DriveMotorT,
-    typename SteerMotorT,
-    typename EncoderT,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, DriveMotorT>>,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, SteerMotorT>>,
-    typename = std::enable_if_t<std::disjunction_v<
-        std::is_same<hardware::CANcoder, EncoderT>,
-        std::is_same<hardware::CANdi, EncoderT>,
-        std::is_same<hardware::TalonFXS, EncoderT>
-    >>
+    std::derived_from<hardware::traits::CommonTalon> DriveMotorT,
+    std::derived_from<hardware::traits::CommonTalon> SteerMotorT,
+    typename EncoderT
 >
+    requires std::same_as<EncoderT, hardware::CANcoder> ||
+        std::same_as<EncoderT, hardware::CANdi> ||
+        std::same_as<EncoderT, hardware::TalonFXS>
 class SimSwerveDrivetrain {
 protected:
     class SimSwerveModule {
@@ -65,6 +61,8 @@ protected:
         bool SteerMotorInverted;
         /** \brief Whether the azimuth encoder is inverted */
         bool EncoderInverted;
+        /** \brief Offset of the azimuth encoder */
+        units::turn_t EncoderOffset;
         /** \brief The type of encoder to use for the azimuth */
         SteerFeedbackType EncoderType;
 
@@ -76,6 +74,7 @@ protected:
             units::volt_t steerFrictionVoltage, bool steerMotorInverted,
             SteerMotorArrangement steerMotorType,
             bool encoderInverted,
+            units::turn_t encoderOffset,
             SteerFeedbackType encoderType
         ) :
             DriveMotor{frc::LinearSystemId::DCMotorSystem(GetDriveMotorGearbox(driveMotorType), driveInertia, driveGearing), GetDriveMotorGearbox(driveMotorType)},
@@ -87,6 +86,7 @@ protected:
             DriveMotorInverted{driveMotorInverted},
             SteerMotorInverted{steerMotorInverted},
             EncoderInverted{encoderInverted},
+            EncoderOffset{encoderOffset},
             EncoderType{encoderType}
         {}
 
@@ -133,13 +133,11 @@ protected:
 
 public:
     template <
-        typename... ModuleConstants,
-        typename = std::enable_if_t<std::conjunction_v<
-            std::is_same<
-                ModuleConstants,
-                SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration>
-            >...
-        >>
+        std::same_as<SwerveModuleConstants<
+            typename DriveMotorT::Configuration,
+            typename SteerMotorT::Configuration,
+            typename EncoderT::Configuration
+        >>... ModuleConstants
     >
     SimSwerveDrivetrain(
         std::vector<Translation2d> wheelLocations,
@@ -160,6 +158,7 @@ public:
                 moduleConstants.SteerMotorInverted,
                 moduleConstants.SteerMotorType,
                 moduleConstants.EncoderInverted,
+                moduleConstants.EncoderOffset,
                 moduleConstants.FeedbackSource
             }...
         },
@@ -169,7 +168,7 @@ public:
     void Update(
         units::second_t dt,
         units::volt_t supplyVoltage,
-        std::vector<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>> const &modulesToApply
+        std::span<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>> const> modulesToApply
     ) {
         if (modulesToApply.size() != _modules.size()) return;
 
@@ -180,21 +179,23 @@ public:
             auto &steerMotor = modulesToApply[i]->GetSteerMotor().GetSimState();
             auto &encoder = modulesToApply[i]->GetEncoder().GetSimState();
 
-            if constexpr (std::is_same_v<hardware::TalonFXS, DriveMotorT>) {
+            if constexpr (std::same_as<hardware::TalonFXS, DriveMotorT>) {
                 driveMotor.MotorOrientation = _modules[i].DriveMotorInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
             } else {
                 driveMotor.Orientation = _modules[i].DriveMotorInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
             }
 
-            if constexpr (std::is_same_v<hardware::TalonFXS, SteerMotorT>) {
+            if constexpr (std::same_as<hardware::TalonFXS, SteerMotorT>) {
                 steerMotor.MotorOrientation = _modules[i].SteerMotorInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
                 steerMotor.ExtSensorOrientation = _modules[i].SteerMotorInverted != _modules[i].EncoderInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
+                steerMotor.PulseWidthSensorOffset = _modules[i].EncoderOffset;
             } else {
                 steerMotor.Orientation = _modules[i].SteerMotorInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
             }
 
-            if constexpr (std::is_same_v<hardware::CANcoder, EncoderT>) {
+            if constexpr (std::same_as<hardware::CANcoder, EncoderT>) {
                 encoder.Orientation = _modules[i].EncoderInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
+                encoder.SensorOffset = _modules[i].EncoderOffset;
             }
 
             driveMotor.SetSupplyVoltage(supplyVoltage);
@@ -212,22 +213,23 @@ public:
 
             steerMotor.SetRawRotorPosition(_modules[i].SteerMotor.GetAngularPosition() * _modules[i].SteerGearing);
             steerMotor.SetRotorVelocity(_modules[i].SteerMotor.GetAngularVelocity() * _modules[i].SteerGearing);
-            if constexpr (std::is_same_v<hardware::TalonFXS, SteerMotorT>) {
+            if constexpr (std::same_as<hardware::TalonFXS, SteerMotorT>) {
                 /* azimuth encoders see the mechanism, so don't account for the steer gearing */
                 steerMotor.SetPulseWidthPosition(_modules[i].SteerMotor.GetAngularPosition());
                 steerMotor.SetPulseWidthVelocity(_modules[i].SteerMotor.GetAngularVelocity());
             }
 
-            if constexpr (std::is_same_v<hardware::CANcoder, EncoderT>) {
+            if constexpr (std::same_as<hardware::CANcoder, EncoderT>) {
                 /* azimuth encoders see the mechanism, so don't account for the steer gearing */
                 encoder.SetRawPosition(_modules[i].SteerMotor.GetAngularPosition());
                 encoder.SetVelocity(_modules[i].SteerMotor.GetAngularVelocity());
-            } else if constexpr (std::is_same_v<hardware::CANdi, EncoderT>) {
+            } else if constexpr (std::same_as<hardware::CANdi, EncoderT>) {
                 switch (_modules[i].EncoderType) {
                     case SteerFeedbackType::FusedCANdiPWM1:
                     case SteerFeedbackType::SyncCANdiPWM1:
                     case SteerFeedbackType::RemoteCANdiPWM1:
                         encoder.Pwm1Orientation = _modules[i].EncoderInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
+                        encoder.Pwm1SensorOffset = _modules[i].EncoderOffset;
 
                         /* azimuth encoders see the mechanism, so don't account for the steer gearing */
                         encoder.SetPwm1Connected(true);
@@ -239,6 +241,7 @@ public:
                     case SteerFeedbackType::SyncCANdiPWM2:
                     case SteerFeedbackType::RemoteCANdiPWM2:
                         encoder.Pwm2Orientation = _modules[i].EncoderInverted ? sim::ChassisReference::Clockwise_Positive : sim::ChassisReference::CounterClockwise_Positive;
+                        encoder.Pwm1SensorOffset = _modules[i].EncoderOffset;
 
                         /* azimuth encoders see the mechanism, so don't account for the steer gearing */
                         encoder.SetPwm2Connected(true);

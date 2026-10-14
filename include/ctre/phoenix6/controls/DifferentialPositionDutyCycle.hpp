@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/angle.h>
@@ -24,25 +21,8 @@ namespace controls {
  * This control mode will set the motor's position setpoint to the position specified by the user. It will
  * also set the motor's differential position setpoint to the specified position.
  */
-class DifferentialPositionDutyCycle : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<DifferentialPositionDutyCycle *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<DifferentialPositionDutyCycle>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlDifferentialPositionDutyCycle(network, deviceHash, UpdateFreqHz.to<double>(), TargetPosition.to<double>(), DifferentialPosition.to<double>(), EnableFOC, TargetSlot, DifferentialSlot, OverrideBrakeDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class DifferentialPositionDutyCycle final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -51,7 +31,7 @@ public:
      * - Units: rotations
      * 
      */
-    units::angle::turn_t TargetPosition;
+    units::angle::turn_t AveragePosition;
     /**
      * \brief Differential position to drive toward in rotations.
      * 
@@ -74,11 +54,11 @@ public:
      */
     bool EnableFOC = true;
     /**
-     * \brief Select which gains are applied to the primary controller by selecting
+     * \brief Select which gains are applied to the average controller by selecting
      * the slot.  Use the configuration api to set the gain values for the selected
      * slot before enabling this feature. Slot must be within [0,2].
      */
-    int TargetSlot = 0;
+    int AverageSlot = 0;
     /**
      * \brief Select which gains are applied to the differential controller by
      * selecting the slot.  Use the configuration api to set the gain values for the
@@ -118,6 +98,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -130,9 +120,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -149,17 +141,29 @@ public:
      *          position specified by the user. It will also set the motor's
      *          differential position setpoint to the specified position.
      * 
-     * \param TargetPosition    Average position to drive toward in rotations.
-     * \param DifferentialPosition    Differential position to drive toward in
-     *                                rotations.
+     * \param AveragePosition Average position to drive toward in rotations.
+     * \param DifferentialPosition Differential position to drive toward in
+     *                             rotations.
      */
-    DifferentialPositionDutyCycle(units::angle::turn_t TargetPosition, units::angle::turn_t DifferentialPosition) : ControlRequest{"DifferentialPositionDutyCycle"},
-        TargetPosition{std::move(TargetPosition)},
+    constexpr DifferentialPositionDutyCycle(units::angle::turn_t AveragePosition, units::angle::turn_t DifferentialPosition) : ControlRequest{},
+        AveragePosition{std::move(AveragePosition)},
         DifferentialPosition{std::move(DifferentialPosition)}
     {}
+
+    constexpr ~DifferentialPositionDutyCycle() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "DifferentialPositionDutyCycle";
+    }
     
     /**
-     * \brief Modifies this Control Request's TargetPosition parameter and returns itself for
+     * \brief Modifies this Control Request's AveragePosition parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
      * Average position to drive toward in rotations.
@@ -167,12 +171,12 @@ public:
      * - Units: rotations
      * 
      *
-     * \param newTargetPosition Parameter to modify
+     * \param newAveragePosition Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithTargetPosition(units::angle::turn_t newTargetPosition)
+    constexpr DifferentialPositionDutyCycle &WithAveragePosition(units::angle::turn_t newAveragePosition)
     {
-        TargetPosition = std::move(newTargetPosition);
+        AveragePosition = std::move(newAveragePosition);
         return *this;
     }
     
@@ -188,7 +192,7 @@ public:
      * \param newDifferentialPosition Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
+    constexpr DifferentialPositionDutyCycle &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
     {
         DifferentialPosition = std::move(newDifferentialPosition);
         return *this;
@@ -213,26 +217,26 @@ public:
      * \param newEnableFOC Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithEnableFOC(bool newEnableFOC)
+    constexpr DifferentialPositionDutyCycle &WithEnableFOC(bool newEnableFOC)
     {
         EnableFOC = std::move(newEnableFOC);
         return *this;
     }
     
     /**
-     * \brief Modifies this Control Request's TargetSlot parameter and returns itself for
+     * \brief Modifies this Control Request's AverageSlot parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Select which gains are applied to the primary controller by selecting the
+     * Select which gains are applied to the average controller by selecting the
      * slot.  Use the configuration api to set the gain values for the selected slot
      * before enabling this feature. Slot must be within [0,2].
      *
-     * \param newTargetSlot Parameter to modify
+     * \param newAverageSlot Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithTargetSlot(int newTargetSlot)
+    constexpr DifferentialPositionDutyCycle &WithAverageSlot(int newAverageSlot)
     {
-        TargetSlot = std::move(newTargetSlot);
+        AverageSlot = std::move(newAverageSlot);
         return *this;
     }
     
@@ -247,7 +251,7 @@ public:
      * \param newDifferentialSlot Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithDifferentialSlot(int newDifferentialSlot)
+    constexpr DifferentialPositionDutyCycle &WithDifferentialSlot(int newDifferentialSlot)
     {
         DifferentialSlot = std::move(newDifferentialSlot);
         return *this;
@@ -265,7 +269,7 @@ public:
      * \param newOverrideBrakeDurNeutral Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
+    constexpr DifferentialPositionDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
     {
         OverrideBrakeDurNeutral = std::move(newOverrideBrakeDurNeutral);
         return *this;
@@ -282,7 +286,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr DifferentialPositionDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -299,7 +303,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr DifferentialPositionDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -322,9 +326,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr DifferentialPositionDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr DifferentialPositionDutyCycle &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -344,15 +369,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithUseTimesync(bool newUseTimesync)
+    constexpr DifferentialPositionDutyCycle &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -363,55 +391,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    DifferentialPositionDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr DifferentialPositionDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: DifferentialPositionDutyCycle" << std::endl;
-        ss << "    TargetPosition: " << TargetPosition.to<double>() << " rotations" << std::endl;
-        ss << "    DifferentialPosition: " << DifferentialPosition.to<double>() << " rotations" << std::endl;
-        ss << "    EnableFOC: " << EnableFOC << std::endl;
-        ss << "    TargetSlot: " << TargetSlot << std::endl;
-        ss << "    DifferentialSlot: " << DifferentialSlot << std::endl;
-        ss << "    OverrideBrakeDurNeutral: " << OverrideBrakeDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << TargetPosition.to<double>(); controlInfo["TargetPosition"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialPosition.to<double>(); controlInfo["DifferentialPosition"] = ss.str(); ss.str(std::string{});
-        ss << EnableFOC; controlInfo["EnableFOC"] = ss.str(); ss.str(std::string{});
-        ss << TargetSlot; controlInfo["TargetSlot"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialSlot; controlInfo["DifferentialSlot"] = ss.str(); ss.str(std::string{});
-        ss << OverrideBrakeDurNeutral; controlInfo["OverrideBrakeDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

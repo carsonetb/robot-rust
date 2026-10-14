@@ -7,10 +7,31 @@
 #pragma once
 
 #include "ctre/phoenix6/hardware/ParentDevice.hpp"
-#include "ctre/phoenix6/CANBus.hpp"
-#include "ctre/phoenix6/configs/Configs.hpp"
+#include "ctre/phoenix6/configs/Configuration.hpp"
 #include "ctre/phoenix6/configs/Configurator.hpp"
+#include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include "ctre/phoenix6/hardware/traits/CommonTalonWithExternalMotor.hpp"
+#include "ctre/phoenix6/configs/MotorOutputConfigs.hpp"
+#include "ctre/phoenix6/configs/CurrentLimitsConfigs.hpp"
+#include "ctre/phoenix6/configs/VoltageConfigs.hpp"
+#include "ctre/phoenix6/configs/ExternalFeedbackConfigs.hpp"
+#include "ctre/phoenix6/configs/DifferentialSensorsConfigs.hpp"
+#include "ctre/phoenix6/configs/DifferentialConstantsConfigs.hpp"
+#include "ctre/phoenix6/configs/OpenLoopRampsConfigs.hpp"
+#include "ctre/phoenix6/configs/ClosedLoopRampsConfigs.hpp"
+#include "ctre/phoenix6/configs/HardwareLimitSwitchConfigs.hpp"
+#include "ctre/phoenix6/configs/AudioConfigs.hpp"
+#include "ctre/phoenix6/configs/SoftwareLimitSwitchConfigs.hpp"
+#include "ctre/phoenix6/configs/MotionMagicConfigs.hpp"
+#include "ctre/phoenix6/configs/CustomParamsConfigs.hpp"
+#include "ctre/phoenix6/configs/ClosedLoopGeneralConfigs.hpp"
+#include "ctre/phoenix6/configs/CommutationConfigs.hpp"
+#include "ctre/phoenix6/configs/CustomBrushlessMotorConfigs.hpp"
+#include "ctre/phoenix6/configs/ExternalTempConfigs.hpp"
+#include "ctre/phoenix6/configs/Slot0Configs.hpp"
+#include "ctre/phoenix6/configs/Slot1Configs.hpp"
+#include "ctre/phoenix6/configs/Slot2Configs.hpp"
+#include "ctre/phoenix6/configs/SlotConfigs.hpp"
 #include "ctre/phoenix6/controls/DutyCycleOut.hpp"
 #include "ctre/phoenix6/controls/VoltageOut.hpp"
 #include "ctre/phoenix6/controls/PositionDutyCycle.hpp"
@@ -27,6 +48,10 @@
 #include "ctre/phoenix6/controls/DifferentialVelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/DifferentialMotionMagicDutyCycle.hpp"
 #include "ctre/phoenix6/controls/DifferentialMotionMagicVoltage.hpp"
+#include "ctre/phoenix6/controls/DifferentialMotionMagicExpoDutyCycle.hpp"
+#include "ctre/phoenix6/controls/DifferentialMotionMagicExpoVoltage.hpp"
+#include "ctre/phoenix6/controls/DifferentialMotionMagicVelocityDutyCycle.hpp"
+#include "ctre/phoenix6/controls/DifferentialMotionMagicVelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/Follower.hpp"
 #include "ctre/phoenix6/controls/StrictFollower.hpp"
 #include "ctre/phoenix6/controls/DifferentialFollower.hpp"
@@ -40,22 +65,44 @@
 #include "ctre/phoenix6/controls/MotionMagicExpoVoltage.hpp"
 #include "ctre/phoenix6/controls/DynamicMotionMagicDutyCycle.hpp"
 #include "ctre/phoenix6/controls/DynamicMotionMagicVoltage.hpp"
+#include "ctre/phoenix6/controls/DynamicMotionMagicExpoDutyCycle.hpp"
+#include "ctre/phoenix6/controls/DynamicMotionMagicExpoVoltage.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_DutyCycleOut_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionDutyCycle_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityDutyCycle_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicDutyCycle_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoDutyCycle_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityDutyCycle_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_DutyCycleOut_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionDutyCycle_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityDutyCycle_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicDutyCycle_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoDutyCycle_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityDutyCycle_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_DutyCycleOut_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_PositionDutyCycle_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_VelocityDutyCycle_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicDutyCycle_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoDutyCycle_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityDutyCycle_Open.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VoltageOut_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionVoltage_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityVoltage_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicVoltage_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoVoltage_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityVoltage_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VoltageOut_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionVoltage_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityVoltage_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicVoltage_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoVoltage_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityVoltage_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_VoltageOut_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_PositionVoltage_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_VelocityVoltage_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVoltage_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoVoltage_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityVoltage_Open.hpp"
 #include "ctre/phoenix6/sim/TalonFXSSimState.hpp"
 #include "ctre/unit/motor_constants.h"
 #include <units/angle.h>
@@ -80,7 +127,7 @@ namespace configs {
 /**
  * Class description for the Talon FXS motor controller.
  *
- * This handles the configurations for the hardware#TalonFXS
+ * This defines all configurations for the hardware#TalonFXS.
  */
 class TalonFXSConfiguration : public ParentConfiguration
 {
@@ -189,6 +236,7 @@ public:
      * - DifferentialSensorsConfigs#DifferentialSensorSource
      * - DifferentialSensorsConfigs#DifferentialTalonFXSensorID
      * - DifferentialSensorsConfigs#DifferentialRemoteSensorID
+     * - DifferentialSensorsConfigs#SensorToDifferentialRatio
      * 
      */
     DifferentialSensorsConfigs DifferentialSensors;
@@ -332,6 +380,9 @@ public:
      * Parameter list:
      * 
      * - ClosedLoopGeneralConfigs#ContinuousWrap
+     * - ClosedLoopGeneralConfigs#DifferentialContinuousWrap
+     * - ClosedLoopGeneralConfigs#GainSchedErrorThreshold
+     * - ClosedLoopGeneralConfigs#GainSchedKpBehavior
      * 
      */
     ClosedLoopGeneralConfigs ClosedLoopGeneral;
@@ -352,6 +403,55 @@ public:
     CommutationConfigs Commutation;
     
     /**
+     * \brief Configs related to using a custom brushless motor that is
+     *        not formally supported by Talon FXS.
+     * 
+     * \details Configs are only used when Motor Arrangement is set to
+     *          Custom Brushless Motor.  Note this feature will only work
+     *          device is not FRC-Locked.
+     *          
+     *          Users are responsible for ensuring that these configs are
+     *          accurate to the motor. CTR Electronics is not responsible
+     *          for damage caused by an incorrect custom motor
+     *          configuration.
+     * 
+     * Parameter list:
+     * 
+     * - CustomBrushlessMotorConfigs#MotorKv
+     * - CustomBrushlessMotorConfigs#PolePairCount
+     * - CustomBrushlessMotorConfigs#HallDuringAB
+     * - CustomBrushlessMotorConfigs#HallDuringAC
+     * - CustomBrushlessMotorConfigs#HallCCWSelect
+     * - CustomBrushlessMotorConfigs#HallDirection
+     * 
+     */
+    CustomBrushlessMotorConfigs CustomBrushlessMotor;
+    
+    /**
+     * \brief Configs related to using an independent thermister for
+     *        automatically disabling a motor when a threshold has been
+     *        reached.
+     * 
+     * \details Configs are only used when Motor Arrangement is set to
+     *          Custom Brushless Motor or Brushed.  Note this feature will
+     *          only work device is not FRC-Locked.
+     *          
+     *          Users are responsible for ensuring that these configs are
+     *          accurate to the motor. CTR Electronics is not responsible
+     *          for damage caused by an incorrect custom motor
+     *          configuration.
+     * 
+     * Parameter list:
+     * 
+     * - ExternalTempConfigs#ThermistorMaxTemperature
+     * - ExternalTempConfigs#ThermistorBeta
+     * - ExternalTempConfigs#ThermistorR0
+     * - ExternalTempConfigs#TempSensorRequired
+     * 
+     */
+    ExternalTempConfigs ExternalTemp;
+    
+    /**
      * \brief Gains for the specified slot.
      * 
      * \details If this slot is selected, these gains are used in closed
@@ -368,6 +468,8 @@ public:
      * - Slot0Configs#kG
      * - Slot0Configs#GravityType
      * - Slot0Configs#StaticFeedforwardSign
+     * - Slot0Configs#GravityArmPositionOffset
+     * - Slot0Configs#GainSchedBehavior
      * 
      */
     Slot0Configs Slot0;
@@ -389,6 +491,8 @@ public:
      * - Slot1Configs#kG
      * - Slot1Configs#GravityType
      * - Slot1Configs#StaticFeedforwardSign
+     * - Slot1Configs#GravityArmPositionOffset
+     * - Slot1Configs#GainSchedBehavior
      * 
      */
     Slot1Configs Slot1;
@@ -410,6 +514,8 @@ public:
      * - Slot2Configs#kG
      * - Slot2Configs#GravityType
      * - Slot2Configs#StaticFeedforwardSign
+     * - Slot2Configs#GravityArmPositionOffset
+     * - Slot2Configs#GainSchedBehavior
      * 
      */
     Slot2Configs Slot2;
@@ -543,6 +649,7 @@ public:
      * - DifferentialSensorsConfigs#DifferentialSensorSource
      * - DifferentialSensorsConfigs#DifferentialTalonFXSensorID
      * - DifferentialSensorsConfigs#DifferentialRemoteSensorID
+     * - DifferentialSensorsConfigs#SensorToDifferentialRatio
      * 
      *
      * \param newDifferentialSensors Parameter to modify
@@ -775,6 +882,9 @@ public:
      * Parameter list:
      * 
      * - ClosedLoopGeneralConfigs#ContinuousWrap
+     * - ClosedLoopGeneralConfigs#DifferentialContinuousWrap
+     * - ClosedLoopGeneralConfigs#GainSchedErrorThreshold
+     * - ClosedLoopGeneralConfigs#GainSchedKpBehavior
      * 
      *
      * \param newClosedLoopGeneral Parameter to modify
@@ -812,6 +922,74 @@ public:
     }
     
     /**
+     * \brief Modifies this configuration's CustomBrushlessMotor parameter and returns itself for
+     *        method-chaining and easier to use config API.
+     *
+     * Configs related to using a custom brushless motor that is not
+     * formally supported by Talon FXS.
+     * 
+     * \details Configs are only used when Motor Arrangement is set to
+     *          Custom Brushless Motor.  Note this feature will only work
+     *          device is not FRC-Locked.
+     *          
+     *          Users are responsible for ensuring that these configs are
+     *          accurate to the motor. CTR Electronics is not responsible
+     *          for damage caused by an incorrect custom motor
+     *          configuration.
+     * 
+     * Parameter list:
+     * 
+     * - CustomBrushlessMotorConfigs#MotorKv
+     * - CustomBrushlessMotorConfigs#PolePairCount
+     * - CustomBrushlessMotorConfigs#HallDuringAB
+     * - CustomBrushlessMotorConfigs#HallDuringAC
+     * - CustomBrushlessMotorConfigs#HallCCWSelect
+     * - CustomBrushlessMotorConfigs#HallDirection
+     * 
+     *
+     * \param newCustomBrushlessMotor Parameter to modify
+     * \returns Itself
+     */
+    constexpr TalonFXSConfiguration &WithCustomBrushlessMotor(CustomBrushlessMotorConfigs newCustomBrushlessMotor)
+    {
+        CustomBrushlessMotor = std::move(newCustomBrushlessMotor);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this configuration's ExternalTemp parameter and returns itself for
+     *        method-chaining and easier to use config API.
+     *
+     * Configs related to using an independent thermister for
+     * automatically disabling a motor when a threshold has been reached.
+     * 
+     * \details Configs are only used when Motor Arrangement is set to
+     *          Custom Brushless Motor or Brushed.  Note this feature will
+     *          only work device is not FRC-Locked.
+     *          
+     *          Users are responsible for ensuring that these configs are
+     *          accurate to the motor. CTR Electronics is not responsible
+     *          for damage caused by an incorrect custom motor
+     *          configuration.
+     * 
+     * Parameter list:
+     * 
+     * - ExternalTempConfigs#ThermistorMaxTemperature
+     * - ExternalTempConfigs#ThermistorBeta
+     * - ExternalTempConfigs#ThermistorR0
+     * - ExternalTempConfigs#TempSensorRequired
+     * 
+     *
+     * \param newExternalTemp Parameter to modify
+     * \returns Itself
+     */
+    constexpr TalonFXSConfiguration &WithExternalTemp(ExternalTempConfigs newExternalTemp)
+    {
+        ExternalTemp = std::move(newExternalTemp);
+        return *this;
+    }
+    
+    /**
      * \brief Modifies this configuration's Slot0 parameter and returns itself for
      *        method-chaining and easier to use config API.
      *
@@ -831,6 +1009,8 @@ public:
      * - Slot0Configs#kG
      * - Slot0Configs#GravityType
      * - Slot0Configs#StaticFeedforwardSign
+     * - Slot0Configs#GravityArmPositionOffset
+     * - Slot0Configs#GainSchedBehavior
      * 
      *
      * \param newSlot0 Parameter to modify
@@ -862,6 +1042,8 @@ public:
      * - Slot1Configs#kG
      * - Slot1Configs#GravityType
      * - Slot1Configs#StaticFeedforwardSign
+     * - Slot1Configs#GravityArmPositionOffset
+     * - Slot1Configs#GainSchedBehavior
      * 
      *
      * \param newSlot1 Parameter to modify
@@ -893,6 +1075,8 @@ public:
      * - Slot2Configs#kG
      * - Slot2Configs#GravityType
      * - Slot2Configs#StaticFeedforwardSign
+     * - Slot2Configs#GravityArmPositionOffset
+     * - Slot2Configs#GainSchedBehavior
      * 
      *
      * \param newSlot2 Parameter to modify
@@ -907,90 +1091,22 @@ public:
     /**
      * \brief Get the string representation of this configuration
      */
-    std::string ToString() const
-    {
-        std::stringstream ss;
-        ss << "TalonFXSConfiguration" << std::endl;
-        ss << MotorOutput.ToString();
-        ss << CurrentLimits.ToString();
-        ss << Voltage.ToString();
-        ss << ExternalFeedback.ToString();
-        ss << DifferentialSensors.ToString();
-        ss << DifferentialConstants.ToString();
-        ss << OpenLoopRamps.ToString();
-        ss << ClosedLoopRamps.ToString();
-        ss << HardwareLimitSwitch.ToString();
-        ss << Audio.ToString();
-        ss << SoftwareLimitSwitch.ToString();
-        ss << MotionMagic.ToString();
-        ss << CustomParams.ToString();
-        ss << ClosedLoopGeneral.ToString();
-        ss << Commutation.ToString();
-        ss << Slot0.ToString();
-        ss << Slot1.ToString();
-        ss << Slot2.ToString();
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Get the serialized form of this configuration
      */
-    std::string Serialize() const
-    {
-        std::stringstream ss;
-        ss << MotorOutput.Serialize();
-        ss << CurrentLimits.Serialize();
-        ss << Voltage.Serialize();
-        ss << ExternalFeedback.Serialize();
-        ss << DifferentialSensors.Serialize();
-        ss << DifferentialConstants.Serialize();
-        ss << OpenLoopRamps.Serialize();
-        ss << ClosedLoopRamps.Serialize();
-        ss << HardwareLimitSwitch.Serialize();
-        ss << Audio.Serialize();
-        ss << SoftwareLimitSwitch.Serialize();
-        ss << MotionMagic.Serialize();
-        ss << CustomParams.Serialize();
-        ss << ClosedLoopGeneral.Serialize();
-        ss << Commutation.Serialize();
-        ss << Slot0.Serialize();
-        ss << Slot1.Serialize();
-        ss << Slot2.Serialize();
-        return ss.str();
-    }
-
+    std::string Serialize() const final;
     /**
      * \brief Take a string and deserialize it to this configuration
      */
-    ctre::phoenix::StatusCode Deserialize(const std::string &to_deserialize)
-    {
-        ctre::phoenix::StatusCode err = ctre::phoenix::StatusCode::OK;
-        err = MotorOutput.Deserialize(to_deserialize);
-        err = CurrentLimits.Deserialize(to_deserialize);
-        err = Voltage.Deserialize(to_deserialize);
-        err = ExternalFeedback.Deserialize(to_deserialize);
-        err = DifferentialSensors.Deserialize(to_deserialize);
-        err = DifferentialConstants.Deserialize(to_deserialize);
-        err = OpenLoopRamps.Deserialize(to_deserialize);
-        err = ClosedLoopRamps.Deserialize(to_deserialize);
-        err = HardwareLimitSwitch.Deserialize(to_deserialize);
-        err = Audio.Deserialize(to_deserialize);
-        err = SoftwareLimitSwitch.Deserialize(to_deserialize);
-        err = MotionMagic.Deserialize(to_deserialize);
-        err = CustomParams.Deserialize(to_deserialize);
-        err = ClosedLoopGeneral.Deserialize(to_deserialize);
-        err = Commutation.Deserialize(to_deserialize);
-        err = Slot0.Deserialize(to_deserialize);
-        err = Slot1.Deserialize(to_deserialize);
-        err = Slot2.Deserialize(to_deserialize);
-        return err;
-    }
+    ctre::phoenix::StatusCode Deserialize(std::string const &to_deserialize) final;
 };
 
 /**
  * Class description for the Talon FXS motor controller.
  *
- * This handles the configurations for the hardware#TalonFXS
+ * This handles applying and refreshing configurations for the hardware#TalonFXS.
  */
 class TalonFXSConfigurator : public ParentConfigurator
 {
@@ -1003,38 +1119,6 @@ private:
 
 public:
     /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(TalonFXSConfiguration &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(TalonFXSConfiguration &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
-    }
-
-    /**
      * \brief Applies the contents of the specified config to the device.
      *
      * This will wait up to #DefaultTimeoutSeconds.
@@ -1042,7 +1126,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const TalonFXSConfiguration &configs)
     {
@@ -1056,43 +1140,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const TalonFXSConfiguration &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, configs.FutureProofConfigs, false);
-    }
-
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(MotorOutputConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(MotorOutputConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1103,7 +1155,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const MotorOutputConfigs &configs)
     {
@@ -1117,42 +1169,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const MotorOutputConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CurrentLimitsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CurrentLimitsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1163,7 +1184,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CurrentLimitsConfigs &configs)
     {
@@ -1177,42 +1198,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CurrentLimitsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(VoltageConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(VoltageConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1223,7 +1213,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const VoltageConfigs &configs)
     {
@@ -1237,42 +1227,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const VoltageConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ExternalFeedbackConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ExternalFeedbackConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1283,7 +1242,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ExternalFeedbackConfigs &configs)
     {
@@ -1297,42 +1256,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ExternalFeedbackConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DifferentialSensorsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DifferentialSensorsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1343,7 +1271,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DifferentialSensorsConfigs &configs)
     {
@@ -1357,42 +1285,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DifferentialSensorsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DifferentialConstantsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DifferentialConstantsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1403,7 +1300,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DifferentialConstantsConfigs &configs)
     {
@@ -1417,42 +1314,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DifferentialConstantsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(OpenLoopRampsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(OpenLoopRampsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1463,7 +1329,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const OpenLoopRampsConfigs &configs)
     {
@@ -1477,42 +1343,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const OpenLoopRampsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ClosedLoopRampsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ClosedLoopRampsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1523,7 +1358,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ClosedLoopRampsConfigs &configs)
     {
@@ -1537,42 +1372,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ClosedLoopRampsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(HardwareLimitSwitchConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(HardwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1583,7 +1387,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const HardwareLimitSwitchConfigs &configs)
     {
@@ -1597,42 +1401,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const HardwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(AudioConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(AudioConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1643,7 +1416,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const AudioConfigs &configs)
     {
@@ -1657,42 +1430,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const AudioConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(SoftwareLimitSwitchConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(SoftwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1703,7 +1445,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const SoftwareLimitSwitchConfigs &configs)
     {
@@ -1717,42 +1459,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const SoftwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(MotionMagicConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(MotionMagicConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1763,7 +1474,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const MotionMagicConfigs &configs)
     {
@@ -1777,42 +1488,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const MotionMagicConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1823,7 +1503,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs)
     {
@@ -1837,42 +1517,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ClosedLoopGeneralConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(ClosedLoopGeneralConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1883,7 +1532,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ClosedLoopGeneralConfigs &configs)
     {
@@ -1897,42 +1546,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const ClosedLoopGeneralConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CommutationConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CommutationConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -1943,7 +1561,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CommutationConfigs &configs)
     {
@@ -1957,42 +1575,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CommutationConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot0Configs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot0Configs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -2003,7 +1590,65 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
+     */
+    ctre::phoenix::StatusCode Apply(const CustomBrushlessMotorConfigs &configs)
+    {
+        return Apply(configs, DefaultTimeoutSeconds);
+    }
+
+    /**
+     * \brief Applies the contents of the specified config to the device.
+     *
+     * \details Call to apply the selected configs.
+     *
+     * \param configs Configs to apply against.
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of applying the configs
+     */
+    ctre::phoenix::StatusCode Apply(const CustomBrushlessMotorConfigs &configs, units::time::second_t timeoutSeconds)
+    {
+        return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
+    }
+
+    /**
+     * \brief Applies the contents of the specified config to the device.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to apply the selected configs.
+     *
+     * \param configs Configs to apply against.
+     * \returns Status code of applying the configs
+     */
+    ctre::phoenix::StatusCode Apply(const ExternalTempConfigs &configs)
+    {
+        return Apply(configs, DefaultTimeoutSeconds);
+    }
+
+    /**
+     * \brief Applies the contents of the specified config to the device.
+     *
+     * \details Call to apply the selected configs.
+     *
+     * \param configs Configs to apply against.
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of applying the configs
+     */
+    ctre::phoenix::StatusCode Apply(const ExternalTempConfigs &configs, units::time::second_t timeoutSeconds)
+    {
+        return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
+    }
+
+    /**
+     * \brief Applies the contents of the specified config to the device.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to apply the selected configs.
+     *
+     * \param configs Configs to apply against.
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot0Configs &configs)
     {
@@ -2017,42 +1662,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot0Configs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot1Configs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot1Configs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -2063,7 +1677,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot1Configs &configs)
     {
@@ -2077,42 +1691,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot1Configs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot2Configs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(Slot2Configs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -2123,7 +1706,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot2Configs &configs)
     {
@@ -2137,42 +1720,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const Slot2Configs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(SlotConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(SlotConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -2183,7 +1735,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const SlotConfigs &configs)
     {
@@ -2197,11 +1749,694 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const SlotConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(TalonFXSConfiguration &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(TalonFXSConfiguration &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(MotorOutputConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(MotorOutputConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CurrentLimitsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CurrentLimitsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(VoltageConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(VoltageConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ExternalFeedbackConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ExternalFeedbackConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DifferentialSensorsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DifferentialSensorsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DifferentialConstantsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DifferentialConstantsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(OpenLoopRampsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(OpenLoopRampsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ClosedLoopRampsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ClosedLoopRampsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(HardwareLimitSwitchConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(HardwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(AudioConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(AudioConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(SoftwareLimitSwitchConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(SoftwareLimitSwitchConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(MotionMagicConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(MotionMagicConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ClosedLoopGeneralConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ClosedLoopGeneralConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CommutationConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CommutationConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomBrushlessMotorConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomBrushlessMotorConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ExternalTempConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(ExternalTempConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot0Configs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot0Configs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot1Configs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot1Configs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot2Configs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(Slot2Configs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(SlotConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(SlotConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
     }
 
     
@@ -2238,13 +2473,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::TalonFX_SetSensorPosition, newValue.to<double>(), &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear the sticky faults in the device.
@@ -2283,13 +2512,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::SPN_ClearStickyFaults, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Hardware fault occurred
@@ -2320,13 +2543,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Hardware, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Processor temperature exceeded limit
@@ -2357,13 +2574,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_ProcTemp, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device temperature exceeded limit
@@ -2394,13 +2605,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_DeviceTemp, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device supply voltage dropped to near
@@ -2433,13 +2638,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Undervoltage, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device boot while detecting the enable
@@ -2472,13 +2671,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_BootDuringEnable, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: An unlicensed feature is in use, device
@@ -2511,13 +2704,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_UnlicensedFeatureInUse, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Bridge was disabled most likely due to
@@ -2550,13 +2737,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_BridgeBrownout, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote sensor has reset.
@@ -2587,13 +2768,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_RemoteSensorReset, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote Talon used for differential
@@ -2626,13 +2801,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MissingDifferentialFX, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote sensor position has
@@ -2671,13 +2840,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_RemoteSensorPosOverflow, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Supply Voltage has exceeded the maximum
@@ -2710,13 +2873,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_OverSupplyV, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Supply Voltage is unstable.  Ensure you
@@ -2749,13 +2906,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_UnstableSupplyV, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Reverse limit switch has been asserted. 
@@ -2788,13 +2939,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_ReverseHardLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Forward limit switch has been asserted. 
@@ -2827,13 +2972,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_ForwardHardLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Reverse soft limit has been asserted. 
@@ -2866,13 +3005,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_ReverseSoftLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Forward soft limit has been asserted. 
@@ -2905,13 +3038,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_ForwardSoftLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote soft limit device is not
@@ -2944,13 +3071,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MissingRemSoftLim, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote limit switch device is not
@@ -2983,13 +3104,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MissingRemHardLim, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote sensor's data is no longer
@@ -3028,13 +3143,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MissingRemoteSensor, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The remote sensor used for fusion has
@@ -3073,13 +3182,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_FusedSensorOutOfSync, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Stator current limit occured.
@@ -3110,13 +3213,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_StatorCurrLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Supply current limit occured.
@@ -3147,13 +3244,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_SupplyCurrLimit, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Using Fused CANcoder feature while
@@ -3186,13 +3277,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_UsingFusedCCWhileUnlicensed, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Static brake was momentarily disabled
@@ -3225,13 +3310,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_StaticBrakeDisabled, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Bridge was disabled most likely due to a
@@ -3264,13 +3343,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_BridgeShort, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Hall sensor signals are invalid.  Check
@@ -3305,13 +3378,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_HallSensorMissing, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Hall sensor signals are invalid during
@@ -3344,13 +3411,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_DriveDisabledHallSensor, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Motor temperature signal appears to not
@@ -3383,13 +3444,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MotorTempSensorMissing, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Motor temperature signal indicates motor
@@ -3422,19 +3477,51 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot(units::time::second_t timeoutSeconds)
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot(units::time::second_t timeoutSeconds);
+    
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * This will wait up to #DefaultTimeoutSeconds.
+     * 
+     * This is available in the configurator in case the user wants
+     * to initialize their device entirely without passing a device
+     * reference down to the code that performs the initialization.
+     * In this case, the user passes down the configurator object
+     * and performs all the initialization code on the object.
+     * 
+     * \returns StatusCode of the set command
+     */
+    ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected()
     {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_TALONFX_MotorTempSensorTooHot, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
+        return ClearStickyFault_MotorArrangementNotSelected(DefaultTimeoutSeconds);
     }
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * This is available in the configurator in case the user wants
+     * to initialize their device entirely without passing a device
+     * reference down to the code that performs the initialization.
+     * In this case, the user passes down the configurator object
+     * and performs all the initialization code on the object.
+     * 
+     * \param timeoutSeconds Maximum time to wait up to in seconds.
+     * \returns StatusCode of the set command
+     */
+    ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected(units::time::second_t timeoutSeconds);
 };
 
 }
 
 namespace hardware {
 namespace core {
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
 
 /**
  * Class description for the Talon FXS motor controller.
@@ -3445,12 +3532,23 @@ private:
     configs::TalonFXSConfigurator _configs;
 
 public:
+    /**
+     * \brief The configuration class for this device.
+     */
     using Configuration = configs::TalonFXSConfiguration;
 
     /**
      * Constructs a new Talon FXS motor controller object.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
+     * \param canbus      The CAN bus this device is on
+     */
+    CoreTalonFXS(int deviceId, CANBus canbus = {});
+
+    /**
+     * Constructs a new Talon FXS motor controller object.
+     *
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
      * \param canbus      Name of the CAN bus this device is on. Possible CAN bus strings are:
      *                    - "rio" for the native roboRIO CAN bus
      *                    - CANivore name or serial number
@@ -3460,18 +3558,23 @@ public:
      *                      - "rio" on roboRIO
      *                      - "can0" on Linux
      *                      - "*" on Windows
+     *
+     * \deprecated Constructing devices with a CAN bus string is deprecated for removal
+     * in the 2027 season. Construct devices using a CANBus instance instead.
      */
-    CoreTalonFXS(int deviceId, std::string canbus = "");
+    CoreTalonFXS(int deviceId, std::string canbus);
 
     /**
-     * Constructs a new Talon FXS motor controller object.
+     * \brief Constructs a stubbed-out CoreTalonFXS, where all status signals, controls,
+     * configs, etc. perform no action and immediately return OK. This can be used to
+     * silence error messages for devices that have been completely removed from the robot.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
-     * \param canbus      The CAN bus this device is on.
+     * \returns Stubbed-out CoreTalonFXS
      */
-    CoreTalonFXS(int deviceId, CANBus canbus) :
-        CoreTalonFXS{deviceId, std::string{canbus.GetName()}}
-    {}
+    static CoreTalonFXS None()
+    {
+        return CoreTalonFXS{-1, CANBus{}};
+    }
 
     /**
      * \brief Gets the configurator for this TalonFXS
@@ -3532,10 +3635,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMajor Status Signal Object
      */
-    StatusSignal<int> &GetVersionMajor(bool refresh = true) override;
+    StatusSignal<int> &GetVersionMajor(bool refresh = true) final;
         
     /**
      * \brief App Minor Version number.
@@ -3550,10 +3654,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMinor Status Signal Object
      */
-    StatusSignal<int> &GetVersionMinor(bool refresh = true) override;
+    StatusSignal<int> &GetVersionMinor(bool refresh = true) final;
         
     /**
      * \brief App Bugfix Version number.
@@ -3568,10 +3673,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBugfix Status Signal Object
      */
-    StatusSignal<int> &GetVersionBugfix(bool refresh = true) override;
+    StatusSignal<int> &GetVersionBugfix(bool refresh = true) final;
         
     /**
      * \brief App Build Version number.
@@ -3586,10 +3692,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBuild Status Signal Object
      */
-    StatusSignal<int> &GetVersionBuild(bool refresh = true) override;
+    StatusSignal<int> &GetVersionBuild(bool refresh = true) final;
         
     /**
      * \brief Full Version of firmware in device.  The format is a four
@@ -3605,10 +3712,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Version Status Signal Object
      */
-    StatusSignal<int> &GetVersion(bool refresh = true) override;
+    StatusSignal<int> &GetVersion(bool refresh = true) final;
         
     /**
      * \brief Integer representing all fault flags reported by the device.
@@ -3627,10 +3735,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FaultField Status Signal Object
      */
-    StatusSignal<int> &GetFaultField(bool refresh = true) override;
+    StatusSignal<int> &GetFaultField(bool refresh = true) final;
         
     /**
      * \brief Integer representing all (persistent) sticky fault flags
@@ -3650,10 +3759,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFaultField Status Signal Object
      */
-    StatusSignal<int> &GetStickyFaultField(bool refresh = true) override;
+    StatusSignal<int> &GetStickyFaultField(bool refresh = true) final;
         
     /**
      * \brief The applied (output) motor voltage.
@@ -3669,10 +3779,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotorVoltage Status Signal Object
      */
-    StatusSignal<units::voltage::volt_t> &GetMotorVoltage(bool refresh = true) override;
+    StatusSignal<units::voltage::volt_t> &GetMotorVoltage(bool refresh = true) final;
         
     /**
      * \brief Forward Limit Pin.
@@ -3684,10 +3795,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ForwardLimit Status Signal Object
      */
-    StatusSignal<signals::ForwardLimitValue> &GetForwardLimit(bool refresh = true) override;
+    StatusSignal<signals::ForwardLimitValue> &GetForwardLimit(bool refresh = true) final;
         
     /**
      * \brief Reverse Limit Pin.
@@ -3699,10 +3811,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ReverseLimit Status Signal Object
      */
-    StatusSignal<signals::ReverseLimitValue> &GetReverseLimit(bool refresh = true) override;
+    StatusSignal<signals::ReverseLimitValue> &GetReverseLimit(bool refresh = true) final;
         
     /**
      * \brief The applied rotor polarity as seen from the front of the
@@ -3716,10 +3829,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns AppliedRotorPolarity Status Signal Object
      */
-    StatusSignal<signals::AppliedRotorPolarityValue> &GetAppliedRotorPolarity(bool refresh = true) override;
+    StatusSignal<signals::AppliedRotorPolarityValue> &GetAppliedRotorPolarity(bool refresh = true) final;
         
     /**
      * \brief The applied motor duty cycle.
@@ -3735,10 +3849,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DutyCycle Status Signal Object
      */
-    StatusSignal<units::dimensionless::scalar_t> &GetDutyCycle(bool refresh = true) override;
+    StatusSignal<units::dimensionless::scalar_t> &GetDutyCycle(bool refresh = true) final;
         
     /**
      * \brief Current corresponding to the torque output by the motor.
@@ -3760,10 +3875,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns TorqueCurrent Status Signal Object
      */
-    StatusSignal<units::current::ampere_t> &GetTorqueCurrent(bool refresh = true) override;
+    StatusSignal<units::current::ampere_t> &GetTorqueCurrent(bool refresh = true) final;
         
     /**
      * \brief Current corresponding to the stator windings. Similar to
@@ -3785,10 +3901,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StatorCurrent Status Signal Object
      */
-    StatusSignal<units::current::ampere_t> &GetStatorCurrent(bool refresh = true) override;
+    StatusSignal<units::current::ampere_t> &GetStatorCurrent(bool refresh = true) final;
         
     /**
      * \brief Measured supply side current.
@@ -3804,10 +3921,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns SupplyCurrent Status Signal Object
      */
-    StatusSignal<units::current::ampere_t> &GetSupplyCurrent(bool refresh = true) override;
+    StatusSignal<units::current::ampere_t> &GetSupplyCurrent(bool refresh = true) final;
         
     /**
      * \brief Measured supply voltage to the device.
@@ -3823,10 +3941,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns SupplyVoltage Status Signal Object
      */
-    StatusSignal<units::voltage::volt_t> &GetSupplyVoltage(bool refresh = true) override;
+    StatusSignal<units::voltage::volt_t> &GetSupplyVoltage(bool refresh = true) final;
         
     /**
      * \brief Temperature of device.
@@ -3845,10 +3964,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DeviceTemp Status Signal Object
      */
-    StatusSignal<units::temperature::celsius_t> &GetDeviceTemp(bool refresh = true) override;
+    StatusSignal<units::temperature::celsius_t> &GetDeviceTemp(bool refresh = true) final;
         
     /**
      * \brief Temperature of the processor.
@@ -3867,10 +3987,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ProcessorTemp Status Signal Object
      */
-    StatusSignal<units::temperature::celsius_t> &GetProcessorTemp(bool refresh = true) override;
+    StatusSignal<units::temperature::celsius_t> &GetProcessorTemp(bool refresh = true) final;
         
     /**
      * \brief Velocity of the motor rotor. This velocity is not affected
@@ -3887,10 +4008,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RotorVelocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRotorVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRotorVelocity(bool refresh = true) final;
         
     /**
      * \brief Position of the motor rotor. This position is only affected
@@ -3907,10 +4029,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RotorPosition Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetRotorPosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetRotorPosition(bool refresh = true) final;
         
     /**
      * \brief Velocity of the device in mechanism rotations per second.
@@ -3928,10 +4051,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Velocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetVelocity(bool refresh = true) final;
         
     /**
      * \brief Position of the device in mechanism rotations. This can be
@@ -3950,10 +4074,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Position Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetPosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetPosition(bool refresh = true) final;
         
     /**
      * \brief Acceleration of the device in mechanism rotations per
@@ -3972,10 +4097,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Acceleration Status Signal Object
      */
-    StatusSignal<units::angular_acceleration::turns_per_second_squared_t> &GetAcceleration(bool refresh = true) override;
+    StatusSignal<units::angular_acceleration::turns_per_second_squared_t> &GetAcceleration(bool refresh = true) final;
         
     /**
      * \brief The active control mode of the motor controller.
@@ -3987,10 +4113,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ControlMode Status Signal Object
      */
-    StatusSignal<signals::ControlModeValue> &GetControlMode(bool refresh = true) override;
+    StatusSignal<signals::ControlModeValue> &GetControlMode(bool refresh = true) final;
         
     /**
      * \brief Status of the temperature sensor of the external motor.
@@ -4002,10 +4129,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ExternalMotorTempStatus Status Signal Object
      */
-    StatusSignal<signals::ExternalMotorTempStatusValue> &GetExternalMotorTempStatus(bool refresh = true) override;
+    StatusSignal<signals::ExternalMotorTempStatusValue> &GetExternalMotorTempStatus(bool refresh = true) final;
         
     /**
      * \brief Temperature of the external motor.
@@ -4021,16 +4149,19 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ExternalMotorTemp Status Signal Object
      */
-    StatusSignal<units::temperature::celsius_t> &GetExternalMotorTemp(bool refresh = true) override;
+    StatusSignal<units::temperature::celsius_t> &GetExternalMotorTemp(bool refresh = true) final;
         
     /**
-     * \brief Check if Motion Magic® is running.  This is equivalent to
-     * checking that the reported control mode is a Motion Magic® based
-     * mode.
+     * \brief Check if the Motion Magic® profile has reached the target.
+     * This is equivalent to checking that MotionMagicIsRunning, the
+     * ClosedLoopReference is the target, and the ClosedLoopReferenceSlope
+     * is 0.
      * 
+     * - Default Value: False
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -4038,10 +4169,30 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns MotionMagicAtTarget Status Signal Object
+     */
+    StatusSignal<bool> &GetMotionMagicAtTarget(bool refresh = true) final;
+        
+    /**
+     * \brief Check if Motion Magic® is running.  This is equivalent to
+     * checking that the reported control mode is a Motion Magic® based
+     * mode.
+     * 
+     * - Default Value: False
+     * 
+     * Default Rates:
+     * - CAN 2.0: 4.0 Hz
+     * - CAN FD: 100.0 Hz (TimeSynced with Pro)
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotionMagicIsRunning Status Signal Object
      */
-    StatusSignal<signals::MotionMagicIsRunningValue> &GetMotionMagicIsRunning(bool refresh = true) override;
+    StatusSignal<bool> &GetMotionMagicIsRunning(bool refresh = true) final;
         
     /**
      * \brief Indicates if the robot is enabled.
@@ -4053,10 +4204,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RobotEnable Status Signal Object
      */
-    StatusSignal<signals::RobotEnableValue> &GetRobotEnable(bool refresh = true) override;
+    StatusSignal<signals::RobotEnableValue> &GetRobotEnable(bool refresh = true) final;
         
     /**
      * \brief Indicates if device is actuator enabled.
@@ -4068,10 +4220,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DeviceEnable Status Signal Object
      */
-    StatusSignal<signals::DeviceEnableValue> &GetDeviceEnable(bool refresh = true) override;
+    StatusSignal<signals::DeviceEnableValue> &GetDeviceEnable(bool refresh = true) final;
         
     /**
      * \brief The slot that the closed-loop PID is using.
@@ -4087,10 +4240,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopSlot Status Signal Object
      */
-    StatusSignal<int> &GetClosedLoopSlot(bool refresh = true) override;
+    StatusSignal<int> &GetClosedLoopSlot(bool refresh = true) final;
         
     /**
      * \brief Assess the status of the motor output with respect to load
@@ -4106,10 +4260,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotorOutputStatus Status Signal Object
      */
-    StatusSignal<signals::MotorOutputStatusValue> &GetMotorOutputStatus(bool refresh = true) override;
+    StatusSignal<signals::MotorOutputStatusValue> &GetMotorOutputStatus(bool refresh = true) final;
         
     /**
      * \brief The active control mode of the differential controller.
@@ -4121,10 +4276,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialControlMode Status Signal Object
      */
-    StatusSignal<signals::DifferentialControlModeValue> &GetDifferentialControlMode(bool refresh = true) override;
+    StatusSignal<signals::DifferentialControlModeValue> &GetDifferentialControlMode(bool refresh = true) final;
         
     /**
      * \brief Average component of the differential velocity of device.
@@ -4140,10 +4296,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialAverageVelocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetDifferentialAverageVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetDifferentialAverageVelocity(bool refresh = true) final;
         
     /**
      * \brief Average component of the differential position of device.
@@ -4159,10 +4316,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialAveragePosition Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetDifferentialAveragePosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetDifferentialAveragePosition(bool refresh = true) final;
         
     /**
      * \brief Difference component of the differential velocity of device.
@@ -4178,10 +4336,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialDifferenceVelocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetDifferentialDifferenceVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetDifferentialDifferenceVelocity(bool refresh = true) final;
         
     /**
      * \brief Difference component of the differential position of device.
@@ -4197,10 +4356,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialDifferencePosition Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetDifferentialDifferencePosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetDifferentialDifferencePosition(bool refresh = true) final;
         
     /**
      * \brief The slot that the closed-loop differential PID is using.
@@ -4216,10 +4376,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopSlot Status Signal Object
      */
-    StatusSignal<int> &GetDifferentialClosedLoopSlot(bool refresh = true) override;
+    StatusSignal<int> &GetDifferentialClosedLoopSlot(bool refresh = true) final;
         
     /**
      * \brief The torque constant (K_T) of the motor.
@@ -4234,10 +4395,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotorKT Status Signal Object
      */
-    StatusSignal<ctre::unit::newton_meters_per_ampere_t> &GetMotorKT(bool refresh = true) override;
+    StatusSignal<ctre::unit::newton_meters_per_ampere_t> &GetMotorKT(bool refresh = true) final;
         
     /**
      * \brief The velocity constant (K_V) of the motor.
@@ -4252,10 +4414,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotorKV Status Signal Object
      */
-    StatusSignal<ctre::unit::rpm_per_volt_t> &GetMotorKV(bool refresh = true) override;
+    StatusSignal<ctre::unit::rpm_per_volt_t> &GetMotorKV(bool refresh = true) final;
         
     /**
      * \brief The stall current of the motor at 12 V output.
@@ -4270,10 +4433,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MotorStallCurrent Status Signal Object
      */
-    StatusSignal<units::current::ampere_t> &GetMotorStallCurrent(bool refresh = true) override;
+    StatusSignal<units::current::ampere_t> &GetMotorStallCurrent(bool refresh = true) final;
         
     /**
      * \brief The applied output of the bridge.
@@ -4285,10 +4449,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns BridgeOutput Status Signal Object
      */
-    StatusSignal<signals::BridgeOutputValue> &GetBridgeOutput(bool refresh = true) override;
+    StatusSignal<signals::BridgeOutputValue> &GetBridgeOutput(bool refresh = true) final;
         
     /**
      * \brief Whether the device is Phoenix Pro licensed.
@@ -4300,10 +4465,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns IsProLicensed Status Signal Object
      */
-    StatusSignal<bool> &GetIsProLicensed(bool refresh = true) override;
+    StatusSignal<bool> &GetIsProLicensed(bool refresh = true) final;
         
     /**
      * \brief Temperature of device from second sensor.
@@ -4322,10 +4488,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns AncillaryDeviceTemp Status Signal Object
      */
-    StatusSignal<units::temperature::celsius_t> &GetAncillaryDeviceTemp(bool refresh = true) override;
+    StatusSignal<units::temperature::celsius_t> &GetAncillaryDeviceTemp(bool refresh = true) final;
         
     /**
      * \brief The type of motor attached to the Talon.
@@ -4341,10 +4508,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ConnectedMotor Status Signal Object
      */
-    StatusSignal<signals::ConnectedMotorValue> &GetConnectedMotor(bool refresh = true) override;
+    StatusSignal<signals::ConnectedMotorValue> &GetConnectedMotor(bool refresh = true) final;
         
     /**
      * \brief The measured voltage of the 5V rail available on the JST and
@@ -4360,10 +4528,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FiveVRailVoltage Status Signal Object
      */
-    StatusSignal<units::voltage::volt_t> &GetFiveVRailVoltage(bool refresh = true) override;
+    StatusSignal<units::voltage::volt_t> &GetFiveVRailVoltage(bool refresh = true) final;
         
     /**
      * \brief The voltage of the analog pin (pin 3) of the Talon FXS data
@@ -4379,10 +4548,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns AnalogVoltage Status Signal Object
      */
-    StatusSignal<units::voltage::volt_t> &GetAnalogVoltage(bool refresh = true) override;
+    StatusSignal<units::voltage::volt_t> &GetAnalogVoltage(bool refresh = true) final;
         
     /**
      * \brief The raw position retrieved from the connected quadrature
@@ -4403,10 +4573,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawQuadraturePosition Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetRawQuadraturePosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetRawQuadraturePosition(bool refresh = true) final;
         
     /**
      * \brief The raw velocity retrieved from the connected quadrature
@@ -4427,10 +4598,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawQuadratureVelocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawQuadratureVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawQuadratureVelocity(bool refresh = true) final;
         
     /**
      * \brief The raw position retrieved from the connected pulse-width
@@ -4451,10 +4623,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawPulseWidthPosition Status Signal Object
      */
-    StatusSignal<units::angle::turn_t> &GetRawPulseWidthPosition(bool refresh = true) override;
+    StatusSignal<units::angle::turn_t> &GetRawPulseWidthPosition(bool refresh = true) final;
         
     /**
      * \brief The raw velocity retrieved from the connected pulse-width
@@ -4475,10 +4648,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawPulseWidthVelocity Status Signal Object
      */
-    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawPulseWidthVelocity(bool refresh = true) override;
+    StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawPulseWidthVelocity(bool refresh = true) final;
         
     /**
      * \brief Hardware fault occurred
@@ -4490,10 +4664,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Hardware Status Signal Object
      */
-    StatusSignal<bool> &GetFault_Hardware(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_Hardware(bool refresh = true) final;
         
     /**
      * \brief Hardware fault occurred
@@ -4505,10 +4680,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Hardware Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_Hardware(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_Hardware(bool refresh = true) final;
         
     /**
      * \brief Processor temperature exceeded limit
@@ -4520,10 +4696,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ProcTemp Status Signal Object
      */
-    StatusSignal<bool> &GetFault_ProcTemp(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_ProcTemp(bool refresh = true) final;
         
     /**
      * \brief Processor temperature exceeded limit
@@ -4535,10 +4712,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ProcTemp Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_ProcTemp(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_ProcTemp(bool refresh = true) final;
         
     /**
      * \brief Device temperature exceeded limit
@@ -4550,10 +4728,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_DeviceTemp Status Signal Object
      */
-    StatusSignal<bool> &GetFault_DeviceTemp(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_DeviceTemp(bool refresh = true) final;
         
     /**
      * \brief Device temperature exceeded limit
@@ -4565,10 +4744,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_DeviceTemp Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_DeviceTemp(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_DeviceTemp(bool refresh = true) final;
         
     /**
      * \brief Device supply voltage dropped to near brownout levels
@@ -4580,10 +4760,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Undervoltage Status Signal Object
      */
-    StatusSignal<bool> &GetFault_Undervoltage(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_Undervoltage(bool refresh = true) final;
         
     /**
      * \brief Device supply voltage dropped to near brownout levels
@@ -4595,10 +4776,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Undervoltage Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_Undervoltage(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_Undervoltage(bool refresh = true) final;
         
     /**
      * \brief Device boot while detecting the enable signal
@@ -4610,10 +4792,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BootDuringEnable Status Signal Object
      */
-    StatusSignal<bool> &GetFault_BootDuringEnable(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_BootDuringEnable(bool refresh = true) final;
         
     /**
      * \brief Device boot while detecting the enable signal
@@ -4625,10 +4808,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BootDuringEnable Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_BootDuringEnable(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_BootDuringEnable(bool refresh = true) final;
         
     /**
      * \brief An unlicensed feature is in use, device may not behave as
@@ -4641,10 +4825,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_UnlicensedFeatureInUse Status Signal Object
      */
-    StatusSignal<bool> &GetFault_UnlicensedFeatureInUse(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_UnlicensedFeatureInUse(bool refresh = true) final;
         
     /**
      * \brief An unlicensed feature is in use, device may not behave as
@@ -4657,10 +4842,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_UnlicensedFeatureInUse Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_UnlicensedFeatureInUse(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_UnlicensedFeatureInUse(bool refresh = true) final;
         
     /**
      * \brief Bridge was disabled most likely due to supply voltage
@@ -4673,10 +4859,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BridgeBrownout Status Signal Object
      */
-    StatusSignal<bool> &GetFault_BridgeBrownout(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_BridgeBrownout(bool refresh = true) final;
         
     /**
      * \brief Bridge was disabled most likely due to supply voltage
@@ -4689,10 +4876,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BridgeBrownout Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_BridgeBrownout(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_BridgeBrownout(bool refresh = true) final;
         
     /**
      * \brief The remote sensor has reset.
@@ -4704,10 +4892,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_RemoteSensorReset Status Signal Object
      */
-    StatusSignal<bool> &GetFault_RemoteSensorReset(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_RemoteSensorReset(bool refresh = true) final;
         
     /**
      * \brief The remote sensor has reset.
@@ -4719,10 +4908,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_RemoteSensorReset Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_RemoteSensorReset(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_RemoteSensorReset(bool refresh = true) final;
         
     /**
      * \brief The remote Talon used for differential control is not
@@ -4735,10 +4925,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MissingDifferentialFX Status Signal Object
      */
-    StatusSignal<bool> &GetFault_MissingDifferentialFX(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MissingDifferentialFX(bool refresh = true) final;
         
     /**
      * \brief The remote Talon used for differential control is not
@@ -4751,10 +4942,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MissingDifferentialFX Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_MissingDifferentialFX(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_MissingDifferentialFX(bool refresh = true) final;
         
     /**
      * \brief The remote sensor position has overflowed. Because of the
@@ -4770,10 +4962,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_RemoteSensorPosOverflow Status Signal Object
      */
-    StatusSignal<bool> &GetFault_RemoteSensorPosOverflow(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_RemoteSensorPosOverflow(bool refresh = true) final;
         
     /**
      * \brief The remote sensor position has overflowed. Because of the
@@ -4789,10 +4982,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_RemoteSensorPosOverflow Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_RemoteSensorPosOverflow(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_RemoteSensorPosOverflow(bool refresh = true) final;
         
     /**
      * \brief Supply Voltage has exceeded the maximum voltage rating of
@@ -4805,10 +4999,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_OverSupplyV Status Signal Object
      */
-    StatusSignal<bool> &GetFault_OverSupplyV(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_OverSupplyV(bool refresh = true) final;
         
     /**
      * \brief Supply Voltage has exceeded the maximum voltage rating of
@@ -4821,10 +5016,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_OverSupplyV Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_OverSupplyV(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_OverSupplyV(bool refresh = true) final;
         
     /**
      * \brief Supply Voltage is unstable.  Ensure you are using a battery
@@ -4837,10 +5033,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_UnstableSupplyV Status Signal Object
      */
-    StatusSignal<bool> &GetFault_UnstableSupplyV(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_UnstableSupplyV(bool refresh = true) final;
         
     /**
      * \brief Supply Voltage is unstable.  Ensure you are using a battery
@@ -4853,10 +5050,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_UnstableSupplyV Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_UnstableSupplyV(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_UnstableSupplyV(bool refresh = true) final;
         
     /**
      * \brief Reverse limit switch has been asserted.  Output is set to
@@ -4869,10 +5067,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ReverseHardLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_ReverseHardLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_ReverseHardLimit(bool refresh = true) final;
         
     /**
      * \brief Reverse limit switch has been asserted.  Output is set to
@@ -4885,10 +5084,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ReverseHardLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_ReverseHardLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_ReverseHardLimit(bool refresh = true) final;
         
     /**
      * \brief Forward limit switch has been asserted.  Output is set to
@@ -4901,10 +5101,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ForwardHardLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_ForwardHardLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_ForwardHardLimit(bool refresh = true) final;
         
     /**
      * \brief Forward limit switch has been asserted.  Output is set to
@@ -4917,10 +5118,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ForwardHardLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_ForwardHardLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_ForwardHardLimit(bool refresh = true) final;
         
     /**
      * \brief Reverse soft limit has been asserted.  Output is set to
@@ -4933,10 +5135,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ReverseSoftLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_ReverseSoftLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_ReverseSoftLimit(bool refresh = true) final;
         
     /**
      * \brief Reverse soft limit has been asserted.  Output is set to
@@ -4949,10 +5152,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ReverseSoftLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_ReverseSoftLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_ReverseSoftLimit(bool refresh = true) final;
         
     /**
      * \brief Forward soft limit has been asserted.  Output is set to
@@ -4965,10 +5169,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ForwardSoftLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_ForwardSoftLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_ForwardSoftLimit(bool refresh = true) final;
         
     /**
      * \brief Forward soft limit has been asserted.  Output is set to
@@ -4981,10 +5186,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ForwardSoftLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_ForwardSoftLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_ForwardSoftLimit(bool refresh = true) final;
         
     /**
      * \brief The remote soft limit device is not present on CAN Bus.
@@ -4996,10 +5202,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MissingSoftLimitRemote Status Signal Object
      */
-    StatusSignal<bool> &GetFault_MissingSoftLimitRemote(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MissingSoftLimitRemote(bool refresh = true) final;
         
     /**
      * \brief The remote soft limit device is not present on CAN Bus.
@@ -5011,10 +5218,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MissingSoftLimitRemote Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_MissingSoftLimitRemote(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_MissingSoftLimitRemote(bool refresh = true) final;
         
     /**
      * \brief The remote limit switch device is not present on CAN Bus.
@@ -5026,10 +5234,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MissingHardLimitRemote Status Signal Object
      */
-    StatusSignal<bool> &GetFault_MissingHardLimitRemote(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MissingHardLimitRemote(bool refresh = true) final;
         
     /**
      * \brief The remote limit switch device is not present on CAN Bus.
@@ -5041,10 +5250,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MissingHardLimitRemote Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_MissingHardLimitRemote(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_MissingHardLimitRemote(bool refresh = true) final;
         
     /**
      * \brief The remote sensor's data is no longer trusted. This can
@@ -5059,10 +5269,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_RemoteSensorDataInvalid Status Signal Object
      */
-    StatusSignal<bool> &GetFault_RemoteSensorDataInvalid(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_RemoteSensorDataInvalid(bool refresh = true) final;
         
     /**
      * \brief The remote sensor's data is no longer trusted. This can
@@ -5077,10 +5288,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_RemoteSensorDataInvalid Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_RemoteSensorDataInvalid(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_RemoteSensorDataInvalid(bool refresh = true) final;
         
     /**
      * \brief The remote sensor used for fusion has fallen out of sync to
@@ -5096,10 +5308,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_FusedSensorOutOfSync Status Signal Object
      */
-    StatusSignal<bool> &GetFault_FusedSensorOutOfSync(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_FusedSensorOutOfSync(bool refresh = true) final;
         
     /**
      * \brief The remote sensor used for fusion has fallen out of sync to
@@ -5115,10 +5328,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_FusedSensorOutOfSync Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_FusedSensorOutOfSync(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_FusedSensorOutOfSync(bool refresh = true) final;
         
     /**
      * \brief Stator current limit occured.
@@ -5130,10 +5344,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_StatorCurrLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_StatorCurrLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_StatorCurrLimit(bool refresh = true) final;
         
     /**
      * \brief Stator current limit occured.
@@ -5145,10 +5360,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_StatorCurrLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_StatorCurrLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_StatorCurrLimit(bool refresh = true) final;
         
     /**
      * \brief Supply current limit occured.
@@ -5160,10 +5376,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_SupplyCurrLimit Status Signal Object
      */
-    StatusSignal<bool> &GetFault_SupplyCurrLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_SupplyCurrLimit(bool refresh = true) final;
         
     /**
      * \brief Supply current limit occured.
@@ -5175,10 +5392,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_SupplyCurrLimit Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_SupplyCurrLimit(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_SupplyCurrLimit(bool refresh = true) final;
         
     /**
      * \brief Using Fused CANcoder feature while unlicensed. Device has
@@ -5191,10 +5409,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_UsingFusedCANcoderWhileUnlicensed Status Signal Object
      */
-    StatusSignal<bool> &GetFault_UsingFusedCANcoderWhileUnlicensed(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_UsingFusedCANcoderWhileUnlicensed(bool refresh = true) final;
         
     /**
      * \brief Using Fused CANcoder feature while unlicensed. Device has
@@ -5207,10 +5426,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_UsingFusedCANcoderWhileUnlicensed Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_UsingFusedCANcoderWhileUnlicensed(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_UsingFusedCANcoderWhileUnlicensed(bool refresh = true) final;
         
     /**
      * \brief Static brake was momentarily disabled due to excessive
@@ -5223,10 +5443,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_StaticBrakeDisabled Status Signal Object
      */
-    StatusSignal<bool> &GetFault_StaticBrakeDisabled(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_StaticBrakeDisabled(bool refresh = true) final;
         
     /**
      * \brief Static brake was momentarily disabled due to excessive
@@ -5239,10 +5460,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_StaticBrakeDisabled Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_StaticBrakeDisabled(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_StaticBrakeDisabled(bool refresh = true) final;
         
     /**
      * \brief Bridge was disabled most likely due to a short in the motor
@@ -5255,10 +5477,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BridgeShort Status Signal Object
      */
-    StatusSignal<bool> &GetFault_BridgeShort(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_BridgeShort(bool refresh = true) final;
         
     /**
      * \brief Bridge was disabled most likely due to a short in the motor
@@ -5271,10 +5494,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BridgeShort Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_BridgeShort(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_BridgeShort(bool refresh = true) final;
         
     /**
      * \brief Hall sensor signals are invalid.  Check hall sensor and
@@ -5288,10 +5512,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_HallSensorMissing Status Signal Object
      */
-    StatusSignal<bool> &GetFault_HallSensorMissing(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_HallSensorMissing(bool refresh = true) final;
         
     /**
      * \brief Hall sensor signals are invalid.  Check hall sensor and
@@ -5305,10 +5530,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_HallSensorMissing Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_HallSensorMissing(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_HallSensorMissing(bool refresh = true) final;
         
     /**
      * \brief Hall sensor signals are invalid during motor drive, so motor
@@ -5321,10 +5547,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_DriveDisabledHallSensor Status Signal Object
      */
-    StatusSignal<bool> &GetFault_DriveDisabledHallSensor(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_DriveDisabledHallSensor(bool refresh = true) final;
         
     /**
      * \brief Hall sensor signals are invalid during motor drive, so motor
@@ -5337,10 +5564,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_DriveDisabledHallSensor Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_DriveDisabledHallSensor(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_DriveDisabledHallSensor(bool refresh = true) final;
         
     /**
      * \brief Motor temperature signal appears to not be connected.
@@ -5352,10 +5580,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MotorTempSensorMissing Status Signal Object
      */
-    StatusSignal<bool> &GetFault_MotorTempSensorMissing(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MotorTempSensorMissing(bool refresh = true) final;
         
     /**
      * \brief Motor temperature signal appears to not be connected.
@@ -5367,10 +5596,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MotorTempSensorMissing Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_MotorTempSensorMissing(bool refresh = true) override;
+    StatusSignal<bool> &GetStickyFault_MotorTempSensorMissing(bool refresh = true) final;
         
     /**
      * \brief Motor temperature signal indicates motor is too hot.
@@ -5382,10 +5612,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MotorTempSensorTooHot Status Signal Object
      */
-    StatusSignal<bool> &GetFault_MotorTempSensorTooHot(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MotorTempSensorTooHot(bool refresh = true) final;
         
     /**
      * \brief Motor temperature signal indicates motor is too hot.
@@ -5397,35 +5628,86 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MotorTempSensorTooHot Status Signal Object
      */
-    StatusSignal<bool> &GetStickyFault_MotorTempSensorTooHot(bool refresh = true) override;
-    
+    StatusSignal<bool> &GetStickyFault_MotorTempSensorTooHot(bool refresh = true) final;
+        
     /**
-     * \brief Closed loop proportional component
+     * \brief Motor arrangement has not been set in configuration.
      * 
-     * \details The portion of the closed loop output that is the
-     * proportional to the error. Alternatively, the p-Contribution of the
-     * closed loop output.
+     * - Default Value: False
      * 
      * Default Rates:
-     * - CAN 2.0: 4.0 Hz
-     * - CAN FD: 100.0 Hz (TimeSynced with Pro)
+     * - CAN: 4.0 Hz
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
-     * \returns ClosedLoopProportionalOutput Status Signal object
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_MotorArrangementNotSelected Status Signal Object
      */
-    StatusSignal<double> &GetClosedLoopProportionalOutput(bool refresh = true) override;
+    StatusSignal<bool> &GetFault_MotorArrangementNotSelected(bool refresh = true) final;
+        
+    /**
+     * \brief Motor arrangement has not been set in configuration.
+     * 
+     * - Default Value: False
+     * 
+     * Default Rates:
+     * - CAN: 4.0 Hz
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_MotorArrangementNotSelected Status Signal Object
+     */
+    StatusSignal<bool> &GetStickyFault_MotorArrangementNotSelected(bool refresh = true) final;
+        
+    /**
+     * \brief The CTR Electronics' TalonFX device has detected a 5V fault.
+     * This may be due to overcurrent or a short-circuit.
+     * 
+     * - Default Value: False
+     * 
+     * Default Rates:
+     * - CAN: 4.0 Hz
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_5V Status Signal Object
+     */
+    StatusSignal<bool> &GetFault_5V(bool refresh = true) final;
+        
+    /**
+     * \brief The CTR Electronics' TalonFX device has detected a 5V fault.
+     * This may be due to overcurrent or a short-circuit.
+     * 
+     * - Default Value: False
+     * 
+     * Default Rates:
+     * - CAN: 4.0 Hz
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_5V Status Signal Object
+     */
+    StatusSignal<bool> &GetStickyFault_5V(bool refresh = true) final;
     
     /**
-     * \brief Closed loop integrated component
+     * \brief Closed loop proportional component.
      * 
      * \details The portion of the closed loop output that is proportional
-     * to the integrated error. Alternatively, the i-Contribution of the
-     * closed loop output.
+     * to the error. Alternatively, the kP contribution of the closed loop
+     * output.
+     * 
+     * When using differential control, this applies to the average axis.
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5433,34 +5715,61 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
-     * \returns ClosedLoopIntegratedOutput Status Signal object
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns ClosedLoopProportionalOutput Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopIntegratedOutput(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopProportionalOutput(bool refresh = true) final;
     
     /**
-     * \brief Feedforward passed by the user
+     * \brief Closed loop integrated component.
+     * 
+     * \details The portion of the closed loop output that is proportional
+     * to the integrated error. Alternatively, the kI contribution of the
+     * closed loop output.
+     * 
+     * When using differential control, this applies to the average axis.
+     * 
+     * Default Rates:
+     * - CAN 2.0: 4.0 Hz
+     * - CAN FD: 100.0 Hz (TimeSynced with Pro)
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns ClosedLoopIntegratedOutput Status Signal object
+     */
+    StatusSignal<double> &GetClosedLoopIntegratedOutput(bool refresh = true) final;
+    
+    /**
+     * \brief Feedforward passed by the user.
      * 
      * \details This is the general feedforward that the user provides for
      * the closed loop.
      * 
+     * When using differential control, this applies to the average axis.
+     * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
      * - CAN FD: 100.0 Hz (TimeSynced with Pro)
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopFeedForward Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopFeedForward(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopFeedForward(bool refresh = true) final;
     
     /**
-     * \brief Closed loop derivative component
+     * \brief Closed loop derivative component.
      * 
-     * \details The portion of the closed loop output that is the
-     * proportional to the deriviative the error. Alternatively, the
-     * d-Contribution of the closed loop output.
+     * \details The portion of the closed loop output that is proportional
+     * to the deriviative of error. Alternatively, the kD contribution of
+     * the closed loop output.
+     * 
+     * When using differential control, this applies to the average axis.
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5468,86 +5777,101 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopDerivativeOutput Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopDerivativeOutput(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopDerivativeOutput(bool refresh = true) final;
     
     /**
-     * \brief Closed loop total output
+     * \brief Closed loop total output.
      * 
      * \details The total output of the closed loop output.
      * 
+     * When using differential control, this applies to the average axis.
+     * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
      * - CAN FD: 100.0 Hz (TimeSynced with Pro)
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopOutput Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopOutput(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopOutput(bool refresh = true) final;
     
     /**
-     * \brief Value that the closed loop is targeting
+     * \brief Value that the closed loop is targeting.
      * 
      * \details This is the value that the closed loop PID controller
      * targets.
      * 
+     * When using differential control, this applies to the average axis.
+     * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
      * - CAN FD: 100.0 Hz (TimeSynced with Pro)
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopReference Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopReference(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopReference(bool refresh = true) final;
     
     /**
-     * \brief Derivative of the target that the closed loop is targeting
+     * \brief Derivative of the target that the closed loop is targeting.
      * 
      * \details This is the change in the closed loop reference. This may
      * be used in the feed-forward calculation, the derivative-error, or
      * in application of the signage for kS. Typically, this represents
      * the target velocity during Motion Magic®.
      * 
+     * When using differential control, this applies to the average axis.
+     * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
      * - CAN FD: 100.0 Hz (TimeSynced with Pro)
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopReferenceSlope Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopReferenceSlope(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopReferenceSlope(bool refresh = true) final;
     
     /**
      * \brief The difference between target reference and current
-     * measurement
+     * measurement.
      * 
      * \details This is the value that is treated as the error in the PID
      * loop.
      * 
+     * When using differential control, this applies to the average axis.
+     * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
      * - CAN FD: 100.0 Hz (TimeSynced with Pro)
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ClosedLoopError Status Signal object
      */
-    StatusSignal<double> &GetClosedLoopError(bool refresh = true) override;
+    StatusSignal<double> &GetClosedLoopError(bool refresh = true) final;
     
     /**
      * \brief The calculated motor output for differential followers.
      * 
      * \details This is a torque request when using the TorqueCurrentFOC
-     * control output type, and a duty cycle in all other control types.
+     * control output type, a voltage request when using the Voltage
+     * control output type, and a duty cycle when using the DutyCycle
+     * control output type.
      * 
      * Default Rates:
      * - CAN 2.0: 100.0 Hz
@@ -5555,17 +5879,18 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialOutput Status Signal object
      */
-    StatusSignal<double> &GetDifferentialOutput(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialOutput(bool refresh = true) final;
     
     /**
-     * \brief Differential closed loop proportional component
+     * \brief Differential closed loop proportional component.
      * 
-     * \details The portion of the differential closed loop output that is
-     * the proportional to the error. Alternatively, the p-Contribution of
-     * the closed loop output.
+     * \details The portion of the differential closed loop output (on the
+     * difference axis) that is proportional to the error. Alternatively,
+     * the kP contribution of the closed loop output.
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5573,17 +5898,18 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopProportionalOutput Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopProportionalOutput(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopProportionalOutput(bool refresh = true) final;
     
     /**
-     * \brief Differential closed loop integrated component
+     * \brief Differential closed loop integrated component.
      * 
-     * \details The portion of the differential closed loop output that is
-     * proportional to the integrated error. Alternatively, the
-     * i-Contribution of the closed loop output.
+     * \details The portion of the differential closed loop output (on the
+     * difference axis) that is proportional to the integrated error.
+     * Alternatively, the kI contribution of the closed loop output.
      * 
      * Default Rates:
      * - CAN 2.0: 100.0 Hz
@@ -5591,16 +5917,17 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopIntegratedOutput Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopIntegratedOutput(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopIntegratedOutput(bool refresh = true) final;
     
     /**
-     * \brief Differential Feedforward passed by the user
+     * \brief Differential Feedforward passed by the user.
      * 
      * \details This is the general feedforward that the user provides for
-     * the differential closed loop.
+     * the differential closed loop (on the difference axis).
      * 
      * Default Rates:
      * - CAN 2.0: 100.0 Hz
@@ -5608,17 +5935,18 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopFeedForward Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopFeedForward(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopFeedForward(bool refresh = true) final;
     
     /**
-     * \brief Differential closed loop derivative component
+     * \brief Differential closed loop derivative component.
      * 
-     * \details The portion of the differential closed loop output that is
-     * the proportional to the deriviative the error. Alternatively, the
-     * d-Contribution of the closed loop output.
+     * \details The portion of the differential closed loop output (on the
+     * difference axis) that is proportional to the deriviative of error.
+     * Alternatively, the kD contribution of the closed loop output.
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5626,15 +5954,17 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopDerivativeOutput Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopDerivativeOutput(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopDerivativeOutput(bool refresh = true) final;
     
     /**
-     * \brief Differential closed loop total output
+     * \brief Differential closed loop total output.
      * 
-     * \details The total output of the differential closed loop output.
+     * \details The total output of the differential closed loop output
+     * (on the difference axis).
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5642,16 +5972,17 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopOutput Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopOutput(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopOutput(bool refresh = true) final;
     
     /**
-     * \brief Value that the differential closed loop is targeting
+     * \brief Value that the differential closed loop is targeting.
      * 
      * \details This is the value that the differential closed loop PID
-     * controller targets.
+     * controller targets (on the difference axis).
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5659,19 +5990,21 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopReference Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopReference(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopReference(bool refresh = true) final;
     
     /**
      * \brief Derivative of the target that the differential closed loop
-     * is targeting
+     * is targeting.
      * 
-     * \details This is the change in the closed loop reference. This may
-     * be used in the feed-forward calculation, the derivative-error, or
-     * in application of the signage for kS. Typically, this represents
-     * the target velocity during Motion Magic®.
+     * \details This is the change in the closed loop reference (on the
+     * difference axis). This may be used in the feed-forward calculation,
+     * the derivative-error, or in application of the signage for kS.
+     * Typically, this represents the target velocity during Motion
+     * Magic®.
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5679,17 +6012,18 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopReferenceSlope Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopReferenceSlope(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopReferenceSlope(bool refresh = true) final;
     
     /**
      * \brief The difference between target differential reference and
-     * current measurement
+     * current measurement.
      * 
      * \details This is the value that is treated as the error in the
-     * differential PID loop.
+     * differential PID loop (on the difference axis).
      * 
      * Default Rates:
      * - CAN 2.0: 4.0 Hz
@@ -5697,10 +6031,11 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DifferentialClosedLoopError Status Signal object
      */
-    StatusSignal<double> &GetDifferentialClosedLoopError(bool refresh = true) override;
+    StatusSignal<double> &GetDifferentialClosedLoopError(bool refresh = true) final;
 
     
     /**
@@ -5710,60 +6045,70 @@ public:
      * voltage which is supplied by the user.
      * 
      * - DutyCycleOut Parameters: 
-     *   - Output: Proportion of supply voltage to apply in fractional units between -1
-     *          and +1
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *   - Output: Proportion of supply voltage to apply in fractional units between
+     *             -1 and +1
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DutyCycleOut &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DutyCycleOut const &request) final;
     
     /**
      * \brief Request a specified voltage.
@@ -5774,58 +6119,68 @@ public:
      * 
      * - VoltageOut Parameters: 
      *   - Output: Voltage to attempt to drive at
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::VoltageOut &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::VoltageOut const &request) final;
     
     /**
      * \brief Request PID to target position with duty cycle feedforward.
@@ -5837,63 +6192,76 @@ public:
      * - PositionDutyCycle Parameters: 
      *   - Position: Position to drive toward in rotations.
      *   - Velocity: Velocity to drive toward in rotations per second. This is
-     *            typically used for motion profiles generated by the robot program.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *               typically used for motion profiles generated by the robot
+     *               program.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::PositionDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::PositionDutyCycle const &request) final;
     
     /**
      * \brief Request PID to target position with voltage feedforward
@@ -5905,63 +6273,75 @@ public:
      * - PositionVoltage Parameters: 
      *   - Position: Position to drive toward in rotations.
      *   - Velocity: Velocity to drive toward in rotations per second. This is
-     *            typically used for motion profiles generated by the robot program.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *               typically used for motion profiles generated by the robot
+     *               program.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::PositionVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::PositionVoltage const &request) final;
     
     /**
      * \brief Request PID to target velocity with duty cycle feedforward.
@@ -5972,65 +6352,77 @@ public:
      * 
      * - VelocityDutyCycle Parameters: 
      *   - Velocity: Velocity to drive toward in rotations per second.
-     *   - Acceleration: Acceleration to drive toward in rotations per second squared.
-     *                This is typically used for motion profiles generated by the
-     *                robot program.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *   - Acceleration: Acceleration to drive toward in rotations per second
+     *                   squared. This is typically used for motion profiles
+     *                   generated by the robot program.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::VelocityDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::VelocityDutyCycle const &request) final;
     
     /**
      * \brief Request PID to target velocity with voltage feedforward.
@@ -6041,65 +6433,76 @@ public:
      * 
      * - VelocityVoltage Parameters: 
      *   - Velocity: Velocity to drive toward in rotations per second.
-     *   - Acceleration: Acceleration to drive toward in rotations per second squared.
-     *                This is typically used for motion profiles generated by the
-     *                robot program.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *   - Acceleration: Acceleration to drive toward in rotations per second
+     *                   squared. This is typically used for motion profiles
+     *                   generated by the robot program.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts This is added to the output of
+     *                  the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::VelocityVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::VelocityVoltage const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
@@ -6119,62 +6522,74 @@ public:
      * 
      * - MotionMagicDutyCycle Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicDutyCycle const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
@@ -6194,62 +6609,73 @@ public:
      * 
      * - MotionMagicVoltage Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicVoltage const &request) final;
     
     /**
      * \brief Request a specified motor duty cycle with a differential
@@ -6260,65 +6686,77 @@ public:
      * differential position setpoint to the specified position.
      * 
      * - DifferentialDutyCycle Parameters: 
-     *   - TargetOutput: Proportion of supply voltage to apply in fractional units
-     *                between -1 and +1
-     *   - DifferentialPosition: Differential position to drive towards in rotations
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *   - AverageOutput: Proportion of supply voltage to apply on the Average axis
+     *                    in fractional units between -1 and +1.
+     *   - DifferentialPosition: Differential position to drive towards in
+     *                           rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialDutyCycle const &request) final;
     
     /**
      * \brief Request a specified voltage with a differential position
@@ -6331,64 +6769,76 @@ public:
      * specified position.
      * 
      * - DifferentialVoltage Parameters: 
-     *   - TargetOutput: Voltage to attempt to drive at
-     *   - DifferentialPosition: Differential position to drive towards in rotations
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *   - AverageOutput: Voltage to attempt to drive at on the Average axis.
+     *   - DifferentialPosition: Differential position to drive towards in
+     *                           rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialVoltage const &request) final;
     
     /**
      * \brief Request PID to target position with a differential position
@@ -6399,68 +6849,79 @@ public:
      * differential position setpoint to the specified position.
      * 
      * - DifferentialPositionDutyCycle Parameters: 
-     *   - TargetPosition: Average position to drive toward in rotations.
+     *   - AveragePosition: Average position to drive toward in rotations.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialPositionDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialPositionDutyCycle const &request) final;
     
     /**
      * \brief Request PID to target position with a differential position
@@ -6471,68 +6932,79 @@ public:
      * differential position setpoint to the specified position.
      * 
      * - DifferentialPositionVoltage Parameters: 
-     *   - TargetPosition: Average position to drive toward in rotations.
+     *   - AveragePosition: Average position to drive toward in rotations.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialPositionVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialPositionVoltage const &request) final;
     
     /**
      * \brief Request PID to target velocity with a differential position
@@ -6543,68 +7015,80 @@ public:
      * differential position setpoint to the specified position.
      * 
      * - DifferentialVelocityDutyCycle Parameters: 
-     *   - TargetVelocity: Average velocity to drive toward in rotations per second.
+     *   - AverageVelocity: Average velocity to drive toward in rotations per
+     *                      second.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialVelocityDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialVelocityDutyCycle const &request) final;
     
     /**
      * \brief Request PID to target velocity with a differential position
@@ -6615,68 +7099,80 @@ public:
      * differential position setpoint to the specified position.
      * 
      * - DifferentialVelocityVoltage Parameters: 
-     *   - TargetVelocity: Average velocity to drive toward in rotations per second.
+     *   - AverageVelocity: Average velocity to drive toward in rotations per
+     *                      second.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialVelocityVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialVelocityVoltage const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
@@ -6694,68 +7190,79 @@ public:
      * for the numerator:  +1.0 represents full forward output.
      * 
      * - DifferentialMotionMagicDutyCycle Parameters: 
-     *   - TargetPosition: Average position to drive toward in rotations.
+     *   - AveragePosition: Average position to drive toward in rotations.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialMotionMagicDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicDutyCycle const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
@@ -6773,154 +7280,572 @@ public:
      * numerator.
      * 
      * - DifferentialMotionMagicVoltage Parameters: 
-     *   - TargetPosition: Average position to drive toward in rotations.
+     *   - AveragePosition: Average position to drive toward in rotations.
      *   - DifferentialPosition: Differential position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - TargetSlot: Select which gains are applied to the primary controller by
-     *              selecting the slot.  Use the configuration api to set the gain
-     *              values for the selected slot before enabling this feature. Slot
-     *              must be within [0,2].
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
      *   - DifferentialSlot: Select which gains are applied to the differential
-     *                    controller by selecting the slot.  Use the configuration
-     *                    api to set the gain values for the selected slot before
-     *                    enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialMotionMagicVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicVoltage const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® to target a final position using an
+     * exponential motion profile, and PID to a differential position
+     * setpoint.
+     * 
+     * \details Motion Magic® Expo produces a motion profile in real-time
+     * while attempting to honor the Cruise Velocity (optional) and the
+     * mechanism kV and kA, specified via the Motion Magic® configuration
+     * values.  Note that unlike the slot gains, the Expo_kV and Expo_kA
+     * configs are always in output units of Volts.
+     * 
+     * Setting Cruise Velocity to 0 will allow the profile to run to the
+     * max possible velocity based on Expo_kV.  This control mode does not
+     * use the Acceleration or Jerk configs.
+     * 
+     * Target position can be changed on-the-fly and Motion Magic® will do
+     * its best to adjust the profile.  This control mode is duty cycle
+     * based, so relevant closed-loop gains will use fractional duty cycle
+     * for the numerator:  +1.0 represents full forward output.
+     * 
+     * - DifferentialMotionMagicExpoDutyCycle Parameters: 
+     *   - AveragePosition: Average position to drive toward in rotations.
+     *   - DifferentialPosition: Differential position to drive toward in rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
+     *   - DifferentialSlot: Select which gains are applied to the differential
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicExpoDutyCycle const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® to target a final position using an
+     * exponential motion profile, and PID to a differential position
+     * setpoint.
+     * 
+     * \details Motion Magic® Expo produces a motion profile in real-time
+     * while attempting to honor the Cruise Velocity (optional) and the
+     * mechanism kV and kA, specified via the Motion Magic® configuration
+     * values.  Note that unlike the slot gains, the Expo_kV and Expo_kA
+     * configs are always in output units of Volts.
+     * 
+     * Setting Cruise Velocity to 0 will allow the profile to run to the
+     * max possible velocity based on Expo_kV.  This control mode does not
+     * use the Acceleration or Jerk configs.
+     * 
+     * Target position can be changed on-the-fly and Motion Magic® will do
+     * its best to adjust the profile.  This control mode is
+     * voltage-based, so relevant closed-loop gains will use Volts for the
+     * numerator.
+     * 
+     * - DifferentialMotionMagicExpoVoltage Parameters: 
+     *   - AveragePosition: Average position to drive toward in rotations.
+     *   - DifferentialPosition: Differential position to drive toward in rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
+     *   - DifferentialSlot: Select which gains are applied to the differential
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicExpoVoltage const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® to target a final velocity using a
+     * motion profile, and PID to a differential position setpoint.  This
+     * allows smooth transitions between velocity set points.
+     * 
+     * \details Motion Magic® Velocity produces a motion profile in
+     * real-time while attempting to honor the specified Acceleration and
+     * (optional) Jerk.  This control mode does not use the
+     * CruiseVelocity, Expo_kV, or Expo_kA configs.
+     * 
+     * Acceleration and jerk are specified in the Motion Magic® persistent
+     * configuration values.  If Jerk is set to zero, Motion Magic® will
+     * produce a trapezoidal acceleration profile.
+     * 
+     * Target velocity can also be changed on-the-fly and Motion Magic®
+     * will do its best to adjust the profile.  This control mode is duty
+     * cycle based, so relevant closed-loop gains will use fractional duty
+     * cycle for the numerator:  +1.0 represents full forward output.
+     * 
+     * - DifferentialMotionMagicVelocityDutyCycle Parameters: 
+     *   - AverageVelocity: Average velocity to drive toward in rotations per
+     *                      second.
+     *   - DifferentialPosition: Differential position to drive toward in rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
+     *   - DifferentialSlot: Select which gains are applied to the differential
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicVelocityDutyCycle const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® to target a final velocity using a
+     * motion profile, and PID to a differential position setpoint.  This
+     * allows smooth transitions between velocity set points.
+     * 
+     * \details Motion Magic® Velocity produces a motion profile in
+     * real-time while attempting to honor the specified Acceleration and
+     * (optional) Jerk.  This control mode does not use the
+     * CruiseVelocity, Expo_kV, or Expo_kA configs.
+     * 
+     * Acceleration and jerk are specified in the Motion Magic® persistent
+     * configuration values.  If Jerk is set to zero, Motion Magic® will
+     * produce a trapezoidal acceleration profile.
+     * 
+     * Target velocity can also be changed on-the-fly and Motion Magic®
+     * will do its best to adjust the profile.  This control mode is
+     * voltage-based, so relevant closed-loop gains will use Volts for the
+     * numerator.
+     * 
+     * - DifferentialMotionMagicVelocityVoltage Parameters: 
+     *   - AverageVelocity: Average velocity to drive toward in rotations per
+     *                      second.
+     *   - DifferentialPosition: Differential position to drive toward in rotations.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - AverageSlot: Select which gains are applied to the average controller by
+     *                  selecting the slot.  Use the configuration api to set the
+     *                  gain values for the selected slot before enabling this
+     *                  feature. Slot must be within [0,2].
+     *   - DifferentialSlot: Select which gains are applied to the differential
+     *                       controller by selecting the slot.  Use the
+     *                       configuration api to set the gain values for the
+     *                       selected slot before enabling this feature. Slot must
+     *                       be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialMotionMagicVelocityVoltage const &request) final;
     
     /**
      * \brief Follow the motor output of another Talon.
      * 
-     * \details If Talon is in torque control, the torque is copied -
-     * which will increase the total torque applied. If Talon is in
-     * percent supply output control, the duty cycle is matched.  Motor
-     * direction either matches master's configured direction or opposes
-     * it based on OpposeMasterDirection.
+     * \details The follower will atomically change its output type when
+     * it receives the leader's latest output status signal (DutyCycle,
+     * MotorVoltage, TorqueCurrent). If Talon is in torque control, the
+     * torque is copied - which will increase the total torque applied. If
+     * Talon is in duty cycle output control, the duty cycle is matched.
+     * If Talon is in voltage output control, the motor voltage is
+     * matched. Motor direction either matches the leader's configured
+     * direction or opposes it based on the MotorAlignment.
+     * 
+     * The leader must ensure the status signal corresponding to its
+     * control output type (DutyCycle, MotorVoltage, TorqueCurrent) is
+     * enabled. The update rate of the status signal determines the update
+     * rate of the follower's output and should be no slower than 20 Hz.
      * 
      * - Follower Parameters: 
-     *   - MasterID: Device ID of the master to follow.
-     *   - OpposeMasterDirection: Set to false for motor invert to match the master's
-     *                         configured Invert - which is typical when master and
-     *                         follower are mechanically linked and spin in the same
-     *                         direction.  Set to true for motor invert to oppose
-     *                         the master's configured Invert - this is typical
-     *                         where the the master and follower mechanically spin
-     *                         in opposite directions.
+     *   - LeaderID: Device ID of the leader to follow.
+     *   - MotorAlignment: Set to Aligned for motor invert to match the leader's
+     *                     configured Invert - which is typical when leader and
+     *                     follower are mechanically linked and spin in the same
+     *                     direction.  Set to Opposed for motor invert to oppose the
+     *                     leader's configured Invert - this is typical where the
+     *                     leader and follower mechanically spin in opposite
+     *                     directions.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::Follower &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::Follower const &request) final;
     
     /**
      * \brief Follow the motor output of another Talon while ignoring the
-     * master's invert setting.
+     * leader's invert setting.
      * 
-     * \details If Talon is in torque control, the torque is copied -
-     * which will increase the total torque applied. If Talon is in
-     * percent supply output control, the duty cycle is matched.  Motor
-     * direction is strictly determined by the configured invert and not
-     * the master.  If you want motor direction to match or oppose the
-     * master, use FollowerRequest instead.
+     * \details The follower will atomically change its output type when
+     * it receives the leader's latest output status signal (DutyCycle,
+     * MotorVoltage, TorqueCurrent). If Talon is in torque control, the
+     * torque is copied - which will increase the total torque applied. If
+     * Talon is in duty cycle output control, the duty cycle is matched.
+     * If Talon is in voltage output control, the motor voltage is
+     * matched. Motor direction is strictly determined by the configured
+     * invert and not the leader. If you want motor direction to match or
+     * oppose the leader, use Follower instead.
+     * 
+     * The leader must ensure the status signal corresponding to its
+     * control output type (DutyCycle, MotorVoltage, TorqueCurrent) is
+     * enabled. The update rate of the status signal determines the update
+     * rate of the follower's output and should be no slower than 20 Hz.
      * 
      * - StrictFollower Parameters: 
-     *   - MasterID: Device ID of the master to follow.
+     *   - LeaderID: Device ID of the leader to follow.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::StrictFollower &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::StrictFollower const &request) final;
     
     /**
      * \brief Follow the differential motor output of another Talon.
      * 
-     * \details If Talon is in torque control, the torque is copied -
-     * which will increase the total torque applied. If Talon is in
-     * percent supply output control, the duty cycle is matched.  Motor
-     * direction either matches master's configured direction or opposes
-     * it based on OpposeMasterDirection.
+     * \details If Talon is in torque control, the differential torque is
+     * copied - which will increase the total torque applied. If Talon is
+     * in duty cycle output control, the differential duty cycle is
+     * matched. If Talon is in voltage output control, the differential
+     * motor voltage is matched. Motor direction either matches leader's
+     * configured direction or opposes it based on the MotorAlignment.
+     * 
+     * The leader must enable its DifferentialOutput status signal. The
+     * update rate of the status signal determines the update rate of the
+     * follower's output and should be no slower than 20 Hz.
      * 
      * - DifferentialFollower Parameters: 
-     *   - MasterID: Device ID of the differential master to follow.
-     *   - OpposeMasterDirection: Set to false for motor invert to match the master's
-     *                         configured Invert - which is typical when master and
-     *                         follower are mechanically linked and spin in the same
-     *                         direction.  Set to true for motor invert to oppose
-     *                         the master's configured Invert - this is typical
-     *                         where the the master and follower mechanically spin
-     *                         in opposite directions.
+     *   - LeaderID: Device ID of the differential leader to follow.
+     *   - MotorAlignment: Set to Aligned for motor invert to match the leader's
+     *                     configured Invert - which is typical when leader and
+     *                     follower are mechanically linked and spin in the same
+     *                     direction.  Set to Opposed for motor invert to oppose the
+     *                     leader's configured Invert - this is typical where the
+     *                     leader and follower mechanically spin in opposite
+     *                     directions.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialFollower &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialFollower const &request) final;
     
     /**
      * \brief Follow the differential motor output of another Talon while
-     * ignoring the master's invert setting.
+     * ignoring the leader's invert setting.
      * 
-     * \details If Talon is in torque control, the torque is copied -
-     * which will increase the total torque applied. If Talon is in
-     * percent supply output control, the duty cycle is matched.  Motor
-     * direction is strictly determined by the configured invert and not
-     * the master.  If you want motor direction to match or oppose the
-     * master, use FollowerRequest instead.
+     * \details If Talon is in torque control, the differential torque is
+     * copied - which will increase the total torque applied. If Talon is
+     * in duty cycle output control, the differential duty cycle is
+     * matched. If Talon is in voltage output control, the differential
+     * motor voltage is matched. Motor direction is strictly determined by
+     * the configured invert and not the leader. If you want motor
+     * direction to match or oppose the leader, use DifferentialFollower
+     * instead.
+     * 
+     * The leader must enable its DifferentialOutput status signal. The
+     * update rate of the status signal determines the update rate of the
+     * follower's output and should be no slower than 20 Hz.
      * 
      * - DifferentialStrictFollower Parameters: 
-     *   - MasterID: Device ID of the differential master to follow.
+     *   - LeaderID: Device ID of the differential leader to follow.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DifferentialStrictFollower &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DifferentialStrictFollower const &request) final;
     
     /**
      * \brief Request neutral output of actuator. The applied brake type
@@ -6928,18 +7853,18 @@ public:
      * 
      * - NeutralOut Parameters: 
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::NeutralOut &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::NeutralOut const &request) final;
     
     /**
      * \brief Request coast neutral output of actuator.  The bridge is
@@ -6947,36 +7872,36 @@ public:
      * 
      * - CoastOut Parameters: 
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::CoastOut &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::CoastOut const &request) final;
     
     /**
      * \brief Applies full neutral-brake by shorting motor leads together.
      * 
      * - StaticBrake Parameters: 
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::StaticBrake &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::StaticBrake const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final velocity using a
@@ -7001,69 +7926,82 @@ public:
      * cycle for the numerator:  +1.0 represents full forward output.
      * 
      * - MotionMagicVelocityDutyCycle Parameters: 
-     *   - Velocity: Target velocity to drive toward in rotations per second.  This can
-     *            be changed on-the fly.
+     *   - Velocity: Target velocity to drive toward in rotations per second.  This
+     *               can be changed on-the fly.
      *   - Acceleration: This is the absolute Acceleration to use generating the
-     *                profile.  If this parameter is zero, the Acceleration
-     *                persistent configuration parameter is used instead.
-     *                Acceleration is in rotations per second squared.  If nonzero,
-     *                the signage does not matter as the absolute value is used.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *                   profile.  If this parameter is zero, the Acceleration
+     *                   persistent configuration parameter is used instead.
+     *                   Acceleration is in rotations per second squared.  If
+     *                   nonzero, the signage does not matter as the absolute value
+     *                   is used.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicVelocityDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicVelocityDutyCycle const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final velocity using a
@@ -7088,69 +8026,81 @@ public:
      * numerator.
      * 
      * - MotionMagicVelocityVoltage Parameters: 
-     *   - Velocity: Target velocity to drive toward in rotations per second.  This can
-     *            be changed on-the fly.
+     *   - Velocity: Target velocity to drive toward in rotations per second.  This
+     *               can be changed on-the fly.
      *   - Acceleration: This is the absolute Acceleration to use generating the
-     *                profile.  If this parameter is zero, the Acceleration
-     *                persistent configuration parameter is used instead.
-     *                Acceleration is in rotations per second squared.  If nonzero,
-     *                the signage does not matter as the absolute value is used.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *                   profile.  If this parameter is zero, the Acceleration
+     *                   persistent configuration parameter is used instead.
+     *                   Acceleration is in rotations per second squared.  If
+     *                   nonzero, the signage does not matter as the absolute value
+     *                   is used.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicVelocityVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicVelocityVoltage const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using an
@@ -7174,62 +8124,74 @@ public:
      * 
      * - MotionMagicExpoDutyCycle Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicExpoDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicExpoDutyCycle const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using an
@@ -7253,69 +8215,79 @@ public:
      * 
      * - MotionMagicExpoVoltage Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::MotionMagicExpoVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::MotionMagicExpoVoltage const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
      * motion profile.  This dynamic request allows runtime changes to
-     * Cruise Velocity, Acceleration, and Jerk.  Users can optionally
-     * provide a duty cycle feedforward.  This control requires use of a
-     * CANivore.
+     * Cruise Velocity, Acceleration, and (optional) Jerk.  Users can
+     * optionally provide a duty cycle feedforward.
      * 
      * \details Motion Magic® produces a motion profile in real-time while
      * attempting to honor the specified Cruise Velocity, Acceleration,
@@ -7329,78 +8301,90 @@ public:
      * 
      * - DynamicMotionMagicDutyCycle Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as the
-     *            device will use the absolute value for profile generation.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation.
      *   - Acceleration: Acceleration for profiling.  The signage does not matter as
-     *                the device will use the absolute value for profile generation
+     *                   the device will use the absolute value for profile
+     *                   generation
      *   - Jerk: Jerk for profiling.  The signage does not matter as the device will
-     *        use the absolute value for profile generation.
-     *        
-     *        Jerk is optional; if this is set to zero, then Motion Magic® will not
-     *        apply a Jerk limit.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
+     *           use the absolute value for profile generation.
+     *           
+     *           Jerk is optional; if this is set to zero, then Motion Magic® will
+     *           not apply a Jerk limit.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
      *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DynamicMotionMagicDutyCycle &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicDutyCycle const &request) final;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
      * motion profile.  This dynamic request allows runtime changes to
-     * Cruise Velocity, Acceleration, and Jerk.  Users can optionally
-     * provide a voltage feedforward.  This control requires use of a
-     * CANivore.
+     * Cruise Velocity, Acceleration, and (optional) Jerk.  Users can
+     * optionally provide a voltage feedforward.
      * 
      * \details Motion Magic® produces a motion profile in real-time while
      * attempting to honor the specified Cruise Velocity, Acceleration,
@@ -7414,71 +8398,296 @@ public:
      * 
      * - DynamicMotionMagicVoltage Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as the
-     *            device will use the absolute value for profile generation.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation.
      *   - Acceleration: Acceleration for profiling.  The signage does not matter as
-     *                the device will use the absolute value for profile generation.
+     *                   the device will use the absolute value for profile
+     *                   generation.
      *   - Jerk: Jerk for profiling.  The signage does not matter as the device will
-     *        use the absolute value for profile generation.
-     *        
-     *        Jerk is optional; if this is set to zero, then Motion Magic® will not
-     *        apply a Jerk limit.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in volts
+     *           use the absolute value for profile generation.
+     *           
+     *           Jerk is optional; if this is set to zero, then Motion Magic® will
+     *           not apply a Jerk limit.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when output
-     *                           is zero (or within deadband).  Set to false to use
-     *                           the NeutralMode configuration setting (default).
-     *                           This flag exists to provide the fundamental
-     *                           behavior of this control when output is zero, which
-     *                           is to provide 0V to the motor.
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::DynamicMotionMagicVoltage &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicVoltage const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® Expo to target a final position using
+     * an exponential motion profile.  This dynamic request allows runtime
+     * changes to the profile kV, kA, and (optional) Cruise Velocity. 
+     * Users can optionally provide a duty cycle feedforward.
+     * 
+     * \details Motion Magic® Expo produces a motion profile in real-time
+     * while attempting to honor the specified Cruise Velocity (optional)
+     * and the mechanism kV and kA.  Note that unlike the slot gains, the
+     * Expo_kV and Expo_kA parameters are always in output units of Volts.
+     * 
+     * Setting the Cruise Velocity to 0 will allow the profile to run to
+     * the max possible velocity based on Expo_kV.  This control mode does
+     * not use the Acceleration or Jerk configs.
+     * 
+     * Target position can be changed on-the-fly and Motion Magic® will do
+     * its best to adjust the profile. This control mode is duty cycle
+     * based, so relevant closed-loop gains will use fractional duty cycle
+     * for the numerator:  +1.0 represents full forward output.
+     * 
+     * - DynamicMotionMagicExpoDutyCycle Parameters: 
+     *   - Position: Position to drive toward in rotations.
+     *   - kV: Mechanism kV for profiling.  Unlike the kV slot gain, this is always
+     *         in units of V/rps.
+     *         
+     *         This represents the amount of voltage necessary to hold a velocity. 
+     *         In terms of the Motion Magic® Expo profile, a higher kV results in a
+     *         slower maximum velocity.
+     *   - kA: Mechanism kA for profiling.  Unlike the kA slot gain, this is always
+     *         in units of V/rps².
+     *         
+     *         This represents the amount of voltage necessary to achieve an
+     *         acceleration.  In terms of the Motion Magic® Expo profile, a higher
+     *         kA results in a slower acceleration.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation. 
+     *               Setting this to 0 will allow the profile to run to the max
+     *               possible velocity based on Expo_kV.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in fractional units between -1 and +1.
+     *                  This is added to the output of the onboard feedforward
+     *                  terms.
+     *   - Slot: Select which gains are applied by selecting the slot.  Use the
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicExpoDutyCycle const &request) final;
+    
+    /**
+     * \brief Requests Motion Magic® Expo to target a final position using
+     * an exponential motion profile.  This dynamic request allows runtime
+     * changes to the profile kV, kA, and (optional) Cruise Velocity. 
+     * Users can optionally provide a voltage feedforward.
+     * 
+     * \details Motion Magic® Expo produces a motion profile in real-time
+     * while attempting to honor the specified Cruise Velocity (optional)
+     * and the mechanism kV and kA.  Note that unlike the slot gains, the
+     * Expo_kV and Expo_kA parameters are always in output units of Volts.
+     * 
+     * Setting the Cruise Velocity to 0 will allow the profile to run to
+     * the max possible velocity based on Expo_kV.  This control mode does
+     * not use the Acceleration or Jerk configs.
+     * 
+     * Target position can be changed on-the-fly and Motion Magic® will do
+     * its best to adjust the profile.  This control mode is
+     * voltage-based, so relevant closed-loop gains will use Volts for the
+     * numerator.
+     * 
+     * - DynamicMotionMagicExpoVoltage Parameters: 
+     *   - Position: Position to drive toward in rotations.
+     *   - kV: Mechanism kV for profiling.  Unlike the kV slot gain, this is always
+     *         in units of V/rps.
+     *         
+     *         This represents the amount of voltage necessary to hold a velocity. 
+     *         In terms of the Motion Magic® Expo profile, a higher kV results in a
+     *         slower maximum velocity.
+     *   - kA: Mechanism kA for profiling.  Unlike the kA slot gain, this is always
+     *         in units of V/rps².
+     *         
+     *         This represents the amount of voltage necessary to achieve an
+     *         acceleration.  In terms of the Motion Magic® Expo profile, a higher
+     *         kA results in a slower acceleration.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation. 
+     *               Setting this to 0 will allow the profile to run to the max
+     *               possible velocity based on Expo_kV.
+     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro),
+     *                which increases peak power by ~15% on supported devices (see
+     *                hardware#traits#SupportsFOC). Set to false to use trapezoidal
+     *                commutation.
+     *                
+     *                FOC improves motor performance by leveraging torque (current)
+     *                control.  However, this may be inconvenient for applications
+     *                that require specifying duty cycle or voltage. 
+     *                CTR-Electronics has developed a hybrid method that combines
+     *                the performances gains of FOC while still allowing
+     *                applications to provide duty cycle or voltage demand.  This
+     *                not to be confused with simple sinusoidal control or phase
+     *                voltage control which lacks the performance gains.
+     *   - FeedForward: Feedforward to apply in volts. This is added to the output
+     *                  of the onboard feedforward terms.
+     *   - Slot: Select which gains are applied by selecting the slot.  Use the
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideBrakeDurNeutral: Set to true to static-brake the rotor when
+     *                              output is zero (or within deadband).  Set to
+     *                              false to use the NeutralMode configuration
+     *                              setting (default). This flag exists to provide
+     *                              the fundamental behavior of this control when
+     *                              output is zero, which is to provide 0V to the
+     *                              motor.
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicExpoVoltage const &request) final;
     
     /**
      * \brief Differential control with duty cycle average target and
@@ -7487,54 +8696,84 @@ public:
      * - Diff_DutyCycleOut_Position Parameters: 
      *   - AverageRequest: Average DutyCycleOut request of the mechanism.
      *   - DifferentialRequest: Differential PositionDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_DutyCycleOut_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_DutyCycleOut_Position const &request) final;
     
     /**
      * \brief Differential control with position average target and
-     * position difference target using dutycycle control.
+     * position difference target using duty cycle control.
      * 
      * - Diff_PositionDutyCycle_Position Parameters: 
      *   - AverageRequest: Average PositionDutyCycle request of the mechanism.
      *   - DifferentialRequest: Differential PositionDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionDutyCycle_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionDutyCycle_Position const &request) final;
     
     /**
      * \brief Differential control with velocity average target and
-     * position difference target using dutycycle control.
+     * position difference target using duty cycle control.
      * 
      * - Diff_VelocityDutyCycle_Position Parameters: 
      *   - AverageRequest: Average VelocityDutyCYcle request of the mechanism.
      *   - DifferentialRequest: Differential PositionDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityDutyCycle_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityDutyCycle_Position const &request) final;
     
     /**
      * \brief Differential control with Motion Magic® average target and
-     * position difference target using dutycycle control.
+     * position difference target using duty cycle control.
      * 
      * - Diff_MotionMagicDutyCycle_Position Parameters: 
      *   - AverageRequest: Average MotionMagicDutyCycle request of the mechanism.
      *   - DifferentialRequest: Differential PositionDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicDutyCycle_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicDutyCycle_Position const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and position difference target using duty cycle control.
+     * 
+     * - Diff_MotionMagicExpoDutyCycle_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential PositionDutyCycle request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoDutyCycle_Position const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and position difference target using duty cycle control.
+     * 
+     * - Diff_MotionMagicVelocityDutyCycle_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential PositionDutyCycle request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityDutyCycle_Position const &request) final;
     
     /**
      * \brief Differential control with duty cycle average target and
@@ -7543,54 +8782,164 @@ public:
      * - Diff_DutyCycleOut_Velocity Parameters: 
      *   - AverageRequest: Average DutyCycleOut request of the mechanism.
      *   - DifferentialRequest: Differential VelocityDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_DutyCycleOut_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_DutyCycleOut_Velocity const &request) final;
     
     /**
      * \brief Differential control with position average target and
-     * velocity difference target using dutycycle control.
+     * velocity difference target using duty cycle control.
      * 
      * - Diff_PositionDutyCycle_Velocity Parameters: 
      *   - AverageRequest: Average PositionDutyCycle request of the mechanism.
      *   - DifferentialRequest: Differential VelocityDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionDutyCycle_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionDutyCycle_Velocity const &request) final;
     
     /**
      * \brief Differential control with velocity average target and
-     * velocity difference target using dutycycle control.
+     * velocity difference target using duty cycle control.
      * 
      * - Diff_VelocityDutyCycle_Velocity Parameters: 
      *   - AverageRequest: Average VelocityDutyCycle request of the mechanism.
      *   - DifferentialRequest: Differential VelocityDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityDutyCycle_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityDutyCycle_Velocity const &request) final;
     
     /**
      * \brief Differential control with Motion Magic® average target and
-     * velocity difference target using dutycycle control.
+     * velocity difference target using duty cycle control.
      * 
      * - Diff_MotionMagicDutyCycle_Velocity Parameters: 
      *   - AverageRequest: Average MotionMagicDutyCycle request of the mechanism.
      *   - DifferentialRequest: Differential VelocityDutyCycle request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicDutyCycle_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicDutyCycle_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and velocity difference target using duty cycle control.
+     * 
+     * - Diff_MotionMagicExpoDutyCycle_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential VelocityDutyCycle request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoDutyCycle_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and velocity difference target using duty cycle control.
+     * 
+     * - Diff_MotionMagicVelocityDutyCycle_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential VelocityDutyCycle request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityDutyCycle_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with duty cycle average target and duty
+     * cycle difference target.
+     * 
+     * - Diff_DutyCycleOut_Open Parameters: 
+     *   - AverageRequest: Average DutyCycleOut request of the mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_DutyCycleOut_Open const &request) final;
+    
+    /**
+     * \brief Differential control with position average target and duty
+     * cycle difference target.
+     * 
+     * - Diff_PositionDutyCycle_Open Parameters: 
+     *   - AverageRequest: Average PositionDutyCycle request of the mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionDutyCycle_Open const &request) final;
+    
+    /**
+     * \brief Differential control with velocity average target and duty
+     * cycle difference target.
+     * 
+     * - Diff_VelocityDutyCycle_Open Parameters: 
+     *   - AverageRequest: Average VelocityDutyCYcle request of the mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityDutyCycle_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® average target and
+     * duty cycle difference target.
+     * 
+     * - Diff_MotionMagicDutyCycle_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicDutyCycle request of the mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicDutyCycle_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and duty cycle difference target.
+     * 
+     * - Diff_MotionMagicExpoDutyCycle_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoDutyCycle_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and duty cycle difference target.
+     * 
+     * - Diff_MotionMagicVelocityDutyCycle_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityDutyCycle request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential DutyCycleOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityDutyCycle_Open const &request) final;
     
     /**
      * \brief Differential control with voltage average target and
@@ -7598,12 +8947,13 @@ public:
      * 
      * - Diff_VoltageOut_Position Parameters: 
      *   - AverageRequest: Average VoltageOut request of the mechanism.
-     *   - DifferentialRequest: Differential PositionVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VoltageOut_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VoltageOut_Position const &request) final;
     
     /**
      * \brief Differential control with position average target and
@@ -7611,12 +8961,13 @@ public:
      * 
      * - Diff_PositionVoltage_Position Parameters: 
      *   - AverageRequest: Average PositionVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential PositionVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionVoltage_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionVoltage_Position const &request) final;
     
     /**
      * \brief Differential control with velocity average target and
@@ -7624,12 +8975,13 @@ public:
      * 
      * - Diff_VelocityVoltage_Position Parameters: 
      *   - AverageRequest: Average VelocityVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential PositionVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityVoltage_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityVoltage_Position const &request) final;
     
     /**
      * \brief Differential control with Motion Magic® average target and
@@ -7637,12 +8989,42 @@ public:
      * 
      * - Diff_MotionMagicVoltage_Position Parameters: 
      *   - AverageRequest: Average MotionMagicVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential PositionVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicVoltage_Position &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVoltage_Position const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and position difference target using voltage control.
+     * 
+     * - Diff_MotionMagicExpoVoltage_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoVoltage_Position const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and position difference target using voltage control.
+     * 
+     * - Diff_MotionMagicVelocityVoltage_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityVoltage request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential PositionVoltage request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityVoltage_Position const &request) final;
     
     /**
      * \brief Differential control with voltage average target and
@@ -7650,12 +9032,13 @@ public:
      * 
      * - Diff_VoltageOut_Velocity Parameters: 
      *   - AverageRequest: Average VoltageOut request of the mechanism.
-     *   - DifferentialRequest: Differential VelocityVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VoltageOut_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VoltageOut_Velocity const &request) final;
     
     /**
      * \brief Differential control with position average target and
@@ -7663,12 +9046,13 @@ public:
      * 
      * - Diff_PositionVoltage_Velocity Parameters: 
      *   - AverageRequest: Average PositionVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential VelocityVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionVoltage_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionVoltage_Velocity const &request) final;
     
     /**
      * \brief Differential control with velocity average target and
@@ -7676,12 +9060,13 @@ public:
      * 
      * - Diff_VelocityVoltage_Velocity Parameters: 
      *   - AverageRequest: Average VelocityVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential VelocityVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityVoltage_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityVoltage_Velocity const &request) final;
     
     /**
      * \brief Differential control with Motion Magic® average target and
@@ -7689,12 +9074,129 @@ public:
      * 
      * - Diff_MotionMagicVoltage_Velocity Parameters: 
      *   - AverageRequest: Average MotionMagicVoltage request of the mechanism.
-     *   - DifferentialRequest: Differential VelocityVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicVoltage_Velocity &request) override;
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVoltage_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and velocity difference target using voltage control.
+     * 
+     * - Diff_MotionMagicExpoVoltage_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoVoltage_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and velocity difference target using voltage control.
+     * 
+     * - Diff_MotionMagicVelocityVoltage_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityVoltage request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential VelocityVoltage request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityVoltage_Velocity const &request) final;
+    
+    /**
+     * \brief Differential control with voltage average target and voltage
+     * difference target.
+     * 
+     * - Diff_VoltageOut_Open Parameters: 
+     *   - AverageRequest: Average VoltageOut request of the mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VoltageOut_Open const &request) final;
+    
+    /**
+     * \brief Differential control with position average target and
+     * voltage difference target.
+     * 
+     * - Diff_PositionVoltage_Open Parameters: 
+     *   - AverageRequest: Average PositionVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionVoltage_Open const &request) final;
+    
+    /**
+     * \brief Differential control with velocity average target and
+     * voltage difference target.
+     * 
+     * - Diff_VelocityVoltage_Open Parameters: 
+     *   - AverageRequest: Average VelocityVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityVoltage_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® average target and
+     * voltage difference target.
+     * 
+     * - Diff_MotionMagicVoltage_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVoltage_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and voltage difference target.
+     * 
+     * - Diff_MotionMagicExpoVoltage_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoVoltage request of the mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoVoltage_Open const &request) final;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and voltage difference target.
+     * 
+     * - Diff_MotionMagicVelocityVoltage_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityVoltage request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential VoltageOut request of the mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityVoltage_Open const &request) final;
+
+    /**
+     * \brief Apply a generic empty control used to do nothing.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::EmptyControl const &request) final;
 
     /**
      * \brief Control device with generic control request object. User must make
@@ -7703,149 +9205,9 @@ public:
      *        StatusCode
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::ControlRequest &request) override
-    {
-        controls::ControlRequest const *ptr = &request;
-        (void)ptr;
-        auto const *DutyCycleOutValue = dynamic_cast<controls::DutyCycleOut const *>(ptr);
-        if (DutyCycleOutValue != nullptr)
-            return SetControl(*DutyCycleOutValue);
-        auto const *VoltageOutValue = dynamic_cast<controls::VoltageOut const *>(ptr);
-        if (VoltageOutValue != nullptr)
-            return SetControl(*VoltageOutValue);
-        auto const *PositionDutyCycleValue = dynamic_cast<controls::PositionDutyCycle const *>(ptr);
-        if (PositionDutyCycleValue != nullptr)
-            return SetControl(*PositionDutyCycleValue);
-        auto const *PositionVoltageValue = dynamic_cast<controls::PositionVoltage const *>(ptr);
-        if (PositionVoltageValue != nullptr)
-            return SetControl(*PositionVoltageValue);
-        auto const *VelocityDutyCycleValue = dynamic_cast<controls::VelocityDutyCycle const *>(ptr);
-        if (VelocityDutyCycleValue != nullptr)
-            return SetControl(*VelocityDutyCycleValue);
-        auto const *VelocityVoltageValue = dynamic_cast<controls::VelocityVoltage const *>(ptr);
-        if (VelocityVoltageValue != nullptr)
-            return SetControl(*VelocityVoltageValue);
-        auto const *MotionMagicDutyCycleValue = dynamic_cast<controls::MotionMagicDutyCycle const *>(ptr);
-        if (MotionMagicDutyCycleValue != nullptr)
-            return SetControl(*MotionMagicDutyCycleValue);
-        auto const *MotionMagicVoltageValue = dynamic_cast<controls::MotionMagicVoltage const *>(ptr);
-        if (MotionMagicVoltageValue != nullptr)
-            return SetControl(*MotionMagicVoltageValue);
-        auto const *DifferentialDutyCycleValue = dynamic_cast<controls::DifferentialDutyCycle const *>(ptr);
-        if (DifferentialDutyCycleValue != nullptr)
-            return SetControl(*DifferentialDutyCycleValue);
-        auto const *DifferentialVoltageValue = dynamic_cast<controls::DifferentialVoltage const *>(ptr);
-        if (DifferentialVoltageValue != nullptr)
-            return SetControl(*DifferentialVoltageValue);
-        auto const *DifferentialPositionDutyCycleValue = dynamic_cast<controls::DifferentialPositionDutyCycle const *>(ptr);
-        if (DifferentialPositionDutyCycleValue != nullptr)
-            return SetControl(*DifferentialPositionDutyCycleValue);
-        auto const *DifferentialPositionVoltageValue = dynamic_cast<controls::DifferentialPositionVoltage const *>(ptr);
-        if (DifferentialPositionVoltageValue != nullptr)
-            return SetControl(*DifferentialPositionVoltageValue);
-        auto const *DifferentialVelocityDutyCycleValue = dynamic_cast<controls::DifferentialVelocityDutyCycle const *>(ptr);
-        if (DifferentialVelocityDutyCycleValue != nullptr)
-            return SetControl(*DifferentialVelocityDutyCycleValue);
-        auto const *DifferentialVelocityVoltageValue = dynamic_cast<controls::DifferentialVelocityVoltage const *>(ptr);
-        if (DifferentialVelocityVoltageValue != nullptr)
-            return SetControl(*DifferentialVelocityVoltageValue);
-        auto const *DifferentialMotionMagicDutyCycleValue = dynamic_cast<controls::DifferentialMotionMagicDutyCycle const *>(ptr);
-        if (DifferentialMotionMagicDutyCycleValue != nullptr)
-            return SetControl(*DifferentialMotionMagicDutyCycleValue);
-        auto const *DifferentialMotionMagicVoltageValue = dynamic_cast<controls::DifferentialMotionMagicVoltage const *>(ptr);
-        if (DifferentialMotionMagicVoltageValue != nullptr)
-            return SetControl(*DifferentialMotionMagicVoltageValue);
-        auto const *FollowerValue = dynamic_cast<controls::Follower const *>(ptr);
-        if (FollowerValue != nullptr)
-            return SetControl(*FollowerValue);
-        auto const *StrictFollowerValue = dynamic_cast<controls::StrictFollower const *>(ptr);
-        if (StrictFollowerValue != nullptr)
-            return SetControl(*StrictFollowerValue);
-        auto const *DifferentialFollowerValue = dynamic_cast<controls::DifferentialFollower const *>(ptr);
-        if (DifferentialFollowerValue != nullptr)
-            return SetControl(*DifferentialFollowerValue);
-        auto const *DifferentialStrictFollowerValue = dynamic_cast<controls::DifferentialStrictFollower const *>(ptr);
-        if (DifferentialStrictFollowerValue != nullptr)
-            return SetControl(*DifferentialStrictFollowerValue);
-        auto const *NeutralOutValue = dynamic_cast<controls::NeutralOut const *>(ptr);
-        if (NeutralOutValue != nullptr)
-            return SetControl(*NeutralOutValue);
-        auto const *CoastOutValue = dynamic_cast<controls::CoastOut const *>(ptr);
-        if (CoastOutValue != nullptr)
-            return SetControl(*CoastOutValue);
-        auto const *StaticBrakeValue = dynamic_cast<controls::StaticBrake const *>(ptr);
-        if (StaticBrakeValue != nullptr)
-            return SetControl(*StaticBrakeValue);
-        auto const *MotionMagicVelocityDutyCycleValue = dynamic_cast<controls::MotionMagicVelocityDutyCycle const *>(ptr);
-        if (MotionMagicVelocityDutyCycleValue != nullptr)
-            return SetControl(*MotionMagicVelocityDutyCycleValue);
-        auto const *MotionMagicVelocityVoltageValue = dynamic_cast<controls::MotionMagicVelocityVoltage const *>(ptr);
-        if (MotionMagicVelocityVoltageValue != nullptr)
-            return SetControl(*MotionMagicVelocityVoltageValue);
-        auto const *MotionMagicExpoDutyCycleValue = dynamic_cast<controls::MotionMagicExpoDutyCycle const *>(ptr);
-        if (MotionMagicExpoDutyCycleValue != nullptr)
-            return SetControl(*MotionMagicExpoDutyCycleValue);
-        auto const *MotionMagicExpoVoltageValue = dynamic_cast<controls::MotionMagicExpoVoltage const *>(ptr);
-        if (MotionMagicExpoVoltageValue != nullptr)
-            return SetControl(*MotionMagicExpoVoltageValue);
-        auto const *DynamicMotionMagicDutyCycleValue = dynamic_cast<controls::DynamicMotionMagicDutyCycle const *>(ptr);
-        if (DynamicMotionMagicDutyCycleValue != nullptr)
-            return SetControl(*DynamicMotionMagicDutyCycleValue);
-        auto const *DynamicMotionMagicVoltageValue = dynamic_cast<controls::DynamicMotionMagicVoltage const *>(ptr);
-        if (DynamicMotionMagicVoltageValue != nullptr)
-            return SetControl(*DynamicMotionMagicVoltageValue);
-        auto const *Diff_DutyCycleOut_PositionValue = dynamic_cast<controls::compound::Diff_DutyCycleOut_Position const *>(ptr);
-        if (Diff_DutyCycleOut_PositionValue != nullptr)
-            return SetControl(*Diff_DutyCycleOut_PositionValue);
-        auto const *Diff_PositionDutyCycle_PositionValue = dynamic_cast<controls::compound::Diff_PositionDutyCycle_Position const *>(ptr);
-        if (Diff_PositionDutyCycle_PositionValue != nullptr)
-            return SetControl(*Diff_PositionDutyCycle_PositionValue);
-        auto const *Diff_VelocityDutyCycle_PositionValue = dynamic_cast<controls::compound::Diff_VelocityDutyCycle_Position const *>(ptr);
-        if (Diff_VelocityDutyCycle_PositionValue != nullptr)
-            return SetControl(*Diff_VelocityDutyCycle_PositionValue);
-        auto const *Diff_MotionMagicDutyCycle_PositionValue = dynamic_cast<controls::compound::Diff_MotionMagicDutyCycle_Position const *>(ptr);
-        if (Diff_MotionMagicDutyCycle_PositionValue != nullptr)
-            return SetControl(*Diff_MotionMagicDutyCycle_PositionValue);
-        auto const *Diff_DutyCycleOut_VelocityValue = dynamic_cast<controls::compound::Diff_DutyCycleOut_Velocity const *>(ptr);
-        if (Diff_DutyCycleOut_VelocityValue != nullptr)
-            return SetControl(*Diff_DutyCycleOut_VelocityValue);
-        auto const *Diff_PositionDutyCycle_VelocityValue = dynamic_cast<controls::compound::Diff_PositionDutyCycle_Velocity const *>(ptr);
-        if (Diff_PositionDutyCycle_VelocityValue != nullptr)
-            return SetControl(*Diff_PositionDutyCycle_VelocityValue);
-        auto const *Diff_VelocityDutyCycle_VelocityValue = dynamic_cast<controls::compound::Diff_VelocityDutyCycle_Velocity const *>(ptr);
-        if (Diff_VelocityDutyCycle_VelocityValue != nullptr)
-            return SetControl(*Diff_VelocityDutyCycle_VelocityValue);
-        auto const *Diff_MotionMagicDutyCycle_VelocityValue = dynamic_cast<controls::compound::Diff_MotionMagicDutyCycle_Velocity const *>(ptr);
-        if (Diff_MotionMagicDutyCycle_VelocityValue != nullptr)
-            return SetControl(*Diff_MotionMagicDutyCycle_VelocityValue);
-        auto const *Diff_VoltageOut_PositionValue = dynamic_cast<controls::compound::Diff_VoltageOut_Position const *>(ptr);
-        if (Diff_VoltageOut_PositionValue != nullptr)
-            return SetControl(*Diff_VoltageOut_PositionValue);
-        auto const *Diff_PositionVoltage_PositionValue = dynamic_cast<controls::compound::Diff_PositionVoltage_Position const *>(ptr);
-        if (Diff_PositionVoltage_PositionValue != nullptr)
-            return SetControl(*Diff_PositionVoltage_PositionValue);
-        auto const *Diff_VelocityVoltage_PositionValue = dynamic_cast<controls::compound::Diff_VelocityVoltage_Position const *>(ptr);
-        if (Diff_VelocityVoltage_PositionValue != nullptr)
-            return SetControl(*Diff_VelocityVoltage_PositionValue);
-        auto const *Diff_MotionMagicVoltage_PositionValue = dynamic_cast<controls::compound::Diff_MotionMagicVoltage_Position const *>(ptr);
-        if (Diff_MotionMagicVoltage_PositionValue != nullptr)
-            return SetControl(*Diff_MotionMagicVoltage_PositionValue);
-        auto const *Diff_VoltageOut_VelocityValue = dynamic_cast<controls::compound::Diff_VoltageOut_Velocity const *>(ptr);
-        if (Diff_VoltageOut_VelocityValue != nullptr)
-            return SetControl(*Diff_VoltageOut_VelocityValue);
-        auto const *Diff_PositionVoltage_VelocityValue = dynamic_cast<controls::compound::Diff_PositionVoltage_Velocity const *>(ptr);
-        if (Diff_PositionVoltage_VelocityValue != nullptr)
-            return SetControl(*Diff_PositionVoltage_VelocityValue);
-        auto const *Diff_VelocityVoltage_VelocityValue = dynamic_cast<controls::compound::Diff_VelocityVoltage_Velocity const *>(ptr);
-        if (Diff_VelocityVoltage_VelocityValue != nullptr)
-            return SetControl(*Diff_VelocityVoltage_VelocityValue);
-        auto const *Diff_MotionMagicVoltage_VelocityValue = dynamic_cast<controls::compound::Diff_MotionMagicVoltage_Velocity const *>(ptr);
-        if (Diff_MotionMagicVoltage_VelocityValue != nullptr)
-            return SetControl(*Diff_MotionMagicVoltage_VelocityValue);
-        return ctre::phoenix::StatusCode::NotSupported;
-    }
+    ctre::phoenix::StatusCode SetControl(controls::ControlRequest const &request) final;
 
     
     /**
@@ -7856,7 +9218,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().SetPosition(newValue, timeoutSeconds);
     }
@@ -7869,7 +9231,7 @@ public:
      * \param newValue Value to set to. Units are in rotations.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue) override
+    ctre::phoenix::StatusCode SetPosition(units::angle::turn_t newValue) final
     {
         return SetPosition(newValue, 0.100_s);
     }
@@ -7884,7 +9246,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFaults(timeoutSeconds);
     }
@@ -7899,7 +9261,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFaults() override
+    ctre::phoenix::StatusCode ClearStickyFaults() final
     {
         return ClearStickyFaults(0.100_s);
     }
@@ -7910,7 +9272,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_Hardware(timeoutSeconds);
     }
@@ -7921,7 +9283,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Hardware() override
+    ctre::phoenix::StatusCode ClearStickyFault_Hardware() final
     {
         return ClearStickyFault_Hardware(0.100_s);
     }
@@ -7932,7 +9294,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_ProcTemp(timeoutSeconds);
     }
@@ -7943,7 +9305,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp() override
+    ctre::phoenix::StatusCode ClearStickyFault_ProcTemp() final
     {
         return ClearStickyFault_ProcTemp(0.100_s);
     }
@@ -7954,7 +9316,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_DeviceTemp(timeoutSeconds);
     }
@@ -7965,7 +9327,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp() override
+    ctre::phoenix::StatusCode ClearStickyFault_DeviceTemp() final
     {
         return ClearStickyFault_DeviceTemp(0.100_s);
     }
@@ -7977,7 +9339,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_Undervoltage(timeoutSeconds);
     }
@@ -7989,7 +9351,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage() override
+    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage() final
     {
         return ClearStickyFault_Undervoltage(0.100_s);
     }
@@ -8001,7 +9363,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_BootDuringEnable(timeoutSeconds);
     }
@@ -8013,7 +9375,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable() override
+    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable() final
     {
         return ClearStickyFault_BootDuringEnable(0.100_s);
     }
@@ -8025,7 +9387,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_UnlicensedFeatureInUse(timeoutSeconds);
     }
@@ -8037,7 +9399,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse() override
+    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse() final
     {
         return ClearStickyFault_UnlicensedFeatureInUse(0.100_s);
     }
@@ -8049,7 +9411,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_BridgeBrownout(timeoutSeconds);
     }
@@ -8061,7 +9423,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout() override
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeBrownout() final
     {
         return ClearStickyFault_BridgeBrownout(0.100_s);
     }
@@ -8072,7 +9434,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_RemoteSensorReset(timeoutSeconds);
     }
@@ -8083,7 +9445,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset() override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorReset() final
     {
         return ClearStickyFault_RemoteSensorReset(0.100_s);
     }
@@ -8095,7 +9457,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_MissingDifferentialFX(timeoutSeconds);
     }
@@ -8107,7 +9469,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX() override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingDifferentialFX() final
     {
         return ClearStickyFault_MissingDifferentialFX(0.100_s);
     }
@@ -8122,7 +9484,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_RemoteSensorPosOverflow(timeoutSeconds);
     }
@@ -8137,7 +9499,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow() override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorPosOverflow() final
     {
         return ClearStickyFault_RemoteSensorPosOverflow(0.100_s);
     }
@@ -8149,7 +9511,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_OverSupplyV(timeoutSeconds);
     }
@@ -8161,7 +9523,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV() override
+    ctre::phoenix::StatusCode ClearStickyFault_OverSupplyV() final
     {
         return ClearStickyFault_OverSupplyV(0.100_s);
     }
@@ -8173,7 +9535,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_UnstableSupplyV(timeoutSeconds);
     }
@@ -8185,7 +9547,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV() override
+    ctre::phoenix::StatusCode ClearStickyFault_UnstableSupplyV() final
     {
         return ClearStickyFault_UnstableSupplyV(0.100_s);
     }
@@ -8197,7 +9559,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_ReverseHardLimit(timeoutSeconds);
     }
@@ -8209,7 +9571,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseHardLimit() final
     {
         return ClearStickyFault_ReverseHardLimit(0.100_s);
     }
@@ -8221,7 +9583,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_ForwardHardLimit(timeoutSeconds);
     }
@@ -8233,7 +9595,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardHardLimit() final
     {
         return ClearStickyFault_ForwardHardLimit(0.100_s);
     }
@@ -8245,7 +9607,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_ReverseSoftLimit(timeoutSeconds);
     }
@@ -8257,7 +9619,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_ReverseSoftLimit() final
     {
         return ClearStickyFault_ReverseSoftLimit(0.100_s);
     }
@@ -8269,7 +9631,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_ForwardSoftLimit(timeoutSeconds);
     }
@@ -8281,7 +9643,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_ForwardSoftLimit() final
     {
         return ClearStickyFault_ForwardSoftLimit(0.100_s);
     }
@@ -8293,7 +9655,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_MissingSoftLimitRemote(timeoutSeconds);
     }
@@ -8305,7 +9667,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote() override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingSoftLimitRemote() final
     {
         return ClearStickyFault_MissingSoftLimitRemote(0.100_s);
     }
@@ -8317,7 +9679,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_MissingHardLimitRemote(timeoutSeconds);
     }
@@ -8329,7 +9691,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote() override
+    ctre::phoenix::StatusCode ClearStickyFault_MissingHardLimitRemote() final
     {
         return ClearStickyFault_MissingHardLimitRemote(0.100_s);
     }
@@ -8344,7 +9706,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_RemoteSensorDataInvalid(timeoutSeconds);
     }
@@ -8359,7 +9721,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid() override
+    ctre::phoenix::StatusCode ClearStickyFault_RemoteSensorDataInvalid() final
     {
         return ClearStickyFault_RemoteSensorDataInvalid(0.100_s);
     }
@@ -8374,7 +9736,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_FusedSensorOutOfSync(timeoutSeconds);
     }
@@ -8389,7 +9751,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync() override
+    ctre::phoenix::StatusCode ClearStickyFault_FusedSensorOutOfSync() final
     {
         return ClearStickyFault_FusedSensorOutOfSync(0.100_s);
     }
@@ -8400,7 +9762,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_StatorCurrLimit(timeoutSeconds);
     }
@@ -8411,7 +9773,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_StatorCurrLimit() final
     {
         return ClearStickyFault_StatorCurrLimit(0.100_s);
     }
@@ -8422,7 +9784,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_SupplyCurrLimit(timeoutSeconds);
     }
@@ -8433,7 +9795,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit() override
+    ctre::phoenix::StatusCode ClearStickyFault_SupplyCurrLimit() final
     {
         return ClearStickyFault_SupplyCurrLimit(0.100_s);
     }
@@ -8445,7 +9807,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(timeoutSeconds);
     }
@@ -8457,7 +9819,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed() override
+    ctre::phoenix::StatusCode ClearStickyFault_UsingFusedCANcoderWhileUnlicensed() final
     {
         return ClearStickyFault_UsingFusedCANcoderWhileUnlicensed(0.100_s);
     }
@@ -8469,7 +9831,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_StaticBrakeDisabled(timeoutSeconds);
     }
@@ -8481,7 +9843,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled() override
+    ctre::phoenix::StatusCode ClearStickyFault_StaticBrakeDisabled() final
     {
         return ClearStickyFault_StaticBrakeDisabled(0.100_s);
     }
@@ -8493,7 +9855,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_BridgeShort(timeoutSeconds);
     }
@@ -8505,7 +9867,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort() override
+    ctre::phoenix::StatusCode ClearStickyFault_BridgeShort() final
     {
         return ClearStickyFault_BridgeShort(0.100_s);
     }
@@ -8518,7 +9880,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_HallSensorMissing(timeoutSeconds);
     }
@@ -8531,7 +9893,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing() override
+    ctre::phoenix::StatusCode ClearStickyFault_HallSensorMissing() final
     {
         return ClearStickyFault_HallSensorMissing(0.100_s);
     }
@@ -8543,7 +9905,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_DriveDisabledHallSensor(timeoutSeconds);
     }
@@ -8555,7 +9917,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor() override
+    ctre::phoenix::StatusCode ClearStickyFault_DriveDisabledHallSensor() final
     {
         return ClearStickyFault_DriveDisabledHallSensor(0.100_s);
     }
@@ -8567,7 +9929,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_MotorTempSensorMissing(timeoutSeconds);
     }
@@ -8579,7 +9941,7 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing() override
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorMissing() final
     {
         return ClearStickyFault_MotorTempSensorMissing(0.100_s);
     }
@@ -8591,7 +9953,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot(units::time::second_t timeoutSeconds) override
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot(units::time::second_t timeoutSeconds) final
     {
         return GetConfigurator().ClearStickyFault_MotorTempSensorTooHot(timeoutSeconds);
     }
@@ -8603,11 +9965,39 @@ public:
      * 
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot() override
+    ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot() final
     {
         return ClearStickyFault_MotorTempSensorTooHot(0.100_s);
     }
+    
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * \param timeoutSeconds Maximum time to wait up to in seconds.
+     * \returns StatusCode of the set command
+     */
+    ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected(units::time::second_t timeoutSeconds) final
+    {
+        return GetConfigurator().ClearStickyFault_MotorArrangementNotSelected(timeoutSeconds);
+    }
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * This will wait up to 0.100 seconds (100ms) by default.
+     * 
+     * \returns StatusCode of the set command
+     */
+    ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected() final
+    {
+        return ClearStickyFault_MotorArrangementNotSelected(0.100_s);
+    }
 };
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(pop)
+#endif
 
 }
 }

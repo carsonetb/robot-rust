@@ -4,8 +4,10 @@
  * For support and suggestions contact support@ctr-electronics.com or file
  * an issue tracker at https://github.com/CrossTheRoadElec/Phoenix-Releases
  */
+#pragma once
 
-#include "ctre/phoenix6/hardware/ParentDevice.hpp"
+#include "ctre/phoenix6/hardware/traits/CommonDevice.hpp"
+#include <span>
 
 namespace ctre {
 namespace phoenix6 {
@@ -45,6 +47,7 @@ public:
      * \brief Constructor for a new Orchestra.
      */
     Orchestra();
+
     /**
      * \brief Constructor for a new Orchestra using the given Chirp file.
      *
@@ -56,54 +59,28 @@ public:
     {
         LoadMusic(filepath);
     }
+
     /**
      * \brief Constructor for a new Orchestra using the given Chirp file.
      *
-     * \param instruments A vector of device addresses that will be used as instruments in the orchestra.
+     * \param instruments A span of device addresses that will be used as instruments in the orchestra.
      */
-    Orchestra(std::vector<hardware::ParentDevice *> const &instruments) : Orchestra{}
+    Orchestra(std::span<hardware::traits::CommonDevice* const> instruments) : Orchestra{}
     {
         for (auto instrument : instruments) {
             AddInstrument(*instrument);
         }
     }
-    /**
-     * \brief Constructor for a new Orchestra using the given Chirp file.
-     *
-     * \param instruments An array of device addresses that will be used as instruments in the orchestra.
-     */
-    template <size_t N>
-    Orchestra(std::array<hardware::ParentDevice *, N> const &instruments) : Orchestra{}
-    {
-        for (auto instrument : instruments) {
-            AddInstrument(*instrument);
-        }
-    }
+
     /**
      * \brief Constructor for a new Orchestra using the given Chirp file.
      *
      * This API is blocking on the file read.
      *
-     * \param instruments A vector of device addresses that will be used as instruments in the orchestra.
+     * \param instruments A span of device addresses that will be used as instruments in the orchestra.
      * \param filepath The path to the music file to immediately load into the orchestra.
      */
-    Orchestra(std::vector<hardware::ParentDevice *> const &instruments, char const *filepath) : Orchestra{}
-    {
-        for (auto instrument : instruments) {
-            AddInstrument(*instrument);
-        }
-        LoadMusic(filepath);
-    }
-    /**
-     * \brief Constructor for a new Orchestra using the given Chirp file.
-     *
-     * This API is blocking on the file read.
-     *
-     * \param instruments An array of device addresses that will be used as instruments in the orchestra.
-     * \param filepath The path to the music file to immediately load into the orchestra.
-     */
-    template <size_t N>
-    Orchestra(std::array<hardware::ParentDevice *, N> const &instruments, char const *filepath) : Orchestra{}
+    Orchestra(std::span<hardware::traits::CommonDevice* const> instruments, char const *filepath) : Orchestra{}
     {
         for (auto instrument : instruments) {
             AddInstrument(*instrument);
@@ -118,12 +95,12 @@ public:
      *
      * This adds the instrument to the next track; it does not wrap
      * back to track 0 if all tracks have been filled. To assign
-     * multiple instruments to a track, use #AddInstrument(hardware#ParentDevice const &, uint16_t).
+     * multiple instruments to a track, use #AddInstrument(hardware#traits#CommonDevice const &, uint16_t).
      *
      * \param instrument The device to add to the orchestra
      * \returns Status code of adding the device
      */
-    ctre::phoenix::StatusCode AddInstrument(hardware::ParentDevice const &instrument);
+    ctre::phoenix::StatusCode AddInstrument(hardware::traits::CommonDevice const &instrument);
 
     /**
      * \brief Adds an instrument to the orchestra on the given track.
@@ -134,7 +111,7 @@ public:
      * \param trackNumber The track number the device should play, starting at 0
      * \returns Status code of adding the device
      */
-    ctre::phoenix::StatusCode AddInstrument(hardware::ParentDevice const &instrument, uint16_t trackNumber);
+    ctre::phoenix::StatusCode AddInstrument(hardware::traits::CommonDevice const &instrument, uint16_t trackNumber);
 
     /**
      * \brief Clears all instruments in the orchestra.

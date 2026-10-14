@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 
@@ -18,44 +15,35 @@ namespace phoenix6 {
 namespace controls {
 
 /**
- * Follow the motor output of another Talon while ignoring the master's invert
+ * Follow the motor output of another Talon while ignoring the leader's invert
  * setting.
  * 
- * If Talon is in torque control, the torque is copied - which will increase the total torque applied. If
- * Talon is in percent supply output control, the duty cycle is matched.  Motor direction is strictly
- * determined by the configured invert and not the master.  If you want motor direction to match or oppose the
- * master, use FollowerRequest instead.
+ * The follower will atomically change its output type when it receives the leader's latest output status
+ * signal (DutyCycle, MotorVoltage, TorqueCurrent). If Talon is in torque control, the torque is copied -
+ * which will increase the total torque applied. If Talon is in duty cycle output control, the duty cycle is
+ * matched. If Talon is in voltage output control, the motor voltage is matched. Motor direction is strictly
+ * determined by the configured invert and not the leader. If you want motor direction to match or oppose the
+ * leader, use Follower instead.
+ * 
+ * The leader must ensure the status signal corresponding to its control output type (DutyCycle, MotorVoltage,
+ * TorqueCurrent) is enabled. The update rate of the status signal determines the update rate of the
+ * follower's output and should be no slower than 20 Hz.
  */
-class StrictFollower : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<StrictFollower *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<StrictFollower>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlStrictFollower(network, deviceHash, UpdateFreqHz.to<double>(), MasterID);
-    }
+class StrictFollower final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
-     * \brief Device ID of the master to follow.
+     * \brief Device ID of the leader to follow.
      */
-    int MasterID;
+    int LeaderID;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -66,40 +54,63 @@ public:
     units::frequency::hertz_t UpdateFreqHz{20_Hz};
 
     /**
-     * \brief Follow the motor output of another Talon while ignoring the master's
+     * \brief Follow the motor output of another Talon while ignoring the leader's
      *        invert setting.
      * 
-     * \details If Talon is in torque control, the torque is copied - which will
-     *          increase the total torque applied. If Talon is in percent supply
-     *          output control, the duty cycle is matched.  Motor direction is
-     *          strictly determined by the configured invert and not the master.  If
-     *          you want motor direction to match or oppose the master, use
-     *          FollowerRequest instead.
+     * \details The follower will atomically change its output type when it receives
+     *          the leader's latest output status signal (DutyCycle, MotorVoltage,
+     *          TorqueCurrent). If Talon is in torque control, the torque is copied
+     *          - which will increase the total torque applied. If Talon is in duty
+     *          cycle output control, the duty cycle is matched. If Talon is in
+     *          voltage output control, the motor voltage is matched. Motor
+     *          direction is strictly determined by the configured invert and not
+     *          the leader. If you want motor direction to match or oppose the
+     *          leader, use Follower instead.
+     *          
+     *          The leader must ensure the status signal corresponding to its
+     *          control output type (DutyCycle, MotorVoltage, TorqueCurrent) is
+     *          enabled. The update rate of the status signal determines the update
+     *          rate of the follower's output and should be no slower than 20 Hz.
      * 
-     * \param MasterID    Device ID of the master to follow.
+     * \param LeaderID Device ID of the leader to follow.
      */
-    StrictFollower(int MasterID) : ControlRequest{"StrictFollower"},
-        MasterID{std::move(MasterID)}
+    constexpr StrictFollower(int LeaderID) : ControlRequest{},
+        LeaderID{std::move(LeaderID)}
     {}
+
+    constexpr ~StrictFollower() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "StrictFollower";
+    }
     
     /**
-     * \brief Modifies this Control Request's MasterID parameter and returns itself for
+     * \brief Modifies this Control Request's LeaderID parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Device ID of the master to follow.
+     * Device ID of the leader to follow.
      *
-     * \param newMasterID Parameter to modify
+     * \param newLeaderID Parameter to modify
      * \returns Itself
      */
-    StrictFollower &WithMasterID(int newMasterID)
+    constexpr StrictFollower &WithLeaderID(int newLeaderID)
     {
-        MasterID = std::move(newMasterID);
+        LeaderID = std::move(newLeaderID);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -110,37 +121,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    StrictFollower &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr StrictFollower &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: StrictFollower" << std::endl;
-        ss << "    MasterID: " << MasterID << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << MasterID; controlInfo["MasterID"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

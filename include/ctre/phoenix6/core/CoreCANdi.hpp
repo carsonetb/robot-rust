@@ -7,10 +7,15 @@
 #pragma once
 
 #include "ctre/phoenix6/hardware/ParentDevice.hpp"
-#include "ctre/phoenix6/CANBus.hpp"
-#include "ctre/phoenix6/configs/Configs.hpp"
+#include "ctre/phoenix6/configs/Configuration.hpp"
 #include "ctre/phoenix6/configs/Configurator.hpp"
+#include "ctre/phoenix6/signals/SpnEnums.hpp"
 
+#include "ctre/phoenix6/configs/CustomParamsConfigs.hpp"
+#include "ctre/phoenix6/configs/DigitalInputsConfigs.hpp"
+#include "ctre/phoenix6/configs/QuadratureConfigs.hpp"
+#include "ctre/phoenix6/configs/PWM1Configs.hpp"
+#include "ctre/phoenix6/configs/PWM2Configs.hpp"
 
 #include "ctre/phoenix6/sim/CANdiSimState.hpp"
 #include <units/angle.h>
@@ -34,7 +39,7 @@ namespace configs {
  * Class for CTR Electronics' CANdi™ branded device, a device that integrates
  * digital signals into the existing CAN bus network.
  *
- * This handles the configurations for the hardware#CANdi
+ * This defines all configurations for the hardware#CANdi.
  */
 class CANdiConfiguration : public ParentConfiguration
 {
@@ -273,52 +278,23 @@ public:
     /**
      * \brief Get the string representation of this configuration
      */
-    std::string ToString() const
-    {
-        std::stringstream ss;
-        ss << "CANdiConfiguration" << std::endl;
-        ss << CustomParams.ToString();
-        ss << DigitalInputs.ToString();
-        ss << Quadrature.ToString();
-        ss << PWM1.ToString();
-        ss << PWM2.ToString();
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Get the serialized form of this configuration
      */
-    std::string Serialize() const
-    {
-        std::stringstream ss;
-        ss << CustomParams.Serialize();
-        ss << DigitalInputs.Serialize();
-        ss << Quadrature.Serialize();
-        ss << PWM1.Serialize();
-        ss << PWM2.Serialize();
-        return ss.str();
-    }
-
+    std::string Serialize() const final;
     /**
      * \brief Take a string and deserialize it to this configuration
      */
-    ctre::phoenix::StatusCode Deserialize(const std::string &to_deserialize)
-    {
-        ctre::phoenix::StatusCode err = ctre::phoenix::StatusCode::OK;
-        err = CustomParams.Deserialize(to_deserialize);
-        err = DigitalInputs.Deserialize(to_deserialize);
-        err = Quadrature.Deserialize(to_deserialize);
-        err = PWM1.Deserialize(to_deserialize);
-        err = PWM2.Deserialize(to_deserialize);
-        return err;
-    }
+    ctre::phoenix::StatusCode Deserialize(std::string const &to_deserialize) final;
 };
 
 /**
  * Class for CTR Electronics' CANdi™ branded device, a device that integrates
  * digital signals into the existing CAN bus network.
  *
- * This handles the configurations for the hardware#CANdi
+ * This handles applying and refreshing configurations for the hardware#CANdi.
  */
 class CANdiConfigurator : public ParentConfigurator
 {
@@ -331,38 +307,6 @@ private:
 
 public:
     /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdiConfiguration &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdiConfiguration &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
-    }
-
-    /**
      * \brief Applies the contents of the specified config to the device.
      *
      * This will wait up to #DefaultTimeoutSeconds.
@@ -370,7 +314,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdiConfiguration &configs)
     {
@@ -384,43 +328,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdiConfiguration &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, configs.FutureProofConfigs, false);
-    }
-
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -431,7 +343,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs)
     {
@@ -445,42 +357,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DigitalInputsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(DigitalInputsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -491,7 +372,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DigitalInputsConfigs &configs)
     {
@@ -505,42 +386,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const DigitalInputsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(QuadratureConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(QuadratureConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -551,7 +401,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const QuadratureConfigs &configs)
     {
@@ -565,42 +415,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const QuadratureConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(PWM1Configs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(PWM1Configs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -611,7 +430,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const PWM1Configs &configs)
     {
@@ -625,42 +444,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const PWM1Configs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(PWM2Configs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(PWM2Configs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -671,7 +459,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const PWM2Configs &configs)
     {
@@ -685,11 +473,198 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const PWM2Configs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdiConfiguration &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdiConfiguration &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DigitalInputsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(DigitalInputsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(QuadratureConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(QuadratureConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(PWM1Configs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(PWM1Configs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(PWM2Configs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(PWM2Configs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
     }
 
     
@@ -724,13 +699,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode SetQuadraturePosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::CANdi_SetQuadPosition, newValue.to<double>(), &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode SetQuadraturePosition(units::angle::turn_t newValue, units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear the sticky faults in the device.
@@ -769,13 +738,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::SPN_ClearStickyFaults, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Hardware fault occurred
@@ -806,13 +769,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Hardware, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device supply voltage dropped to near
@@ -845,13 +802,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Undervoltage, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device boot while detecting the enable
@@ -884,13 +835,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_BootDuringEnable, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: An unlicensed feature is in use, device
@@ -923,13 +868,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_UnlicensedFeatureInUse, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: The CTR Electronics' CANdi™ branded
@@ -964,19 +903,18 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_5V(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDI_5V, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_5V(units::time::second_t timeoutSeconds);
 };
 
 }
 
 namespace hardware {
 namespace core {
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
 
 /**
  * Class for CTR Electronics' CANdi™ branded device, a device that integrates
@@ -988,12 +926,23 @@ private:
     configs::CANdiConfigurator _configs;
 
 public:
+    /**
+     * \brief The configuration class for this device.
+     */
     using Configuration = configs::CANdiConfiguration;
 
     /**
      * Constructs a new CANdi object.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
+     * \param canbus      The CAN bus this device is on
+     */
+    CoreCANdi(int deviceId, CANBus canbus = {});
+
+    /**
+     * Constructs a new CANdi object.
+     *
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
      * \param canbus      Name of the CAN bus this device is on. Possible CAN bus strings are:
      *                    - "rio" for the native roboRIO CAN bus
      *                    - CANivore name or serial number
@@ -1003,18 +952,23 @@ public:
      *                      - "rio" on roboRIO
      *                      - "can0" on Linux
      *                      - "*" on Windows
+     *
+     * \deprecated Constructing devices with a CAN bus string is deprecated for removal
+     * in the 2027 season. Construct devices using a CANBus instance instead.
      */
-    CoreCANdi(int deviceId, std::string canbus = "");
+    CoreCANdi(int deviceId, std::string canbus);
 
     /**
-     * Constructs a new CANdi object.
+     * \brief Constructs a stubbed-out CoreCANdi, where all status signals, controls,
+     * configs, etc. perform no action and immediately return OK. This can be used to
+     * silence error messages for devices that have been completely removed from the robot.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
-     * \param canbus      The CAN bus this device is on.
+     * \returns Stubbed-out CoreCANdi
      */
-    CoreCANdi(int deviceId, CANBus canbus) :
-        CoreCANdi{deviceId, std::string{canbus.GetName()}}
-    {}
+    static CoreCANdi None()
+    {
+        return CoreCANdi{-1, CANBus{}};
+    }
 
     /**
      * \brief Gets the configurator for this CANdi
@@ -1075,7 +1029,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMajor Status Signal Object
      */
     StatusSignal<int> &GetVersionMajor(bool refresh = true);
@@ -1093,7 +1048,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMinor Status Signal Object
      */
     StatusSignal<int> &GetVersionMinor(bool refresh = true);
@@ -1111,7 +1067,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBugfix Status Signal Object
      */
     StatusSignal<int> &GetVersionBugfix(bool refresh = true);
@@ -1129,7 +1086,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBuild Status Signal Object
      */
     StatusSignal<int> &GetVersionBuild(bool refresh = true);
@@ -1148,7 +1106,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Version Status Signal Object
      */
     StatusSignal<int> &GetVersion(bool refresh = true);
@@ -1170,7 +1129,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FaultField Status Signal Object
      */
     StatusSignal<int> &GetFaultField(bool refresh = true);
@@ -1193,7 +1153,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFaultField Status Signal Object
      */
     StatusSignal<int> &GetStickyFaultField(bool refresh = true);
@@ -1208,7 +1169,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns IsProLicensed Status Signal Object
      */
     StatusSignal<bool> &GetIsProLicensed(bool refresh = true);
@@ -1223,7 +1185,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns S1State Status Signal Object
      */
     StatusSignal<signals::S1StateValue> &GetS1State(bool refresh = true);
@@ -1238,7 +1201,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns S2State Status Signal Object
      */
     StatusSignal<signals::S2StateValue> &GetS2State(bool refresh = true);
@@ -1258,7 +1222,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns QuadraturePosition Status Signal Object
      */
     StatusSignal<units::angle::turn_t> &GetQuadraturePosition(bool refresh = true);
@@ -1278,7 +1243,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM1RiseToRise Status Signal Object
      */
     StatusSignal<units::time::microsecond_t> &GetPWM1RiseToRise(bool refresh = true);
@@ -1298,7 +1264,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM1Position Status Signal Object
      */
     StatusSignal<units::angle::turn_t> &GetPWM1Position(bool refresh = true);
@@ -1318,7 +1285,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM1Velocity Status Signal Object
      */
     StatusSignal<units::angular_velocity::turns_per_second_t> &GetPWM1Velocity(bool refresh = true);
@@ -1338,7 +1306,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM2RiseToRise Status Signal Object
      */
     StatusSignal<units::time::microsecond_t> &GetPWM2RiseToRise(bool refresh = true);
@@ -1358,7 +1327,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM2Position Status Signal Object
      */
     StatusSignal<units::angle::turn_t> &GetPWM2Position(bool refresh = true);
@@ -1375,7 +1345,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Overcurrent Status Signal Object
      */
     StatusSignal<bool> &GetOvercurrent(bool refresh = true);
@@ -1394,7 +1365,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns SupplyVoltage Status Signal Object
      */
     StatusSignal<units::voltage::volt_t> &GetSupplyVoltage(bool refresh = true);
@@ -1414,7 +1386,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns OutputCurrent Status Signal Object
      */
     StatusSignal<units::current::ampere_t> &GetOutputCurrent(bool refresh = true);
@@ -1434,7 +1407,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns PWM2Velocity Status Signal Object
      */
     StatusSignal<units::angular_velocity::turns_per_second_t> &GetPWM2Velocity(bool refresh = true);
@@ -1454,7 +1428,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns QuadratureVelocity Status Signal Object
      */
     StatusSignal<units::angular_velocity::turns_per_second_t> &GetQuadratureVelocity(bool refresh = true);
@@ -1474,7 +1449,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns S1Closed Status Signal Object
      */
     StatusSignal<bool> &GetS1Closed(bool refresh = true);
@@ -1494,7 +1470,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns S2Closed Status Signal Object
      */
     StatusSignal<bool> &GetS2Closed(bool refresh = true);
@@ -1509,7 +1486,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Hardware Status Signal Object
      */
     StatusSignal<bool> &GetFault_Hardware(bool refresh = true);
@@ -1524,7 +1502,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Hardware Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Hardware(bool refresh = true);
@@ -1539,7 +1518,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Undervoltage Status Signal Object
      */
     StatusSignal<bool> &GetFault_Undervoltage(bool refresh = true);
@@ -1554,7 +1534,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Undervoltage Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Undervoltage(bool refresh = true);
@@ -1569,7 +1550,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BootDuringEnable Status Signal Object
      */
     StatusSignal<bool> &GetFault_BootDuringEnable(bool refresh = true);
@@ -1584,7 +1566,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BootDuringEnable Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_BootDuringEnable(bool refresh = true);
@@ -1600,7 +1583,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_UnlicensedFeatureInUse Status Signal Object
      */
     StatusSignal<bool> &GetFault_UnlicensedFeatureInUse(bool refresh = true);
@@ -1616,7 +1600,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_UnlicensedFeatureInUse Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_UnlicensedFeatureInUse(bool refresh = true);
@@ -1632,7 +1617,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_5V Status Signal Object
      */
     StatusSignal<bool> &GetFault_5V(bool refresh = true);
@@ -1648,29 +1634,13 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_5V Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_5V(bool refresh = true);
 
     
-
-    /**
-     * \brief Control device with generic control request object. User must make
-     *        sure the specified object is castable to a valid control request,
-     *        otherwise this function will fail at run-time and return the NotSupported
-     *        StatusCode
-     *
-     * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
-     */
-    ctre::phoenix::StatusCode SetControl(const controls::ControlRequest &request)
-    {
-        controls::ControlRequest const *ptr = &request;
-        (void)ptr;
-        
-        return ctre::phoenix::StatusCode::NotSupported;
-    }
 
     
     /**
@@ -1847,6 +1817,10 @@ public:
         return ClearStickyFault_5V(0.100_s);
     }
 };
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(pop)
+#endif
 
 }
 }

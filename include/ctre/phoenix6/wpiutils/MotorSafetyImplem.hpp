@@ -17,7 +17,7 @@ namespace wpiutils {
  * \brief Implem of MotorSafety interface from WPILib. This also allows
  * late/lazy construction of WPILib's motor safety object.
  */
-class MotorSafetyImplem : public frc::MotorSafety {
+class MotorSafetyImplem final : public frc::MotorSafety {
 private:
     std::function<void()> m_stopMotor;
     std::string const &m_description;

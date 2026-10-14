@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <functional>
 #include <limits>
 #include <units/time.h>
 

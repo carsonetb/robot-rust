@@ -6,10 +6,7 @@
  */
 #pragma once
 
-#include "ctre/phoenix6/core/CoreCANcoder.hpp"
-#include "ctre/phoenix6/core/CoreCANdi.hpp"
-#include "ctre/phoenix6/core/CoreTalonFX.hpp"
-#include "ctre/phoenix6/core/CoreTalonFXS.hpp"
+#include "ctre/phoenix6/configs/Slot0Configs.hpp"
 
 #include <units/length.h>
 #include <units/moment_of_inertia.h>
@@ -144,12 +141,9 @@ enum class SteerFeedbackType {
  * \brief All constants for a swerve module.
  */
 template <
-    typename DriveMotorConfigsT,
-    typename SteerMotorConfigsT,
-    typename EncoderConfigsT,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, DriveMotorConfigsT>>,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, SteerMotorConfigsT>>,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, EncoderConfigsT>>
+    std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+    std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+    std::derived_from<configs::ParentConfiguration> EncoderConfigsT
 >
 struct SwerveModuleConstants {
     constexpr SwerveModuleConstants() = default;
@@ -222,15 +216,15 @@ struct SwerveModuleConstants {
      * \brief The steer motor closed-loop gains.
      * 
      * The steer motor uses the control ouput type specified by
-     * SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These gains
-     * operate on azimuth rotations (after the gear ratio).
+     * #SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These
+     * gains operate on azimuth rotations (after the gear ratio).
      */
     configs::Slot0Configs SteerMotorGains = configs::Slot0Configs{};
     /**
      * \brief The drive motor closed-loop gains.
      * 
      * When using closed-loop control, the drive motor uses the control output type
-     * specified by DriveMotorClosedLoopOutput and any closed-loop
+     * specified by #DriveMotorClosedLoopOutput and any closed-loop
      * SwerveModule#DriveRequestType. These gains operate on motor rotor rotations
      * (before the gear ratio).
      */
@@ -249,10 +243,11 @@ struct SwerveModuleConstants {
      */
     units::current::ampere_t SlipCurrent = 120_A;
     /**
-     * \brief When using open-loop drive control, this specifies the speed at which
-     * the robot travels when driven with 12 volts. This is used to approximate the
-     * output for a desired velocity. If using closed loop control, this value is
-     * ignored.
+     * \brief When using open-loop drive control, this specifies the measured speed
+     * at which the robot travels when driven with 12 volts. This is used to
+     * approximate the output for a desired velocity; it cannot be used to change
+     * the desired max speed of the robot. If using closed loop control, this value
+     * is ignored.
      */
     units::velocity::meters_per_second_t SpeedAt12Volts = 0_mps;
     /**
@@ -295,12 +290,13 @@ struct SwerveModuleConstants {
      *   SwerveDrivetrain#ConfigNeutralMode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#DriveMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#DriveMotorGains)
+     * - configs#Slot0Configs (#DriveMotorGains)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimit /
      *   configs#TorqueCurrentConfigs#PeakForwardTorqueCurrent /
-     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent
-     *   (SwerveModuleConstants#SlipCurrent)
+     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent (#SlipCurrent)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimitEnable (Enabled)
+     * - configs#FeedbackConfigs#RotorToSensorRatio /
+     *   configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * 
      */
     DriveMotorConfigsT DriveMotorInitialConfigs = {};
@@ -316,13 +312,12 @@ struct SwerveModuleConstants {
      * - configs#MotorOutputConfigs#NeutralMode (Brake mode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#SteerMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#SteerMotorGains)
+     * - configs#Slot0Configs (#SteerMotorGains)
      * - configs#FeedbackConfigs#FeedbackRemoteSensorID
      *   (SwerveModuleConstants#EncoderId)
-     * - configs#FeedbackConfigs#FeedbackSensorSource
-     *   (SwerveModuleConstants#FeedbackSource)
-     * - configs#FeedbackConfigs#RotorToSensorRatio
-     *   (SwerveModuleConstants#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#FeedbackSensorSource (#FeedbackSource)
+     * - configs#FeedbackConfigs#RotorToSensorRatio (#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * - configs#MotionMagicConfigs#MotionMagicExpo_kV /
      *   configs#MotionMagicConfigs#MotionMagicExpo_kA (Calculated from gear ratios)
      * - configs#ClosedLoopGeneralConfigs#ContinuousWrap (true)
@@ -348,19 +343,19 @@ struct SwerveModuleConstants {
     /**
      * \brief Simulated azimuthal inertia.
      */
-    units::moment_of_inertia::kilogram_square_meter_t SteerInertia = 0.00001_kg_sq_m;
+    units::moment_of_inertia::kilogram_square_meter_t SteerInertia = 0.01_kg_sq_m;
     /**
      * \brief Simulated drive inertia.
      */
-    units::moment_of_inertia::kilogram_square_meter_t DriveInertia = 0.001_kg_sq_m;
+    units::moment_of_inertia::kilogram_square_meter_t DriveInertia = 0.035_kg_sq_m;
     /**
      * \brief Simulated steer voltage required to overcome friction.
      */
-    units::voltage::volt_t SteerFrictionVoltage = 0.25_V;
+    units::voltage::volt_t SteerFrictionVoltage = 0.2_V;
     /**
      * \brief Simulated drive voltage required to overcome friction.
      */
-    units::voltage::volt_t DriveFrictionVoltage = 0.25_V;
+    units::voltage::volt_t DriveFrictionVoltage = 0.2_V;
     
     /**
      * \brief Modifies the SteerMotorId parameter and returns itself.
@@ -562,8 +557,8 @@ struct SwerveModuleConstants {
      * The steer motor closed-loop gains.
      * 
      * The steer motor uses the control ouput type specified by
-     * SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These gains
-     * operate on azimuth rotations (after the gear ratio).
+     * #SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These
+     * gains operate on azimuth rotations (after the gear ratio).
      *
      * \param newSteerMotorGains Parameter to modify
      * \returns this object
@@ -580,7 +575,7 @@ struct SwerveModuleConstants {
      * The drive motor closed-loop gains.
      * 
      * When using closed-loop control, the drive motor uses the control output type
-     * specified by DriveMotorClosedLoopOutput and any closed-loop
+     * specified by #DriveMotorClosedLoopOutput and any closed-loop
      * SwerveModule#DriveRequestType. These gains operate on motor rotor rotations
      * (before the gear ratio).
      *
@@ -639,10 +634,11 @@ struct SwerveModuleConstants {
     /**
      * \brief Modifies the SpeedAt12Volts parameter and returns itself.
      *
-     * When using open-loop drive control, this specifies the speed at which the
-     * robot travels when driven with 12 volts. This is used to approximate the
-     * output for a desired velocity. If using closed loop control, this value is
-     * ignored.
+     * When using open-loop drive control, this specifies the measured speed at
+     * which the robot travels when driven with 12 volts. This is used to
+     * approximate the output for a desired velocity; it cannot be used to change
+     * the desired max speed of the robot. If using closed loop control, this value
+     * is ignored.
      *
      * \param newSpeedAt12Volts Parameter to modify
      * \returns this object
@@ -725,12 +721,13 @@ struct SwerveModuleConstants {
      *   SwerveDrivetrain#ConfigNeutralMode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#DriveMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#DriveMotorGains)
+     * - configs#Slot0Configs (#DriveMotorGains)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimit /
      *   configs#TorqueCurrentConfigs#PeakForwardTorqueCurrent /
-     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent
-     *   (SwerveModuleConstants#SlipCurrent)
+     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent (#SlipCurrent)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimitEnable (Enabled)
+     * - configs#FeedbackConfigs#RotorToSensorRatio /
+     *   configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * 
      *
      * \param newDriveMotorInitialConfigs Parameter to modify
@@ -756,13 +753,12 @@ struct SwerveModuleConstants {
      * - configs#MotorOutputConfigs#NeutralMode (Brake mode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#SteerMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#SteerMotorGains)
+     * - configs#Slot0Configs (#SteerMotorGains)
      * - configs#FeedbackConfigs#FeedbackRemoteSensorID
      *   (SwerveModuleConstants#EncoderId)
-     * - configs#FeedbackConfigs#FeedbackSensorSource
-     *   (SwerveModuleConstants#FeedbackSource)
-     * - configs#FeedbackConfigs#RotorToSensorRatio
-     *   (SwerveModuleConstants#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#FeedbackSensorSource (#FeedbackSource)
+     * - configs#FeedbackConfigs#RotorToSensorRatio (#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * - configs#MotionMagicConfigs#MotionMagicExpo_kV /
      *   configs#MotionMagicConfigs#MotionMagicExpo_kA (Calculated from gear ratios)
      * - configs#ClosedLoopGeneralConfigs#ContinuousWrap (true)
@@ -866,12 +862,9 @@ struct SwerveModuleConstants {
  * for creating instances of module-specific SwerveModuleConstants.
  */
 template <
-    typename DriveMotorConfigsT,
-    typename SteerMotorConfigsT,
-    typename EncoderConfigsT,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, DriveMotorConfigsT>>,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, SteerMotorConfigsT>>,
-    typename = std::enable_if_t<std::is_base_of_v<configs::ParentConfiguration, EncoderConfigsT>>
+    std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+    std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+    std::derived_from<configs::ParentConfiguration> EncoderConfigsT
 >
 struct SwerveModuleConstantsFactory {
     constexpr SwerveModuleConstantsFactory() = default;
@@ -902,15 +895,15 @@ struct SwerveModuleConstantsFactory {
      * \brief The steer motor closed-loop gains.
      * 
      * The steer motor uses the control ouput type specified by
-     * SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These gains
-     * operate on azimuth rotations (after the gear ratio).
+     * #SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These
+     * gains operate on azimuth rotations (after the gear ratio).
      */
     configs::Slot0Configs SteerMotorGains = configs::Slot0Configs{};
     /**
      * \brief The drive motor closed-loop gains.
      * 
      * When using closed-loop control, the drive motor uses the control output type
-     * specified by DriveMotorClosedLoopOutput and any closed-loop
+     * specified by #DriveMotorClosedLoopOutput and any closed-loop
      * SwerveModule#DriveRequestType. These gains operate on motor rotor rotations
      * (before the gear ratio).
      */
@@ -929,10 +922,11 @@ struct SwerveModuleConstantsFactory {
      */
     units::current::ampere_t SlipCurrent = 120_A;
     /**
-     * \brief When using open-loop drive control, this specifies the speed at which
-     * the robot travels when driven with 12 volts. This is used to approximate the
-     * output for a desired velocity. If using closed loop control, this value is
-     * ignored.
+     * \brief When using open-loop drive control, this specifies the measured speed
+     * at which the robot travels when driven with 12 volts. This is used to
+     * approximate the output for a desired velocity; it cannot be used to change
+     * the desired max speed of the robot. If using closed loop control, this value
+     * is ignored.
      */
     units::velocity::meters_per_second_t SpeedAt12Volts = 0_mps;
     /**
@@ -975,12 +969,13 @@ struct SwerveModuleConstantsFactory {
      *   SwerveDrivetrain#ConfigNeutralMode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#DriveMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#DriveMotorGains)
+     * - configs#Slot0Configs (#DriveMotorGains)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimit /
      *   configs#TorqueCurrentConfigs#PeakForwardTorqueCurrent /
-     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent
-     *   (SwerveModuleConstants#SlipCurrent)
+     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent (#SlipCurrent)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimitEnable (Enabled)
+     * - configs#FeedbackConfigs#RotorToSensorRatio /
+     *   configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * 
      */
     DriveMotorConfigsT DriveMotorInitialConfigs = {};
@@ -996,13 +991,12 @@ struct SwerveModuleConstantsFactory {
      * - configs#MotorOutputConfigs#NeutralMode (Brake mode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#SteerMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#SteerMotorGains)
+     * - configs#Slot0Configs (#SteerMotorGains)
      * - configs#FeedbackConfigs#FeedbackRemoteSensorID
      *   (SwerveModuleConstants#EncoderId)
-     * - configs#FeedbackConfigs#FeedbackSensorSource
-     *   (SwerveModuleConstants#FeedbackSource)
-     * - configs#FeedbackConfigs#RotorToSensorRatio
-     *   (SwerveModuleConstants#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#FeedbackSensorSource (#FeedbackSource)
+     * - configs#FeedbackConfigs#RotorToSensorRatio (#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * - configs#MotionMagicConfigs#MotionMagicExpo_kV /
      *   configs#MotionMagicConfigs#MotionMagicExpo_kA (Calculated from gear ratios)
      * - configs#ClosedLoopGeneralConfigs#ContinuousWrap (true)
@@ -1028,19 +1022,19 @@ struct SwerveModuleConstantsFactory {
     /**
      * \brief Simulated azimuthal inertia.
      */
-    units::moment_of_inertia::kilogram_square_meter_t SteerInertia = 0.00001_kg_sq_m;
+    units::moment_of_inertia::kilogram_square_meter_t SteerInertia = 0.01_kg_sq_m;
     /**
      * \brief Simulated drive inertia.
      */
-    units::moment_of_inertia::kilogram_square_meter_t DriveInertia = 0.001_kg_sq_m;
+    units::moment_of_inertia::kilogram_square_meter_t DriveInertia = 0.035_kg_sq_m;
     /**
      * \brief Simulated steer voltage required to overcome friction.
      */
-    units::voltage::volt_t SteerFrictionVoltage = 0.25_V;
+    units::voltage::volt_t SteerFrictionVoltage = 0.2_V;
     /**
      * \brief Simulated drive voltage required to overcome friction.
      */
-    units::voltage::volt_t DriveFrictionVoltage = 0.25_V;
+    units::voltage::volt_t DriveFrictionVoltage = 0.2_V;
     
     /**
      * \brief Modifies the DriveMotorGearRatio parameter and returns itself.
@@ -1110,8 +1104,8 @@ struct SwerveModuleConstantsFactory {
      * The steer motor closed-loop gains.
      * 
      * The steer motor uses the control ouput type specified by
-     * SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These gains
-     * operate on azimuth rotations (after the gear ratio).
+     * #SteerMotorClosedLoopOutput and any SwerveModule#SteerRequestType. These
+     * gains operate on azimuth rotations (after the gear ratio).
      *
      * \param newSteerMotorGains Parameter to modify
      * \returns this object
@@ -1128,7 +1122,7 @@ struct SwerveModuleConstantsFactory {
      * The drive motor closed-loop gains.
      * 
      * When using closed-loop control, the drive motor uses the control output type
-     * specified by DriveMotorClosedLoopOutput and any closed-loop
+     * specified by #DriveMotorClosedLoopOutput and any closed-loop
      * SwerveModule#DriveRequestType. These gains operate on motor rotor rotations
      * (before the gear ratio).
      *
@@ -1187,10 +1181,11 @@ struct SwerveModuleConstantsFactory {
     /**
      * \brief Modifies the SpeedAt12Volts parameter and returns itself.
      *
-     * When using open-loop drive control, this specifies the speed at which the
-     * robot travels when driven with 12 volts. This is used to approximate the
-     * output for a desired velocity. If using closed loop control, this value is
-     * ignored.
+     * When using open-loop drive control, this specifies the measured speed at
+     * which the robot travels when driven with 12 volts. This is used to
+     * approximate the output for a desired velocity; it cannot be used to change
+     * the desired max speed of the robot. If using closed loop control, this value
+     * is ignored.
      *
      * \param newSpeedAt12Volts Parameter to modify
      * \returns this object
@@ -1273,12 +1268,13 @@ struct SwerveModuleConstantsFactory {
      *   SwerveDrivetrain#ConfigNeutralMode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#DriveMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#DriveMotorGains)
+     * - configs#Slot0Configs (#DriveMotorGains)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimit /
      *   configs#TorqueCurrentConfigs#PeakForwardTorqueCurrent /
-     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent
-     *   (SwerveModuleConstants#SlipCurrent)
+     *   configs#TorqueCurrentConfigs#PeakReverseTorqueCurrent (#SlipCurrent)
      * - configs#CurrentLimitsConfigs#StatorCurrentLimitEnable (Enabled)
+     * - configs#FeedbackConfigs#RotorToSensorRatio /
+     *   configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * 
      *
      * \param newDriveMotorInitialConfigs Parameter to modify
@@ -1304,13 +1300,12 @@ struct SwerveModuleConstantsFactory {
      * - configs#MotorOutputConfigs#NeutralMode (Brake mode)
      * - configs#MotorOutputConfigs#Inverted
      *   (SwerveModuleConstants#SteerMotorInverted)
-     * - configs#Slot0Configs (SwerveModuleConstants#SteerMotorGains)
+     * - configs#Slot0Configs (#SteerMotorGains)
      * - configs#FeedbackConfigs#FeedbackRemoteSensorID
      *   (SwerveModuleConstants#EncoderId)
-     * - configs#FeedbackConfigs#FeedbackSensorSource
-     *   (SwerveModuleConstants#FeedbackSource)
-     * - configs#FeedbackConfigs#RotorToSensorRatio
-     *   (SwerveModuleConstants#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#FeedbackSensorSource (#FeedbackSource)
+     * - configs#FeedbackConfigs#RotorToSensorRatio (#SteerMotorGearRatio)
+     * - configs#FeedbackConfigs#SensorToMechanismRatio (1.0)
      * - configs#MotionMagicConfigs#MotionMagicExpo_kV /
      *   configs#MotionMagicConfigs#MotionMagicExpo_kA (Calculated from gear ratios)
      * - configs#ClosedLoopGeneralConfigs#ContinuousWrap (true)
@@ -1414,11 +1409,21 @@ struct SwerveModuleConstantsFactory {
      * \param driveMotorId CAN ID of the drive motor.
      * \param encoderId CAN ID of the absolute encoder used for azimuth.
      * \param encoderOffset Offset of the azimuth encoder.
-     * \param locationX The location of this module's wheels relative to the physical center of the robot in meters along the X axis of the robot.
-     * \param locationY The location of this module's wheels relative to the physical center of the robot in meters along the Y axis of the robot.
+     * \param locationX The location of this module's wheels relative to the
+     *                  physical center of the robot in meters along the X axis of
+     *                  the robot.
+     * \param locationY The location of this module's wheels relative to the
+     *                  physical center of the robot in meters along the Y axis of
+     *                  the robot.
      * \param driveMotorInverted True if the drive motor is inverted.
-     * \param steerMotorInverted True if the steer motor is inverted from the azimuth. The azimuth should rotate counter-clockwise (as seen from the top of the robot) for a positive motor output.
-     * \param encoderInverted True if the azimuth encoder is inverted from the azimuth. The encoder should report a positive velocity when the azimuth rotates counter-clockwise (as seen from the top of the robot).
+     * \param steerMotorInverted True if the steer motor is inverted from the
+     *                           azimuth. The azimuth should rotate
+     *                           counter-clockwise (as seen from the top of the
+     *                           robot) for a positive motor output.
+     * \param encoderInverted True if the azimuth encoder is inverted from the
+     *                        azimuth. The encoder should report a positive velocity
+     *                        when the azimuth rotates counter-clockwise (as seen
+     *                        from the top of the robot).
      * \returns Constants for the swerve module
      */
     constexpr SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> CreateModuleConstants(

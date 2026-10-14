@@ -9,8 +9,6 @@
 #include "ctre/phoenix6/networking/Utils.hpp"
 #include <units/time.h>
 
-#include "frc/Timer.h"
-
 namespace ctre {
 namespace phoenix6 {
 namespace utils {
@@ -28,7 +26,7 @@ namespace utils {
      */
     inline units::second_t GetCurrentTime()
     {
-        return units::second_t{GetCurrentTimeSeconds()};
+        return units::second_t{utils::GetCurrentTimeSeconds()};
     }
     /**
      * \brief Get the system timestamp.
@@ -45,19 +43,7 @@ namespace utils {
      */
     inline units::second_t GetSystemTime()
     {
-        return units::second_t{GetSystemTimeSeconds()};
-    }
-
-    /**
-     * \brief Converts an FPGA timestamp to the timebase
-     * reported by GetCurrentTime().
-     *
-     * \param fpgaTime The FPGA timestamp
-     * \returns The equivalent GetCurrentTime() timestamp
-     */
-    inline units::second_t FPGAToCurrentTime(units::second_t fpgaTime)
-    {
-        return (GetCurrentTime() - frc::Timer::GetFPGATimestamp()) + fpgaTime;
+        return units::second_t{utils::GetSystemTimeSeconds()};
     }
 
 }

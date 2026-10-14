@@ -57,12 +57,10 @@ public:
      * \brief Creates a new CAN bus with the given name.
      *
      * \param canbus    Name of the CAN bus. Possible CAN bus strings are:
-     *                  - "rio" for the native roboRIO CAN bus
      *                  - CANivore name or serial number
      *                  - SocketCAN interface (non-FRC Linux only)
      *                  - "*" for any CANivore seen by the program
      *                  - empty string (default) to select the default for the system:
-     *                    - "rio" on roboRIO
      *                    - "can0" on Linux
      *                    - "*" on Windows
      */
@@ -81,12 +79,10 @@ public:
      * to the top-level folder of the robot project.
      *
      * \param canbus    Name of the CAN bus. Possible CAN bus strings are:
-     *                  - "rio" for the native roboRIO CAN bus
      *                  - CANivore name or serial number
      *                  - SocketCAN interface (non-FRC Linux only)
      *                  - "*" for any CANivore seen by the program
      *                  - empty string (default) to select the default for the system:
-     *                    - "rio" on roboRIO
      *                    - "can0" on Linux
      *                    - "*" on Windows
      * \param hootFilepath Path and name of the hoot file to load
@@ -123,40 +119,19 @@ public:
      */
     CANBusStatus GetStatus() const;
 
-    /**
-     * \brief Gets whether the CAN bus is a CAN FD network.
-     *
-     * \deprecated The CANBus static methods are deprecated
-     * for removal in 2026. Construct a new CANBus instance
-     * and call #IsNetworkFD() instead.
-     *
-     * \param canbus Name of the CAN bus
-     * \returns True if the CAN bus is CAN FD
-     */
-    [[deprecated("The CANBus static methods are deprecated for removal in 2026."
-                "Construct a new CANBus instance and call IsNetworkFD() instead.")]]
-    static bool IsNetworkFD(std::string const &canbus)
-    {
-        return CANBus{canbus}.IsNetworkFD();
-    }
-    /**
-     * \brief Gets the status of the CAN bus, including the
-     * bus utilization and the error counters.
-     *
-     * \deprecated The CANBus static methods are deprecated
-     * for removal in 2026. Construct a new CANBus instance
-     * and call #GetStatus() instead.
-     *
-     * \param canbus Name of the CAN bus
-     * \returns Status of the CAN bus
-     */
-    [[deprecated("The CANBus static methods are deprecated for removal in 2026."
-                "Construct a new CANBus instance and call GetStatus() instead.")]]
-    static CANBusStatus GetStatus(std::string const &canbus)
-    {
-        return CANBus{canbus}.GetStatus();
-    }
+    friend std::ostream &operator<<(std::ostream &os, CANBus const &canbus);
+
+    constexpr friend bool operator==(CANBus const &, CANBus const &) = default;
+    constexpr friend auto operator<=>(CANBus const &, CANBus const &) = default;
 };
 
 }
 }
+
+template <>
+struct std::hash<ctre::phoenix6::CANBus> {
+    size_t operator()(ctre::phoenix6::CANBus const &canbus) const noexcept
+    {
+        return std::hash<std::string_view>{}(canbus.GetName());
+    }
+};

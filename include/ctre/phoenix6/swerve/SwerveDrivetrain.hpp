@@ -42,17 +42,13 @@ namespace swerve {
  * module.
  */
 template <
-    typename DriveMotorT,
-    typename SteerMotorT,
-    typename EncoderT,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, DriveMotorT>>,
-    typename = std::enable_if_t<std::is_base_of_v<hardware::traits::CommonTalon, SteerMotorT>>,
-    typename = std::enable_if_t<std::disjunction_v<
-        std::is_same<hardware::CANcoder, EncoderT>,
-        std::is_same<hardware::CANdi, EncoderT>,
-        std::is_same<hardware::TalonFXS, EncoderT>
-    >>
+    std::derived_from<hardware::traits::CommonTalon> DriveMotorT,
+    std::derived_from<hardware::traits::CommonTalon> SteerMotorT,
+    typename EncoderT
 >
+    requires std::same_as<EncoderT, hardware::CANcoder> ||
+        std::same_as<EncoderT, hardware::CANdi> ||
+        std::same_as<EncoderT, hardware::TalonFXS>
 class SwerveDrivetrain {
 public:
     /** \brief Performs swerve module updates in a separate thread to minimize latency. */
@@ -90,13 +86,11 @@ public:
      * \param modules             Constants for each specific module
      */
     template <
-        typename... ModuleConstants,
-        typename = std::enable_if_t<std::conjunction_v<
-            std::is_same<
-                ModuleConstants,
-                SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration>
-            >...
-        >>
+        std::same_as<SwerveModuleConstants<
+            typename DriveMotorT::Configuration,
+            typename SteerMotorT::Configuration,
+            typename EncoderT::Configuration
+        >>... ModuleConstants
     >
     SwerveDrivetrain(SwerveDrivetrainConstants const &drivetrainConstants, ModuleConstants const &... modules) :
         SwerveDrivetrain{drivetrainConstants, 0_Hz, modules...}
@@ -116,13 +110,11 @@ public:
      * \param modules                    Constants for each specific module
      */
     template <
-        typename... ModuleConstants,
-        typename = std::enable_if_t<std::conjunction_v<
-            std::is_same<
-                ModuleConstants,
-                SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration>
-            >...
-        >>
+        std::same_as<SwerveModuleConstants<
+            typename DriveMotorT::Configuration,
+            typename SteerMotorT::Configuration,
+            typename EncoderT::Configuration
+        >>... ModuleConstants
     >
     SwerveDrivetrain(
         SwerveDrivetrainConstants const &drivetrainConstants,
@@ -152,13 +144,11 @@ public:
      * \param modules                    Constants for each specific module
      */
     template <
-        typename... ModuleConstants,
-        typename = std::enable_if_t<std::conjunction_v<
-            std::is_same<
-                ModuleConstants,
-                SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration>
-            >...
-        >>
+        std::same_as<SwerveModuleConstants<
+            typename DriveMotorT::Configuration,
+            typename SteerMotorT::Configuration,
+            typename EncoderT::Configuration
+        >>... ModuleConstants
     >
     SwerveDrivetrain(
         SwerveDrivetrainConstants const &drivetrainConstants,
@@ -170,12 +160,12 @@ public:
         _drivetrain{
             drivetrainConstants, odometryUpdateFrequency,
             odometryStandardDeviation, visionStandardDeviation,
-            span<SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration> const>{
+            std::span<SwerveModuleConstants<typename DriveMotorT::Configuration, typename SteerMotorT::Configuration, typename EncoderT::Configuration> const>{
                 std::array{modules...}
             }
         },
-        _modules{CreateModuleArray(drivetrainConstants.CANBusName, modules...)},
-        _pigeon2{drivetrainConstants.Pigeon2Id, std::string{drivetrainConstants.CANBusName}},
+        _modules{CreateModuleArray(CANBus{drivetrainConstants.CANBusName}, modules...)},
+        _pigeon2{drivetrainConstants.Pigeon2Id, CANBus{drivetrainConstants.CANBusName}},
         _simDrive{_drivetrain.GetModuleLocations(), _pigeon2.GetSimState(), modules...}
     {
         if (drivetrainConstants.Pigeon2Configs) {
@@ -197,14 +187,14 @@ public:
 private:
     template <typename... ModuleConstants>
     std::vector<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>> CreateModuleArray(
-        std::string_view canbusName,
+        CANBus canbus,
         ModuleConstants const &... constants
     ) {
         std::vector<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>> modules;
         modules.reserve(sizeof...(ModuleConstants));
 
         [&]<size_t... Idxs>(std::index_sequence<Idxs...>) {
-            (modules.emplace_back(std::make_unique<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>(constants, canbusName, _drivetrain.GetModule(Idxs))), ...);
+            (modules.emplace_back(std::make_unique<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>(constants, canbus, _drivetrain.GetModule(Idxs))), ...);
         }(std::index_sequence_for<ModuleConstants...>{});
 
         return modules;
@@ -221,6 +211,59 @@ public:
     virtual void UpdateSimState(units::second_t dt, units::volt_t supplyVoltage)
     {
         _simDrive.Update(dt, supplyVoltage, _modules);
+    }
+
+    /**
+     * \brief Optimizes the bus utilization of all devices in the swerve drivetrain by
+     * reducing the update frequencies of their status signals. All signals necessary
+     * for drivetrain functionality will remain enabled.
+     *
+     * This is equivalent to calling hardware#ParentDevice#OptimizeBusUtilizationForAll
+     * with all devices in the drivetrain.
+     *
+     * This will wait up to 0.100 seconds (100ms) for each status frame.
+     *
+     * \returns Status code of the first failed optimize call, or OK if all succeeded
+     */
+    ctre::phoenix::StatusCode OptimizeBusUtilization()
+    {
+        std::vector<hardware::traits::CommonDevice *> devices;
+        devices.reserve(_modules.size() * 3 + 1);
+        devices.push_back(&GetPigeon2());
+        for (auto &module : _modules) {
+            devices.push_back(&module->GetDriveMotor());
+            devices.push_back(&module->GetSteerMotor());
+            devices.push_back(&module->GetEncoder());
+        }
+        return hardware::ParentDevice::OptimizeBusUtilizationForAll(devices);
+    }
+
+    /**
+     * \brief Optimizes the bus utilization of all devices in the swerve drivetrain by
+     * reducing the update frequencies of their status signals. All signals necessary
+     * for drivetrain functionality will remain enabled.
+     *
+     * This is equivalent to calling hardware#ParentDevice#OptimizeBusUtilizationForAll
+     * with all devices in the drivetrain.
+     *
+     * This will wait up to 0.100 seconds (100ms) for each status frame.
+     *
+     * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency
+     *                        of 0 Hz will turn off the signals. Otherwise, the minimum supported signal
+     *                        frequency is 4 Hz.
+     * \returns Status code of the first failed optimize call, or OK if all succeeded
+     */
+    ctre::phoenix::StatusCode OptimizeBusUtilization(units::frequency::hertz_t optimizedFreqHz)
+    {
+        std::vector<hardware::traits::CommonDevice *> devices;
+        devices.reserve(_modules.size() * 3 + 1);
+        devices.push_back(&GetPigeon2());
+        for (auto &module : _modules) {
+            devices.push_back(&module->GetDriveMotor());
+            devices.push_back(&module->GetSteerMotor());
+            devices.push_back(&module->GetEncoder());
+        }
+        return hardware::ParentDevice::OptimizeBusUtilizationForAll(optimizedFreqHz, devices);
     }
 
     /**
@@ -282,15 +325,12 @@ public:
      *
      * \param request Request to apply
      */
-    template <
-        typename Request,
-        typename = std::enable_if_t<std::is_base_of_v<requests::SwerveRequest, Request>>,
-        typename = std::enable_if_t<!std::is_const_v<Request>>
-    >
+    template <std::derived_from<requests::SwerveRequest> Request>
+        requires (!std::is_const_v<Request>)
     void SetControl(Request &request)
     {
         _drivetrain.SetControl(
-            [&request](auto const &params, auto const &modules) mutable {
+            [&request](auto const &params, auto modules) mutable {
                 return request.Apply(params, modules);
             }
         );
@@ -301,15 +341,12 @@ public:
      *
      * \param request Request to apply
      */
-    template <
-        typename Request,
-        typename = std::enable_if_t<std::is_base_of_v<requests::SwerveRequest, Request>>,
-        typename = std::enable_if_t<!std::is_const_v<Request>>
-    >
+    template <std::derived_from<requests::SwerveRequest> Request>
+        requires (!std::is_const_v<Request>)
     void SetControl(Request &&request)
     {
         _drivetrain.SetControl(
-            [request=std::move(request)](auto const &params, auto const &modules) mutable {
+            [request=std::move(request)](auto const &params, auto modules) mutable {
                 return request.Apply(params, modules);
             }
         );
@@ -348,12 +385,26 @@ public:
     /**
      * \brief Configures the neutral mode to use for all modules' drive motors.
      *
+     * This will wait up to 0.100 seconds (100ms) by default.
+     *
      * \param neutralMode The drive motor neutral mode
      * \returns Status code of the first failed config call, or OK if all succeeded
      */
     virtual ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode)
     {
         return _drivetrain.ConfigNeutralMode(neutralMode);
+    }
+
+    /**
+     * \brief Configures the neutral mode to use for all modules' drive motors.
+     *
+     * \param neutralMode The drive motor neutral mode
+     * \param timeoutSeconds Maximum amount of time to wait when performing each configuration
+     * \returns Status code of the first failed config call, or OK if all succeeded
+     */
+    virtual ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode, units::second_t timeoutSeconds)
+    {
+        return _drivetrain.ConfigNeutralMode(neutralMode, timeoutSeconds);
     }
 
     /**
@@ -367,17 +418,19 @@ public:
     }
 
     /**
-     * \brief Resets the rotation of the robot pose to 0 from the
-     * requests#ForwardPerspectiveValue#OperatorPerspective perspective.
-     * This makes the current orientation of the robot X forward for
-     * field-centric maneuvers.
+     * \brief Resets the rotation of the robot pose to the given value
+     * from the requests#ForwardPerspectiveValue#OperatorPerspective
+     * perspective. This makes the current orientation of the robot minus
+     * `rotation` the X forward for field-centric maneuvers.
      *
-     * This is equivalent to calling ResetRotation with the operator
-     * perspective rotation.
+     * This is equivalent to calling ResetRotation with `rotation +
+     * GetOperatorForwardDirection()`.
+     *
+     * \param rotation Rotation to make the current rotation
      */
-    virtual void SeedFieldCentric()
+    virtual void SeedFieldCentric(Rotation2d const &rotation = Rotation2d{})
     {
-        _drivetrain.SeedFieldCentric();
+        _drivetrain.SeedFieldCentric(rotation);
     }
 
     /**
@@ -557,7 +610,7 @@ public:
      * \returns The pose at the given timestamp (or std::nullopt if the buffer is
      *          empty).
      */
-    virtual std::optional<Pose2d> SamplePoseAt(units::second_t timestamp)
+    virtual std::optional<Pose2d> SamplePoseAt(units::second_t timestamp) const
     {
         return _drivetrain.SamplePoseAt(timestamp);
     }
@@ -590,7 +643,7 @@ public:
      *
      * \returns Reference to the SwerveModule array
      */
-    std::vector<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>>> const &GetModules() const
+    std::span<std::unique_ptr<SwerveModule<DriveMotorT, SteerMotorT, EncoderT>> const> GetModules() const
     {
         return _modules;
     }
@@ -608,7 +661,7 @@ public:
      *
      * \returns The robot orientation as a frc#Rotation3d
      */
-    frc::Rotation3d GetRotation3d() const
+    virtual frc::Rotation3d GetRotation3d() const
     {
         return _pigeon2.GetRotation3d();
     }
@@ -622,6 +675,18 @@ public:
      * \returns This drivetrain's Pigeon 2 reference
      */
     hardware::Pigeon2 &GetPigeon2()
+    {
+        return _pigeon2;
+    }
+    /**
+     * \brief Gets this drivetrain's Pigeon 2 reference.
+     *
+     * This should be used only to access signals and change configurations that the
+     * swerve drivetrain does not configure itself.
+     *
+     * \returns This drivetrain's Pigeon 2 reference
+     */
+    hardware::Pigeon2 const &GetPigeon2() const
     {
         return _pigeon2;
     }

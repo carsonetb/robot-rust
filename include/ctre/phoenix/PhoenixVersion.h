@@ -1,2 +1,2 @@
-const int kPhoenixVersion = 0x00190400;
-#define PHOENIX_VERSION  (0x00190400)
+#pragma once
+#define PHOENIX_VERSION  (0x001A0300)

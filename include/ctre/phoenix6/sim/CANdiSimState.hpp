@@ -44,6 +44,15 @@ namespace sim {
 		 * between the sensor and the robot changes.
 		 */
 		ChassisReference Pwm1Orientation;
+		/**
+		 * \brief The offset of the PWM1 sensor position relative to the robot chassis,
+		 * in rotations. This offset is subtracted from the PWM1 position, allowing
+		 * for a non-zero sensor offset config to behave correctly in simulation.
+		 *
+		 * This value should not be changed after initialization unless the
+		 * mechanical linkage between the sensor and the robot changes.
+		 */
+		units::angle::turn_t Pwm1SensorOffset = 0_tr;
 
 		/**
 		 * \brief The orientation of the PWM2 sensor relative
@@ -54,6 +63,15 @@ namespace sim {
 		 * between the sensor and the robot changes.
 		 */
 		ChassisReference Pwm2Orientation;
+		/**
+		 * \brief The offset of the PWM2 sensor position relative to the robot chassis,
+		 * in rotations. This offset is subtracted from the PWM2 position, allowing
+		 * for a non-zero sensor offset config to behave correctly in simulation.
+		 *
+		 * This value should not be changed after initialization unless the
+		 * mechanical linkage between the sensor and the robot changes.
+		 */
+		units::angle::turn_t Pwm2SensorOffset = 0_tr;
 
 		/**
 		 * \brief The orientation of the Quadrature sensor relative

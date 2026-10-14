@@ -7,10 +7,13 @@
 #pragma once
 
 #include "ctre/phoenix6/hardware/ParentDevice.hpp"
-#include "ctre/phoenix6/CANBus.hpp"
-#include "ctre/phoenix6/configs/Configs.hpp"
+#include "ctre/phoenix6/configs/Configuration.hpp"
 #include "ctre/phoenix6/configs/Configurator.hpp"
+#include "ctre/phoenix6/signals/SpnEnums.hpp"
 
+#include "ctre/phoenix6/configs/CustomParamsConfigs.hpp"
+#include "ctre/phoenix6/configs/LEDConfigs.hpp"
+#include "ctre/phoenix6/configs/CANdleFeaturesConfigs.hpp"
 #include "ctre/phoenix6/controls/ModulateVBatOut.hpp"
 #include "ctre/phoenix6/controls/SolidColor.hpp"
 #include "ctre/phoenix6/controls/EmptyAnimation.hpp"
@@ -44,7 +47,7 @@ namespace configs {
  * Class for CTR Electronics' CANdle® branded device, a device that controls
  * LEDs over the CAN bus.
  *
- * This handles the configurations for the hardware#CANdle
+ * This defines all configurations for the hardware#CANdle.
  */
 class CANdleConfiguration : public ParentConfiguration
 {
@@ -186,46 +189,23 @@ public:
     /**
      * \brief Get the string representation of this configuration
      */
-    std::string ToString() const
-    {
-        std::stringstream ss;
-        ss << "CANdleConfiguration" << std::endl;
-        ss << CustomParams.ToString();
-        ss << LED.ToString();
-        ss << CANdleFeatures.ToString();
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Get the serialized form of this configuration
      */
-    std::string Serialize() const
-    {
-        std::stringstream ss;
-        ss << CustomParams.Serialize();
-        ss << LED.Serialize();
-        ss << CANdleFeatures.Serialize();
-        return ss.str();
-    }
-
+    std::string Serialize() const final;
     /**
      * \brief Take a string and deserialize it to this configuration
      */
-    ctre::phoenix::StatusCode Deserialize(const std::string &to_deserialize)
-    {
-        ctre::phoenix::StatusCode err = ctre::phoenix::StatusCode::OK;
-        err = CustomParams.Deserialize(to_deserialize);
-        err = LED.Deserialize(to_deserialize);
-        err = CANdleFeatures.Deserialize(to_deserialize);
-        return err;
-    }
+    ctre::phoenix::StatusCode Deserialize(std::string const &to_deserialize) final;
 };
 
 /**
  * Class for CTR Electronics' CANdle® branded device, a device that controls
  * LEDs over the CAN bus.
  *
- * This handles the configurations for the hardware#CANdle
+ * This handles applying and refreshing configurations for the hardware#CANdle.
  */
 class CANdleConfigurator : public ParentConfigurator
 {
@@ -238,38 +218,6 @@ private:
 
 public:
     /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdleConfiguration &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdleConfiguration &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
-    }
-
-    /**
      * \brief Applies the contents of the specified config to the device.
      *
      * This will wait up to #DefaultTimeoutSeconds.
@@ -277,7 +225,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdleConfiguration &configs)
     {
@@ -291,43 +239,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdleConfiguration &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, configs.FutureProofConfigs, false);
-    }
-
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -338,7 +254,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs)
     {
@@ -352,42 +268,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CustomParamsConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(LEDConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(LEDConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -398,7 +283,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const LEDConfigs &configs)
     {
@@ -412,42 +297,11 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const LEDConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
-    }
-
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * This will wait up to #DefaultTimeoutSeconds.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdleFeaturesConfigs &configs) const
-    {
-        return Refresh(configs, DefaultTimeoutSeconds);
-    }
-    /**
-     * \brief Refreshes the values of the specified config group.
-     *
-     * \details Call to refresh the selected configs from the device.
-     *
-     * \param configs The configs to refresh
-     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of refreshing the configs
-     */
-    ctre::phoenix::StatusCode Refresh(CANdleFeaturesConfigs &configs, units::time::second_t timeoutSeconds) const
-    {
-        std::string ref;
-        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
-        configs.Deserialize(ref);
-        return ret;
     }
 
     /**
@@ -458,7 +312,7 @@ public:
      * \details Call to apply the selected configs.
      *
      * \param configs Configs to apply against.
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdleFeaturesConfigs &configs)
     {
@@ -472,11 +326,136 @@ public:
      *
      * \param configs Configs to apply against.
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
-     * \returns StatusCode of the set command
+     * \returns Status code of applying the configs
      */
     ctre::phoenix::StatusCode Apply(const CANdleFeaturesConfigs &configs, units::time::second_t timeoutSeconds)
     {
         return SetConfigsPrivate(configs.Serialize(), timeoutSeconds, false, false);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdleConfiguration &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdleConfiguration &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CustomParamsConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(LEDConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(LEDConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
+    }
+
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * This will wait up to #DefaultTimeoutSeconds.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdleFeaturesConfigs &configs) const
+    {
+        return Refresh(configs, DefaultTimeoutSeconds);
+    }
+    /**
+     * \brief Refreshes the values of the specified config group.
+     *
+     * \details Call to refresh the selected configs from the device.
+     *
+     * \param configs The configs to refresh
+     * \param timeoutSeconds Maximum amount of time to wait when performing configuration
+     * \returns Status code of refreshing the configs
+     */
+    ctre::phoenix::StatusCode Refresh(CANdleFeaturesConfigs &configs, units::time::second_t timeoutSeconds) const
+    {
+        std::string ref;
+        ctre::phoenix::StatusCode ret = GetConfigsPrivate(ref, timeoutSeconds);
+        configs.Deserialize(ref);
+        return ret;
     }
 
     
@@ -517,13 +496,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::SPN_ClearStickyFaults, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFaults(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Hardware fault occurred
@@ -554,13 +527,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Hardware, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Hardware(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device supply voltage dropped to near
@@ -593,13 +560,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_Undervoltage, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Undervoltage(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device boot while detecting the enable
@@ -632,13 +593,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_BootDuringEnable, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_BootDuringEnable(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: An unlicensed feature is in use, device
@@ -671,13 +626,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_UnlicensedFeatureInUse, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_UnlicensedFeatureInUse(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device supply voltage is too high (above
@@ -710,13 +659,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Overvoltage(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_OVERVOLTAGE, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Overvoltage(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device 5V line is too high (above 6 V).
@@ -747,13 +690,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_5VTooHigh(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_5V_TOO_HIGH, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_5VTooHigh(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device 5V line is too low (below 4 V).
@@ -784,13 +721,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_5VTooLow(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_5V_TOO_LOW, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_5VTooLow(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: Device temperature exceeded limit.
@@ -821,13 +752,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_Thermal(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_THERMAL, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_Thermal(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: CANdle output current exceeded the 6 A
@@ -860,13 +785,7 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_SoftwareFuse(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_SOFTWARE_FUSE, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_SoftwareFuse(units::time::second_t timeoutSeconds);
     
     /**
      * \brief Clear sticky fault: CANdle has detected the output pin is
@@ -899,19 +818,18 @@ public:
      * \param timeoutSeconds Maximum time to wait up to in seconds.
      * \returns StatusCode of the set command
      */
-    ctre::phoenix::StatusCode ClearStickyFault_ShortCircuit(units::time::second_t timeoutSeconds)
-    {
-        std::stringstream ss;
-        char *ref;
-        c_ctre_phoenix6_serialize_double(ctre::phoenix6::spns::SpnValue::ClearStickyFault_CANDLE_SHORT_CIRCUIT, 0, &ref); if (ref != nullptr) { ss << ref; free(ref); }
-        return SetConfigsPrivate(ss.str(), timeoutSeconds, false, true);
-    }
+    ctre::phoenix::StatusCode ClearStickyFault_ShortCircuit(units::time::second_t timeoutSeconds);
 };
 
 }
 
 namespace hardware {
 namespace core {
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
 
 /**
  * Class for CTR Electronics' CANdle® branded device, a device that controls
@@ -923,12 +841,23 @@ private:
     configs::CANdleConfigurator _configs;
 
 public:
+    /**
+     * \brief The configuration class for this device.
+     */
     using Configuration = configs::CANdleConfiguration;
 
     /**
      * Constructs a new CANdle object.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
+     * \param canbus      The CAN bus this device is on
+     */
+    CoreCANdle(int deviceId, CANBus canbus = {});
+
+    /**
+     * Constructs a new CANdle object.
+     *
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
      * \param canbus      Name of the CAN bus this device is on. Possible CAN bus strings are:
      *                    - "rio" for the native roboRIO CAN bus
      *                    - CANivore name or serial number
@@ -938,18 +867,23 @@ public:
      *                      - "rio" on roboRIO
      *                      - "can0" on Linux
      *                      - "*" on Windows
+     *
+     * \deprecated Constructing devices with a CAN bus string is deprecated for removal
+     * in the 2027 season. Construct devices using a CANBus instance instead.
      */
-    CoreCANdle(int deviceId, std::string canbus = "");
+    CoreCANdle(int deviceId, std::string canbus);
 
     /**
-     * Constructs a new CANdle object.
+     * \brief Constructs a stubbed-out CoreCANdle, where all status signals, controls,
+     * configs, etc. perform no action and immediately return OK. This can be used to
+     * silence error messages for devices that have been completely removed from the robot.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
-     * \param canbus      The CAN bus this device is on.
+     * \returns Stubbed-out CoreCANdle
      */
-    CoreCANdle(int deviceId, CANBus canbus) :
-        CoreCANdle{deviceId, std::string{canbus.GetName()}}
-    {}
+    static CoreCANdle None()
+    {
+        return CoreCANdle{-1, CANBus{}};
+    }
 
     /**
      * \brief Gets the configurator for this CANdle
@@ -1010,7 +944,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMajor Status Signal Object
      */
     StatusSignal<int> &GetVersionMajor(bool refresh = true);
@@ -1028,7 +963,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionMinor Status Signal Object
      */
     StatusSignal<int> &GetVersionMinor(bool refresh = true);
@@ -1046,7 +982,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBugfix Status Signal Object
      */
     StatusSignal<int> &GetVersionBugfix(bool refresh = true);
@@ -1064,7 +1001,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VersionBuild Status Signal Object
      */
     StatusSignal<int> &GetVersionBuild(bool refresh = true);
@@ -1083,7 +1021,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Version Status Signal Object
      */
     StatusSignal<int> &GetVersion(bool refresh = true);
@@ -1105,7 +1044,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FaultField Status Signal Object
      */
     StatusSignal<int> &GetFaultField(bool refresh = true);
@@ -1128,7 +1068,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFaultField Status Signal Object
      */
     StatusSignal<int> &GetStickyFaultField(bool refresh = true);
@@ -1143,7 +1084,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns IsProLicensed Status Signal Object
      */
     StatusSignal<bool> &GetIsProLicensed(bool refresh = true);
@@ -1162,7 +1104,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns SupplyVoltage Status Signal Object
      */
     StatusSignal<units::voltage::volt_t> &GetSupplyVoltage(bool refresh = true);
@@ -1181,7 +1124,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FiveVRailVoltage Status Signal Object
      */
     StatusSignal<units::voltage::volt_t> &GetFiveVRailVoltage(bool refresh = true);
@@ -1201,7 +1145,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns OutputCurrent Status Signal Object
      */
     StatusSignal<units::current::ampere_t> &GetOutputCurrent(bool refresh = true);
@@ -1220,7 +1165,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns DeviceTemp Status Signal Object
      */
     StatusSignal<units::temperature::celsius_t> &GetDeviceTemp(bool refresh = true);
@@ -1244,7 +1190,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns VBatModulation Status Signal Object
      */
     StatusSignal<units::dimensionless::scalar_t> &GetVBatModulation(bool refresh = true);
@@ -1267,7 +1214,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns MaxSimultaneousAnimationCount Status Signal Object
      */
     StatusSignal<int> &GetMaxSimultaneousAnimationCount(bool refresh = true);
@@ -1282,7 +1230,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Hardware Status Signal Object
      */
     StatusSignal<bool> &GetFault_Hardware(bool refresh = true);
@@ -1297,7 +1246,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Hardware Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Hardware(bool refresh = true);
@@ -1312,7 +1262,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Undervoltage Status Signal Object
      */
     StatusSignal<bool> &GetFault_Undervoltage(bool refresh = true);
@@ -1327,7 +1278,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Undervoltage Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Undervoltage(bool refresh = true);
@@ -1342,7 +1294,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BootDuringEnable Status Signal Object
      */
     StatusSignal<bool> &GetFault_BootDuringEnable(bool refresh = true);
@@ -1357,7 +1310,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BootDuringEnable Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_BootDuringEnable(bool refresh = true);
@@ -1373,7 +1327,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_UnlicensedFeatureInUse Status Signal Object
      */
     StatusSignal<bool> &GetFault_UnlicensedFeatureInUse(bool refresh = true);
@@ -1389,7 +1344,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_UnlicensedFeatureInUse Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_UnlicensedFeatureInUse(bool refresh = true);
@@ -1404,7 +1360,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Overvoltage Status Signal Object
      */
     StatusSignal<bool> &GetFault_Overvoltage(bool refresh = true);
@@ -1419,7 +1376,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Overvoltage Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Overvoltage(bool refresh = true);
@@ -1434,7 +1392,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_5VTooHigh Status Signal Object
      */
     StatusSignal<bool> &GetFault_5VTooHigh(bool refresh = true);
@@ -1449,7 +1408,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_5VTooHigh Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_5VTooHigh(bool refresh = true);
@@ -1464,7 +1424,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_5VTooLow Status Signal Object
      */
     StatusSignal<bool> &GetFault_5VTooLow(bool refresh = true);
@@ -1479,7 +1440,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_5VTooLow Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_5VTooLow(bool refresh = true);
@@ -1494,7 +1456,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_Thermal Status Signal Object
      */
     StatusSignal<bool> &GetFault_Thermal(bool refresh = true);
@@ -1509,7 +1472,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_Thermal Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_Thermal(bool refresh = true);
@@ -1524,7 +1488,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_SoftwareFuse Status Signal Object
      */
     StatusSignal<bool> &GetFault_SoftwareFuse(bool refresh = true);
@@ -1539,7 +1504,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_SoftwareFuse Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_SoftwareFuse(bool refresh = true);
@@ -1554,7 +1520,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_ShortCircuit Status Signal Object
      */
     StatusSignal<bool> &GetFault_ShortCircuit(bool refresh = true);
@@ -1569,7 +1536,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_ShortCircuit Status Signal Object
      */
     StatusSignal<bool> &GetStickyFault_ShortCircuit(bool refresh = true);
@@ -1586,12 +1554,12 @@ public:
      * 
      * - ModulateVBatOut Parameters: 
      *   - Output: Proportion of VBat to output in fractional units between 0.0 and
-     *          1.0.
+     *             1.0.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::ModulateVBatOut &request);
+    ctre::phoenix::StatusCode SetControl(controls::ModulateVBatOut const &request);
     
     /**
      * \brief Sets LEDs to a solid color.
@@ -1600,17 +1568,17 @@ public:
      * 
      * - SolidColor Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
      *   - Color: The color to apply to the LEDs.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::SolidColor &request);
+    ctre::phoenix::StatusCode SetControl(controls::SolidColor const &request);
     
     /**
      * \brief An empty animation, clearing any animation in the specified
@@ -1619,13 +1587,13 @@ public:
      * \details 
      * 
      * - EmptyAnimation Parameters: 
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::EmptyAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::EmptyAnimation const &request);
     
     /**
      * \brief Animation that gradually lights the entire LED strip one LED
@@ -1635,33 +1603,33 @@ public:
      * 
      * - ColorFlowAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip
-     *                 
-     *                 If the start index is greater than the end index, the
-     *                 direction will be reversed. The direction can also be changed
-     *                 using the Direction parameter.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *               
-     *               If the end index is less than the start index, the direction
-     *               will be reversed. The direction can also be changed using the
-     *               Direction parameter.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip
+     *                    
+     *                    If the start index is greater than the end index, the
+     *                    direction will be reversed. The direction can also be
+     *                    changed using the Direction parameter.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *                  
+     *                  If the end index is less than the start index, the direction
+     *                  will be reversed. The direction can also be changed using
+     *                  the Direction parameter.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
      *   - Direction: The direction of the animation.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             turning one on or off.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                turning one on or off.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::ColorFlowAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::ColorFlowAnimation const &request);
     
     /**
      * \brief Animation that looks similar to a flame flickering.
@@ -1670,37 +1638,37 @@ public:
      * 
      * - FireAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip
-     *                 
-     *                 If the start index is greater than the end index, the
-     *                 direction will be reversed. The direction can also be changed
-     *                 using the Direction parameter.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *               
-     *               If the end index is less than the start index, the direction
-     *               will be reversed. The direction can also be changed using the
-     *               Direction parameter.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip
+     *                    
+     *                    If the start index is greater than the end index, the
+     *                    direction will be reversed. The direction can also be
+     *                    changed using the Direction parameter.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *                  
+     *                  If the end index is less than the start index, the direction
+     *                  will be reversed. The direction can also be changed using
+     *                  the Direction parameter.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Brightness: The brightness of the animation, as a scalar from 0.0 to 1.0.
      *   - Direction: The direction of the animation.
      *   - Sparking: The proportion of time in which sparks reignite the fire, as a
-     *            scalar from 0.0 to 1.0.
-     *   - Cooling: The rate at which the fire cools along the travel, as a scalar from
-     *           0.0 to 1.0.
+     *               scalar from 0.0 to 1.0.
+     *   - Cooling: The rate at which the fire cools along the travel, as a scalar
+     *              from 0.0 to 1.0.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             advancing the animation of the fire.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                advancing the animation of the fire.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::FireAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::FireAnimation const &request);
     
     /**
      * \brief Animation that bounces a pocket of light across the LED
@@ -1710,27 +1678,27 @@ public:
      * 
      * - LarsonAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
      *   - Size: The number of LEDs in the pocket of light, up to 15.
-     *   - BounceMode: The behavior of the pocket of light when it reaches the end of
-     *              the strip.
+     *   - BounceMode: The behavior of the pocket of light when it reaches the end
+     *                 of the strip.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             advancing the pocket of light by one LED.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                advancing the pocket of light by one LED.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::LarsonAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::LarsonAnimation const &request);
     
     /**
      * \brief Animation that creates a rainbow throughout all the LEDs.
@@ -1739,34 +1707,34 @@ public:
      * 
      * - RainbowAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip
-     *                 
-     *                 If the start index is greater than the end index, the
-     *                 direction will be reversed. The direction can also be changed
-     *                 using the Direction parameter.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *               
-     *               If the end index is less than the start index, the direction
-     *               will be reversed. The direction can also be changed using the
-     *               Direction parameter.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip
+     *                    
+     *                    If the start index is greater than the end index, the
+     *                    direction will be reversed. The direction can also be
+     *                    changed using the Direction parameter.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *                  
+     *                  If the end index is less than the start index, the direction
+     *                  will be reversed. The direction can also be changed using
+     *                  the Direction parameter.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Brightness: The brightness of the animation, as a scalar from 0.0 to 1.0.
      *   - Direction: The direction of the animation.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             advancing the rainbow by about 3 degrees of hue (out of 360
-     *             degrees).
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                advancing the rainbow by about 3 degrees of hue (out of 360
+     *                degrees).
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::RainbowAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::RainbowAnimation const &request);
     
     /**
      * \brief Animation that fades all the LEDs of a strip simultaneously
@@ -1776,24 +1744,24 @@ public:
      * 
      * - RgbFadeAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Brightness: The brightness of the animation, as a scalar from 0.0 to 1.0.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             adjusting the brightness of the LEDs by 1%.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                adjusting the brightness of the LEDs by 1%.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::RgbFadeAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::RgbFadeAnimation const &request);
     
     /**
      * \brief Animation that fades into and out of a specified color.
@@ -1802,24 +1770,24 @@ public:
      * 
      * - SingleFadeAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             adjusting the brightness of the LEDs by 1%.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                adjusting the brightness of the LEDs by 1%.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::SingleFadeAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::SingleFadeAnimation const &request);
     
     /**
      * \brief Animation that strobes the LEDs a specified color.
@@ -1828,24 +1796,24 @@ public:
      * 
      * - StrobeAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
      *   - FrameRate: The frame rate of the animation, from [1, 500] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             turning all LEDs on or off.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                turning all LEDs on or off.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::StrobeAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::StrobeAnimation const &request);
     
     /**
      * \brief Animation that randomly turns LEDs on and off to a certain
@@ -1855,26 +1823,26 @@ public:
      * 
      * - TwinkleAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
-     *   - MaxLEDsOnProportion: The max proportion of LEDs that can be on, in the range
-     *                       [0.1, 1.0].
+     *   - MaxLEDsOnProportion: The max proportion of LEDs that can be on, in the
+     *                          range [0.1, 1.0].
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             turning one on or off.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                turning one on or off.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::TwinkleAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::TwinkleAnimation const &request);
     
     /**
      * \brief Animation that randomly turns on LEDs until it reaches the
@@ -1884,26 +1852,34 @@ public:
      * 
      * - TwinkleOffAnimation Parameters: 
      *   - LEDStartIndex: The index of the first LED this animation controls
-     *                 (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
-     *                 control an attached LED strip.
-     *   - LEDEndIndex: The index of the last LED this animation controls (inclusive).
-     *               Indices 0-7 control the onboard LEDs, and 8-399 control an
-     *               attached LED strip.
-     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle can
-     *        store and run one animation.
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *   - LEDEndIndex: The index of the last LED this animation controls
+     *                  (inclusive). Indices 0-7 control the onboard LEDs, and 8-399
+     *                  control an attached LED strip.
+     *   - Slot: The slot of this animation, within [0, 7]. Each slot on the CANdle
+     *           can store and run one animation.
      *   - Color: The color to use in the animation.
-     *   - MaxLEDsOnProportion: The max proportion of LEDs that can be on, in the range
-     *                       [0.1, 1.0].
+     *   - MaxLEDsOnProportion: The max proportion of LEDs that can be on, in the
+     *                          range [0.1, 1.0].
      *   - FrameRate: The frame rate of the animation, from [2, 1000] Hz. This
-     *             determines the speed of the animation.
-     *             
-     *             A frame is defined as a transition in the state of the LEDs,
-     *             turning one LED on or all LEDs off.
+     *                determines the speed of the animation.
+     *                
+     *                A frame is defined as a transition in the state of the LEDs,
+     *                turning one LED on or all LEDs off.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::TwinkleOffAnimation &request);
+    ctre::phoenix::StatusCode SetControl(controls::TwinkleOffAnimation const &request);
+
+    /**
+     * \brief Apply a generic empty control used to do nothing.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    ctre::phoenix::StatusCode SetControl(controls::EmptyControl const &request);
 
     /**
      * \brief Control device with generic control request object. User must make
@@ -1912,50 +1888,9 @@ public:
      *        StatusCode
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    ctre::phoenix::StatusCode SetControl(const controls::ControlRequest &request)
-    {
-        controls::ControlRequest const *ptr = &request;
-        (void)ptr;
-        auto const *ModulateVBatOutValue = dynamic_cast<controls::ModulateVBatOut const *>(ptr);
-        if (ModulateVBatOutValue != nullptr)
-            return SetControl(*ModulateVBatOutValue);
-        auto const *SolidColorValue = dynamic_cast<controls::SolidColor const *>(ptr);
-        if (SolidColorValue != nullptr)
-            return SetControl(*SolidColorValue);
-        auto const *EmptyAnimationValue = dynamic_cast<controls::EmptyAnimation const *>(ptr);
-        if (EmptyAnimationValue != nullptr)
-            return SetControl(*EmptyAnimationValue);
-        auto const *ColorFlowAnimationValue = dynamic_cast<controls::ColorFlowAnimation const *>(ptr);
-        if (ColorFlowAnimationValue != nullptr)
-            return SetControl(*ColorFlowAnimationValue);
-        auto const *FireAnimationValue = dynamic_cast<controls::FireAnimation const *>(ptr);
-        if (FireAnimationValue != nullptr)
-            return SetControl(*FireAnimationValue);
-        auto const *LarsonAnimationValue = dynamic_cast<controls::LarsonAnimation const *>(ptr);
-        if (LarsonAnimationValue != nullptr)
-            return SetControl(*LarsonAnimationValue);
-        auto const *RainbowAnimationValue = dynamic_cast<controls::RainbowAnimation const *>(ptr);
-        if (RainbowAnimationValue != nullptr)
-            return SetControl(*RainbowAnimationValue);
-        auto const *RgbFadeAnimationValue = dynamic_cast<controls::RgbFadeAnimation const *>(ptr);
-        if (RgbFadeAnimationValue != nullptr)
-            return SetControl(*RgbFadeAnimationValue);
-        auto const *SingleFadeAnimationValue = dynamic_cast<controls::SingleFadeAnimation const *>(ptr);
-        if (SingleFadeAnimationValue != nullptr)
-            return SetControl(*SingleFadeAnimationValue);
-        auto const *StrobeAnimationValue = dynamic_cast<controls::StrobeAnimation const *>(ptr);
-        if (StrobeAnimationValue != nullptr)
-            return SetControl(*StrobeAnimationValue);
-        auto const *TwinkleAnimationValue = dynamic_cast<controls::TwinkleAnimation const *>(ptr);
-        if (TwinkleAnimationValue != nullptr)
-            return SetControl(*TwinkleAnimationValue);
-        auto const *TwinkleOffAnimationValue = dynamic_cast<controls::TwinkleOffAnimation const *>(ptr);
-        if (TwinkleOffAnimationValue != nullptr)
-            return SetControl(*TwinkleOffAnimationValue);
-        return ctre::phoenix::StatusCode::NotSupported;
-    }
+    ctre::phoenix::StatusCode SetControl(controls::ControlRequest const &request);
 
     
     /**
@@ -2220,6 +2155,10 @@ public:
         return ClearStickyFault_ShortCircuit(0.100_s);
     }
 };
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(pop)
+#endif
 
 }
 }

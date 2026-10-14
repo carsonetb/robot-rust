@@ -62,15 +62,15 @@ fn local(path: &str, so: &str) {
 
 fn main() -> miette::Result<()> {
     download(
-        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/api-cpp/25.4.0/api-cpp-25.4.0-linuxathena.zip",
+        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/api-cpp/26.3.0/api-cpp-26.3.0-linuxathena.zip",
         "libCTRE_Phoenix6.so",
     );
     download(
-        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/wpiapi-cpp/25.4.0/wpiapi-cpp-25.4.0-linuxathena.zip",
+        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/wpiapi-cpp/26.3.0/wpiapi-cpp-26.3.0-linuxathena.zip",
         "libCTRE_Phoenix6_WPI.so",
     );
     download(
-        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/tools/25.4.0/tools-25.4.0-linuxathena.zip",
+        "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/tools/26.3.0/tools-26.3.0-linuxathena.zip",
         "libCTRE_PhoenixTools.so",
     );
 
@@ -96,93 +96,65 @@ fn main() -> miette::Result<()> {
         "libwpiHal.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpilibc/wpilibc-cpp/2026.2.1/wpilibc-cpp-2026.2.1-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/wpilibc/wpilibc-cpp/2026.2.1/wpilibc-cpp-2026.2.1-linuxathena.zip",
         "libwpilibc.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpimath/wpimath-cpp/2026.2.1/wpimath-cpp-2026.2.1-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/wpimath/wpimath-cpp/2026.2.1/wpimath-cpp-2026.2.1-linuxathena.zip",
         "libwpimath.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpinet/wpinet-cpp/2026.2.1/wpinet-cpp-2026.2.1-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/wpinet/wpinet-cpp/2026.2.1/wpinet-cpp-2026.2.1-linuxathena.zip",
         "libwpinet.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/wpiutil/wpiutil-cpp/2026.2.1/wpiutil-cpp-2026.2.1-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/wpiutil/wpiutil-cpp/2026.2.1/wpiutil-cpp-2026.2.1-linuxathena.zip",
         "libwpiutil.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ntcore/ntcore-cpp/2026.2.1/ntcore-cpp-2026.2.1-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/ntcore/ntcore-cpp/2026.2.1/ntcore-cpp-2026.2.1-linuxathena.zip",
         "libntcore.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/visa/2026.1.2/visa-2026.1.2-linuxathena.zip",
+        "wpilib/2026/maven/edu/wpi/first/ni-libraries/visa/2026.1.2/visa-2026.1.2-linuxathena.zip",
         "libvisa.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/chipobject/2026.1.2/chipobject-2026.1.2-linuxathena.zip",
-        "libRoboRIO_FRC_ChipObject.so.26",
+        "wpilib/2026/maven/edu/wpi/first/ni-libraries/chipobject/2026.1.2/chipobject-2026.1.2-linuxathena.zip",
+        "libRoboRIO_FRC_ChipObject.so",
     );
     local(
-        "/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/netcomm/2026.1.2/netcomm-2026.1.2-linuxathena.zip",
-        "libFRC_NetworkCommunication.so.25",
+        "wpilib/2026/maven/edu/wpi/first/ni-libraries/netcomm/2026.1.2/netcomm-2026.1.2-linuxathena.zip",
+        "libFRC_NetworkCommunication.so",
     );
 
     let dir = Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
-    let dest_str = format!("{}/libNiFpgaLv.so.13", dir.to_str().unwrap());
-    let dest = Path::new(&dest_str);
+    let dest = dir.join("libNiFpgaLv.so");
     if !dest.exists() {
-        println!(
-            "Copying /home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/runtime/2026.1.2/runtime-2026.1.2-linuxathena.zip"
-        );
-
         let home = home::home_dir().unwrap();
-        let from = home.join("/home/carsonetb/wpilib/2026/maven/edu/wpi/first/ni-libraries/runtime/2026.1.2/runtime-2026.1.2-linuxathena.zip");
+        let from = home.join(
+            "wpilib/2026/maven/edu/wpi/first/ni-libraries/runtime/2026.1.2/runtime-2026.1.2-linuxathena.zip",
+        );
         if !from.exists() {
-            panic!("Couldn't find file, is wpilib 2026 installed?")
+            panic!("Couldn't find file, is wpilib 2026 installed?");
         }
         let bytes = fs::read(from).unwrap();
         let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
         for i in 0..archive.len() {
             let mut file = archive.by_index(i).unwrap();
-            if file.name() == "libfpgalvshim.so" {
+            if file.name().ends_with("libfpgalvshim.so") {
                 let mut out = File::create(&dest).unwrap();
                 copy(&mut file, &mut out).unwrap();
             }
-            if file.name() == "libembcanshim.so" {
-                let mut out =
-                    File::create(&format!("{}/libnirio_emb_can.so.23", dir.to_str().unwrap()))
-                        .unwrap();
+            if file.name().ends_with("libembcanshim.so") {
+                let mut out = File::create(dir.join("libnirio_emb_can.so")).unwrap();
                 copy(&mut file, &mut out).unwrap();
             }
         }
     }
 
-    let include_path = PathBuf::from("include");
-
-    let out_dir = env::var("OUT_DIR").unwrap();
-    let home = env::var("HOME")
-        .or_else(|_| env::var("USERPROFILE"))
-        .unwrap();
-
-    println!("cargo:rustc-link-search=native={out_dir}/libraries/linux/athena/shared");
-    println!(
-        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib"
-    );
-    println!(
-        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
-    );
-
-    println!("cargo:rustc-link-lib=wpiHal");
-    println!("cargo:rustc-link-lib=wpiutil");
-    println!("cargo:rustc-link-lib=wpimath");
-    println!("cargo:rustc-link-lib=ntcore");
-    println!("cargo:rustc-link-lib=CTRE_PhoenixTools");
-    println!("cargo:rustc-link-lib=CTRE_Phoenix6");
-    println!("cargo:rustc-link-lib=CTRE_Phoenix6_WPI");
-    println!("cargo:rustc-link-lib=REVLib");
-    println!("cargo:rustc-link-lib=REVLibDriver");
-
+    println!("cargo:rerun-if-changed=src/ffi.rs");
+    println!("cargo:rerun-if-changed=include");
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let bindings = bindgen::Builder::default()
@@ -203,6 +175,7 @@ fn main() -> miette::Result<()> {
         .unwrap();
 
     // Build CTRE bindings
+    let include_path = PathBuf::from("include");
     let mut builder = autocxx_build::Builder::new("src/ffi.rs", &[&include_path])
         .extra_clang_args(&[
             "--target=arm-linux-gnueabi",
@@ -216,10 +189,42 @@ fn main() -> miette::Result<()> {
 
     builder
         .file("include/rev_helpers.cpp")
+        .file("include/chooser_helpers.cpp")
         .flag_if_supported("-std=c++20")
         .flag_if_supported("-Wno-deprecated-declarations")
         .flag_if_supported("-Wno-psabi")
+        .warnings(false)
         .compile("ctre_bindings");
+
+    let out_dir = env::var("OUT_DIR").unwrap();
+    println!("cargo:rustc-link-search=native={out_dir}/{SO_TARGET_DIR}");
+    println!(
+        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib"
+    );
+    println!(
+        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
+    );
+
+    println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPI");
+    println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6");
+    println!("cargo:rustc-link-lib=dylib=CTRE_PhoenixTools");
+    println!("cargo:rustc-link-lib=dylib=REVLib");
+    println!("cargo:rustc-link-lib=dylib=REVLibWpi");
+    println!("cargo:rustc-link-lib=dylib=REVLibDriver");
+    println!("cargo:rustc-link-lib=dylib=BackendDriver");
+
+    println!("cargo:rustc-link-lib=dylib=wpilibc");
+    println!("cargo:rustc-link-lib=dylib=wpimath");
+    println!("cargo:rustc-link-lib=dylib=ntcore");
+    println!("cargo:rustc-link-lib=dylib=wpinet");
+    println!("cargo:rustc-link-lib=dylib=wpiHal");
+    println!("cargo:rustc-link-lib=dylib=wpiutil");
+
+    println!("cargo:rustc-link-lib=dylib=RoboRIO_FRC_ChipObject");
+    println!("cargo:rustc-link-lib=dylib=FRC_NetworkCommunication");
+    println!("cargo:rustc-link-lib=dylib=visa");
+    println!("cargo:rustc-link-lib=dylib=NiFpgaLv");
+    println!("cargo:rustc-link-lib=dylib=nirio_emb_can");
 
     Ok(())
 }

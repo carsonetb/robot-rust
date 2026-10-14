@@ -9,8 +9,8 @@
 #include <units/angle.h>
 
 #include <algorithm>
+#include <iosfwd>
 #include <optional>
-#include <sstream>
 #include <stdint.h>
 
 #if __has_include(<frc/util/Color8Bit.h>)
@@ -190,33 +190,15 @@ public:
         };
     }
 
-    constexpr bool operator==(RGBWColor const &other) const
-    {
-        return Red == other.Red &&
-            Green == other.Green &&
-            Blue == other.Blue &&
-            White == other.White;
-    }
-    constexpr bool operator!=(RGBWColor const &other) const
-    {
-        return !(*this == other);
-    }
+    constexpr bool operator==(RGBWColor const &) const = default;
 
-    friend std::ostream &operator<<(std::ostream &os, const RGBWColor &color)
-    {
-        os << "RGBW(" << (int)color.Red << ", " << (int)color.Green << ", " << (int)color.Blue << ", " << (int)color.White << ")";
-        return os;
-    }
+    friend std::ostream &operator<<(std::ostream &os, RGBWColor const &color);
+
     /**
      * \brief Returns this RGBW color as a string.
      * \returns A string in the format "RGBW(Red, Green, Blue, White)"
      */
-    std::string ToString() const
-    {
-        std::stringstream ss;
-        ss << *this;
-        return ss.str();
-    }
+    std::string ToString() const;
 
     /**
      * \brief Returns this RGBW color as a hex string.

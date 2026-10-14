@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include "ctre/phoenix6/controls/VelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/PositionVoltage.hpp"
 
@@ -24,25 +21,8 @@ namespace compound {
  * Differential control with velocity average target and position difference
  * target using voltage control.
  */
-class Diff_VelocityVoltage_Position : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<Diff_VelocityVoltage_Position *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<Diff_VelocityVoltage_Position>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlDiff_VelocityVoltage_Position(network, deviceHash, UpdateFreqHz.to<double>(), AverageRequest.Velocity.to<double>(), AverageRequest.Acceleration.to<double>(), AverageRequest.EnableFOC, AverageRequest.FeedForward.to<double>(), AverageRequest.Slot, AverageRequest.OverrideBrakeDurNeutral, AverageRequest.LimitForwardMotion, AverageRequest.LimitReverseMotion, AverageRequest.IgnoreHardwareLimits, AverageRequest.UseTimesync, DifferentialRequest.Position.to<double>(), DifferentialRequest.Velocity.to<double>(), DifferentialRequest.EnableFOC, DifferentialRequest.FeedForward.to<double>(), DifferentialRequest.Slot, DifferentialRequest.OverrideBrakeDurNeutral, DifferentialRequest.LimitForwardMotion, DifferentialRequest.LimitReverseMotion, DifferentialRequest.IgnoreHardwareLimits, DifferentialRequest.UseTimesync);
-    }
+class Diff_VelocityVoltage_Position final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -55,9 +35,11 @@ public:
     PositionVoltage DifferentialRequest;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -72,14 +54,26 @@ public:
      *        Differential control with velocity average target and position
      *        difference target using voltage control.
      * 
-     * \param AverageRequest    Average VelocityVoltage request of the mechanism.
-     * \param DifferentialRequest    Differential PositionVoltage request of the
-     *                               mechanism.
+     * \param AverageRequest Average VelocityVoltage request of the mechanism.
+     * \param DifferentialRequest Differential PositionVoltage request of the
+     *                            mechanism.
      */
-    Diff_VelocityVoltage_Position(VelocityVoltage AverageRequest, PositionVoltage DifferentialRequest) : ControlRequest{"Diff_VelocityVoltage_Position"},
+    constexpr Diff_VelocityVoltage_Position(VelocityVoltage AverageRequest, PositionVoltage DifferentialRequest) : ControlRequest{},
         AverageRequest{std::move(AverageRequest)},
         DifferentialRequest{std::move(DifferentialRequest)}
     {}
+
+    constexpr ~Diff_VelocityVoltage_Position() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "Diff_VelocityVoltage_Position";
+    }
     
     /**
      * \brief Modifies this Control Request's AverageRequest parameter and returns itself for
@@ -90,7 +84,7 @@ public:
      * \param newAverageRequest Parameter to modify
      * \returns Itself
      */
-    Diff_VelocityVoltage_Position &WithAverageRequest(VelocityVoltage newAverageRequest)
+    constexpr Diff_VelocityVoltage_Position &WithAverageRequest(VelocityVoltage newAverageRequest)
     {
         AverageRequest = std::move(newAverageRequest);
         return *this;
@@ -105,15 +99,18 @@ public:
      * \param newDifferentialRequest Parameter to modify
      * \returns Itself
      */
-    Diff_VelocityVoltage_Position &WithDifferentialRequest(PositionVoltage newDifferentialRequest)
+    constexpr Diff_VelocityVoltage_Position &WithDifferentialRequest(PositionVoltage newDifferentialRequest)
     {
         DifferentialRequest = std::move(newDifferentialRequest);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -124,59 +121,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    Diff_VelocityVoltage_Position &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr Diff_VelocityVoltage_Position &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: Diff_VelocityVoltage_Position" << std::endl;
-        ss << "    AverageRequest:" << std::endl;
-        ss << "        Velocity: " << AverageRequest.Velocity.to<double>() << " rotations per second" << std::endl;
-        ss << "        Acceleration: " << AverageRequest.Acceleration.to<double>() << " rotations per second²" << std::endl;
-        ss << "        EnableFOC: " << AverageRequest.EnableFOC << std::endl;
-        ss << "        FeedForward: " << AverageRequest.FeedForward.to<double>() << " Volts" << std::endl;
-        ss << "        Slot: " << AverageRequest.Slot << std::endl;
-        ss << "        OverrideBrakeDurNeutral: " << AverageRequest.OverrideBrakeDurNeutral << std::endl;
-        ss << "        LimitForwardMotion: " << AverageRequest.LimitForwardMotion << std::endl;
-        ss << "        LimitReverseMotion: " << AverageRequest.LimitReverseMotion << std::endl;
-        ss << "        IgnoreHardwareLimits: " << AverageRequest.IgnoreHardwareLimits << std::endl;
-        ss << "        UseTimesync: " << AverageRequest.UseTimesync << std::endl;
-        ss << "    DifferentialRequest:" << std::endl;
-        ss << "        Position: " << DifferentialRequest.Position.to<double>() << " rotations" << std::endl;
-        ss << "        Velocity: " << DifferentialRequest.Velocity.to<double>() << " rotations per second" << std::endl;
-        ss << "        EnableFOC: " << DifferentialRequest.EnableFOC << std::endl;
-        ss << "        FeedForward: " << DifferentialRequest.FeedForward.to<double>() << " Volts" << std::endl;
-        ss << "        Slot: " << DifferentialRequest.Slot << std::endl;
-        ss << "        OverrideBrakeDurNeutral: " << DifferentialRequest.OverrideBrakeDurNeutral << std::endl;
-        ss << "        LimitForwardMotion: " << DifferentialRequest.LimitForwardMotion << std::endl;
-        ss << "        LimitReverseMotion: " << DifferentialRequest.LimitReverseMotion << std::endl;
-        ss << "        IgnoreHardwareLimits: " << DifferentialRequest.IgnoreHardwareLimits << std::endl;
-        ss << "        UseTimesync: " << DifferentialRequest.UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << AverageRequest.ToString(); controlInfo["AverageRequest"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialRequest.ToString(); controlInfo["DifferentialRequest"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

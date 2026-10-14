@@ -16,12 +16,12 @@ namespace ctre {
 namespace phoenix6 {
 namespace wpiutils {
 
-class AutoFeedEnable {
+class AutoFeedEnable final {
 public:
     static AutoFeedEnable &GetInstance()
     {
-        static AutoFeedEnable *autoFeedEnable = new AutoFeedEnable{};
-        return *autoFeedEnable;
+        static AutoFeedEnable &autoFeedEnable = *new AutoFeedEnable{};
+        return autoFeedEnable;
     }
 
 private:
@@ -43,9 +43,61 @@ private:
                     robotMode = "Teleop";
                 }
             } else {
-                robotMode = "Disabled";
+                ctre::phoenix::unmanaged::FeedEnable(0);
+
+                if (frc::DriverStation::IsEStopped()) {
+                    robotMode = "EStopped";
+                } else {
+                    robotMode = "Disabled";
+                }
             }
+
+            std::string_view allianceStation{};
+            {
+                auto const alliance = frc::DriverStation::GetAlliance();
+                auto const location = frc::DriverStation::GetLocation();
+                if (alliance && location) {
+                    switch (*alliance) {
+                        case frc::DriverStation::Alliance::kRed:
+                            switch (*location) {
+                                case 1:
+                                    allianceStation = "Red 1";
+                                    break;
+                                case 2:
+                                    allianceStation = "Red 2";
+                                    break;
+                                case 3:
+                                    allianceStation = "Red 3";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case frc::DriverStation::Alliance::kBlue:
+                            switch (*location) {
+                                case 1:
+                                    allianceStation = "Blue 1";
+                                    break;
+                                case 2:
+                                    allianceStation = "Blue 2";
+                                    break;
+                                case 3:
+                                    allianceStation = "Blue 3";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             SignalLogger::WriteString("RobotMode", robotMode);
+            SignalLogger::WriteString("AllianceStation", allianceStation);
+            SignalLogger::WriteBoolean("DS:IsDSAttached", frc::DriverStation::IsDSAttached());
+            SignalLogger::WriteBoolean("DS:IsFMSAttached", frc::DriverStation::IsFMSAttached());
         }}
     {}
 
@@ -59,7 +111,7 @@ public:
         if (_startCount < UINT32_MAX) {
             if (_startCount++ == 0) {
                 /* start if we were previously at 0 */
-                _enableNotifier.StartPeriodic(20_ms);
+                _enableNotifier.StartPeriodic(10_ms);
             }
         }
     }

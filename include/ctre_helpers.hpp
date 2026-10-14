@@ -4,7 +4,10 @@
 #include "ctre/phoenix6/CANcoder.hpp"
 #include "ctre/phoenix6/Pigeon2.hpp"
 #include "ctre/phoenix6/TalonFX.hpp"
-#include "ctre/phoenix6/configs/Configs.hpp"
+#include "ctre/phoenix6/controls/CoastOut.hpp"
+#include "ctre/phoenix6/controls/DutyCycleOut.hpp"
+#include "ctre/phoenix6/controls/NeutralOut.hpp"
+#include "ctre/phoenix6/controls/VoltageOut.hpp"
 #include "ctre/phoenix6/core/CoreCANcoder.hpp"
 #include "ctre/phoenix6/core/CorePigeon2.hpp"
 #include "ctre/phoenix6/core/CoreTalonFX.hpp"
@@ -22,12 +25,28 @@ namespace ctre_helpers {
 
 namespace talonfx {
 
+inline void set(ctre::phoenix6::hardware::TalonFX& motor, double speed) {
+    motor.SetControl(ctre::phoenix6::controls::DutyCycleOut(speed));
+}
+
 inline void set_voltage(ctre::phoenix6::hardware::TalonFX& motor, double volts) {
-    motor.SetVoltage(units::volt_t{volts});
+    motor.SetControl(ctre::phoenix6::controls::VoltageOut(units::voltage::volt_t{volts}));
+}
+
+inline void neutral(ctre::phoenix6::hardware::TalonFX& motor) {
+    motor.SetControl(ctre::phoenix6::controls::NeutralOut());
+}
+
+inline void coast(ctre::phoenix6::hardware::TalonFX& motor) {
+    motor.SetControl(ctre::phoenix6::controls::CoastOut());
 }
 
 inline ctre::phoenix::StatusCode set_position(ctre::phoenix6::hardware::TalonFX& motor, double value_rotations) {
     return motor.SetPosition(units::angle::turn_t{value_rotations});
+}
+
+inline double get_duty_cycle(ctre::phoenix6::hardware::TalonFX& motor) {
+    return motor.GetDutyCycle().GetValueAsDouble();
 }
 
 inline double get_output_voltage(ctre::phoenix6::hardware::TalonFX& motor) { return motor.GetMotorVoltage().GetValueAsDouble(); }

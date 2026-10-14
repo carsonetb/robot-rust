@@ -7,9 +7,8 @@
 #pragma once
 
 #include "ctre/phoenix6/swerve/utility/Kinematics.hpp"
-#include <units/angular_velocity.h>
-#include <units/velocity.h>
 #include <memory>
+#include <span>
 #include <vector>
 
 namespace ctre {
@@ -79,7 +78,7 @@ public:
      * \param moduleHeadings The swerve module headings. The order of the module
      * headings should be same as passed into the constructor of this class.
      */
-    void ResetHeadings(std::vector<Rotation2d> const &moduleHeadings)
+    void ResetHeadings(std::span<Rotation2d const> moduleHeadings)
     {
         for (size_t i = 0; i < m_numModules && i < moduleHeadings.size(); ++i) {
             m_lastModuleHeading[i] = moduleHeadings[i];

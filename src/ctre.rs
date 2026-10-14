@@ -69,20 +69,16 @@ impl StatusCode {
 /// Wrapper for any motor powered by the TalonFX system.
 pub struct TalonFX {
     motor: cxx::UniquePtr<ffi::talon::TalonFX>,
-    /// If true, a positive speed/voltage will become negative..
-    pub inverted: bool,
 }
 
 impl TalonFX {
     /// Create a new motor object. Specify the CAN ID and the CAN bus of the
     /// motor.
     pub fn new(can: i32, bus: &str) -> Self {
-        let motor = ffi::talon::TalonFX::new(autocxx::c_int(can), bus).within_unique_ptr();
+        // TODO: Deprecated CANBus string intialization.
+        let motor = ffi::talon::TalonFX::new3(autocxx::c_int(can), bus).within_unique_ptr();
 
-        Self {
-            motor,
-            inverted: false,
-        }
+        Self { motor }
     }
 
     pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {
@@ -91,22 +87,13 @@ impl TalonFX {
 
     /// Set the speed of the motor. The range is -1.0 to 1.0. Alternatively,
     /// you can use the `set_voltage` function to specify the exact voltage.
-    ///
-    /// If the motor is inverted, the speed will be negated.
     pub fn set(&mut self, speed: f64) {
-        let speed = if self.inverted { -speed } else { speed };
-        let speed = speed.clamp(-1.0, 1.0);
-
-        let motor = self.motor.pin_mut();
-        motor.Set(speed);
+        ffi::talon::set(self.motor.pin_mut(), speed);
     }
 
     /// Supply a voltage to the motor. This should generally be somewhere from
     /// -12.0 volts to 12.0 volts.
-    ///
-    /// If the motor is inverted, the voltage will be negated.
     pub fn set_voltage(&mut self, voltage: ElectricPotential) {
-        let voltage = if self.inverted { -voltage } else { voltage };
         ffi::talon::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
     }
 
@@ -119,8 +106,8 @@ impl TalonFX {
 
     /// Get the current set speed of the motor controller. The value returned
     /// will be between -1.0 and 1.0.
-    pub fn get(&self) -> f64 {
-        self.motor.Get()
+    pub fn get_duty_cycle(&mut self) -> f64 {
+        ffi::talon::get_duty_cycle(self.motor.pin_mut())
     }
 
     pub fn get_position(&mut self) -> Angle {
@@ -135,14 +122,12 @@ impl TalonFX {
         ffi::talon::get_acceleration(self.motor.pin_mut()).rotations_per_second_squared()
     }
 
-    /// Disable the motor controller.
-    pub fn disable(&mut self) {
-        self.motor.pin_mut().Disable();
+    pub fn coast(&mut self) {
+        ffi::talon::coast(self.motor.pin_mut())
     }
 
-    /// Stop motor movement until Set is called again.
-    pub fn stop(&mut self) {
-        self.motor.pin_mut().StopMotor();
+    pub fn neutral(&mut self) {
+        ffi::talon::neutral(self.motor.pin_mut())
     }
 }
 
@@ -153,7 +138,8 @@ pub struct CANCoder {
 impl CANCoder {
     pub fn new(id: i32, bus: &str) -> Self {
         Self {
-            coder: ffi::cancoder::CANcoder::new(autocxx::c_int(id), bus).within_unique_ptr(),
+            // TODO: Deprecated CANBus string intialization.
+            coder: ffi::cancoder::CANcoder::new3(autocxx::c_int(id), bus).within_unique_ptr(),
         }
     }
 
@@ -200,7 +186,8 @@ pub struct Pigeon2 {
 impl Pigeon2 {
     pub fn new(id: i32, bus: &str) -> Self {
         Self {
-            gyro: ffi::pigeon2::Pigeon2::new(autocxx::c_int(id), bus).within_unique_ptr(),
+            // TODO: Deprecated CANBus string intialization.
+            gyro: ffi::pigeon2::Pigeon2::new3(autocxx::c_int(id), bus).within_unique_ptr(),
         }
     }
 
@@ -244,9 +231,5 @@ impl Pigeon2 {
         StatusCode::new(
             ffi::pigeon2::set_yaw(self.gyro.pin_mut(), yaw.get::<degree>()).within_unique_ptr(),
         )
-    }
-
-    pub fn reset(&mut self) {
-        self.gyro.pin_mut().Reset();
     }
 }

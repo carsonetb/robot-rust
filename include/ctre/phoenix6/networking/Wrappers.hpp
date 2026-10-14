@@ -7,7 +7,7 @@
 #pragma once
 
 #include "ctre/phoenix/StatusCodes.h"
-#include "ctre/phoenix6/networking/interfaces/DeviceEncoding_Interface.h"
+#include <stdint.h>
 #include <string>
 
 namespace ctre {
@@ -25,7 +25,7 @@ namespace networking {
          * \param canbus CAN bus name
          * \returns Hash of the device
          */
-        static uint32_t CompileDeviceHash(int deviceID, const char *model, const char *canbus);
+        static uint32_t CompileDeviceHash(int deviceID, char const *model, char const *canbus);
         /**
          * \brief Sets the config value of the device
          *
@@ -38,10 +38,10 @@ namespace networking {
          * \returns Status of the config set
          */
         static ctre::phoenix::StatusCode Device_SetConfigValues(
-            const char *network,
+            char const *network,
             int deviceHash,
             double timeoutSeconds,
-            const std::string &serializedString,
+            std::string_view serializedString,
             bool futureProofConfigs,
             bool overrideIfDuplicate);
 
@@ -55,7 +55,7 @@ namespace networking {
          * \returns Status of the config set
          */
         static ctre::phoenix::StatusCode Device_GetConfigValues(
-            const char *network,
+            char const *network,
             int deviceHash,
             double timeoutSeconds,
             std::string &serializedString);

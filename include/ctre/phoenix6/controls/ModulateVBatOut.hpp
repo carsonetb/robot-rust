@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/dimensionless.h>
@@ -27,25 +24,8 @@ namespace controls {
  * 
  * 
  */
-class ModulateVBatOut : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<ModulateVBatOut *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<ModulateVBatOut>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlModulateVBatOut(network, deviceHash, UpdateFreqHz.to<double>(), Output.to<double>());
-    }
+class ModulateVBatOut final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -57,9 +37,11 @@ public:
     units::dimensionless::scalar_t Output;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -78,12 +60,24 @@ public:
      * 
      * \details 
      * 
-     * \param Output    Proportion of VBat to output in fractional units between 0.0
-     *                  and 1.0.
+     * \param Output Proportion of VBat to output in fractional units between 0.0
+     *               and 1.0.
      */
-    ModulateVBatOut(units::dimensionless::scalar_t Output) : ControlRequest{"ModulateVBatOut"},
+    constexpr ModulateVBatOut(units::dimensionless::scalar_t Output) : ControlRequest{},
         Output{std::move(Output)}
     {}
+
+    constexpr ~ModulateVBatOut() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "ModulateVBatOut";
+    }
     
     /**
      * \brief Modifies this Control Request's Output parameter and returns itself for
@@ -97,15 +91,18 @@ public:
      * \param newOutput Parameter to modify
      * \returns Itself
      */
-    ModulateVBatOut &WithOutput(units::dimensionless::scalar_t newOutput)
+    constexpr ModulateVBatOut &WithOutput(units::dimensionless::scalar_t newOutput)
     {
         Output = std::move(newOutput);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -116,37 +113,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    ModulateVBatOut &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr ModulateVBatOut &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: ModulateVBatOut" << std::endl;
-        ss << "    Output: " << Output.to<double>() << " fractional" << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << Output.to<double>(); controlInfo["Output"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

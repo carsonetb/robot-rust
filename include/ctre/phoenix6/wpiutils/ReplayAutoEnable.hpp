@@ -15,12 +15,12 @@ namespace ctre {
 namespace phoenix6 {
 namespace wpiutils {
 
-class ReplayAutoEnable {
+class ReplayAutoEnable final {
 public:
     static ReplayAutoEnable &GetInstance()
     {
-        static ReplayAutoEnable *replayAutoEnable = new ReplayAutoEnable{};
-        return *replayAutoEnable;
+        static ReplayAutoEnable &replayAutoEnable = *new ReplayAutoEnable{};
+        return replayAutoEnable;
     }
 
 private:
@@ -31,26 +31,64 @@ private:
     ReplayAutoEnable() :
         _enableNotifier{[] {
             if (HootReplay::IsPlaying()) {
-                auto enableSig = HootReplay::GetBoolean("RobotEnable");
-                if (enableSig.status.IsOK()) {
-                    frc::sim::DriverStationSim::SetEnabled(enableSig.value);
+                auto dsAttachedSig = HootReplay::GetBoolean("DS:IsDSAttached");
+                if (dsAttachedSig.status.IsOK()) {
+                    frc::sim::DriverStationSim::SetDsAttached(dsAttachedSig.value);
                 }
 
-                auto robotModeSig = HootReplay::GetString("RobotMode");
-                if (robotModeSig.status.IsOK()) {
-                    if (robotModeSig.value == "Autonomous") {
-                        frc::sim::DriverStationSim::SetAutonomous(true);
-                        frc::sim::DriverStationSim::SetTest(false);
-                    } else if (robotModeSig.value == "Test") {
-                        frc::sim::DriverStationSim::SetAutonomous(false);
-                        frc::sim::DriverStationSim::SetTest(true);
-                    } else {
-                        frc::sim::DriverStationSim::SetAutonomous(false);
-                        frc::sim::DriverStationSim::SetTest(false);
+                if (frc::sim::DriverStationSim::GetDsAttached()) {
+                    auto fmsAttachedSig = HootReplay::GetBoolean("DS:IsFMSAttached");
+                    if (fmsAttachedSig.status.IsOK()) {
+                        frc::sim::DriverStationSim::SetFmsAttached(fmsAttachedSig.value);
                     }
-                }
 
-                frc::sim::DriverStationSim::NotifyNewData();
+                    auto enableSig = HootReplay::GetBoolean("RobotEnable");
+                    if (enableSig.status.IsOK()) {
+                        frc::sim::DriverStationSim::SetEnabled(enableSig.value);
+                    }
+
+                    auto robotModeSig = HootReplay::GetString("RobotMode");
+                    if (robotModeSig.status.IsOK()) {
+                        if (robotModeSig.value == "Autonomous") {
+                            frc::sim::DriverStationSim::SetAutonomous(true);
+                            frc::sim::DriverStationSim::SetTest(false);
+                            frc::sim::DriverStationSim::SetEStop(false);
+                        } else if (robotModeSig.value == "Test") {
+                            frc::sim::DriverStationSim::SetAutonomous(false);
+                            frc::sim::DriverStationSim::SetTest(true);
+                            frc::sim::DriverStationSim::SetEStop(false);
+                        } else if (robotModeSig.value == "EStopped") {
+                            frc::sim::DriverStationSim::SetAutonomous(false);
+                            frc::sim::DriverStationSim::SetTest(false);
+                            frc::sim::DriverStationSim::SetEStop(true);
+                        } else {
+                            frc::sim::DriverStationSim::SetAutonomous(false);
+                            frc::sim::DriverStationSim::SetTest(false);
+                            frc::sim::DriverStationSim::SetEStop(false);
+                        }
+                    }
+
+                    auto allianceStationSig = HootReplay::GetString("AllianceStation");
+                    if (allianceStationSig.status.IsOK()) {
+                        if (allianceStationSig.value == "Red 1") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kRed1);
+                        } else if (allianceStationSig.value == "Red 2") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kRed2);
+                        } else if (allianceStationSig.value == "Red 3") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kRed3);
+                        } else if (allianceStationSig.value == "Blue 1") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kBlue1);
+                        } else if (allianceStationSig.value == "Blue 2") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kBlue2);
+                        } else if (allianceStationSig.value == "Blue 3") {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kBlue3);
+                        } else {
+                            frc::sim::DriverStationSim::SetAllianceStationId(HAL_AllianceStationID_kUnknown);
+                        }
+                    }
+
+                    frc::sim::DriverStationSim::NotifyNewData();
+                }
             }
         }}
     {}
@@ -65,7 +103,7 @@ public:
         if (_startCount < UINT32_MAX) {
             if (_startCount++ == 0) {
                 /* start if we were previously at 0 */
-                _enableNotifier.StartPeriodic(20_ms);
+                _enableNotifier.StartPeriodic(10_ms);
             }
         }
     }

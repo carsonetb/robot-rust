@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/current.h>
@@ -27,25 +24,8 @@ namespace controls {
  * field oriented control (FOC), which means greater peak power than what is documented.  This scales to
  * torque based on Motor's kT constant.
  */
-class TorqueCurrentFOC : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<TorqueCurrentFOC *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<TorqueCurrentFOC>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlTorqueCurrentFOC(network, deviceHash, UpdateFreqHz.to<double>(), Output.to<double>(), MaxAbsDutyCycle.to<double>(), Deadband.to<double>(), OverrideCoastDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class TorqueCurrentFOC final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -113,6 +93,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -125,9 +115,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -146,11 +138,23 @@ public:
      *          (FOC), which means greater peak power than what is documented.  This
      *          scales to torque based on Motor's kT constant.
      * 
-     * \param Output    Amount of motor current in Amperes
+     * \param Output Amount of motor current in Amperes
      */
-    TorqueCurrentFOC(units::current::ampere_t Output) : ControlRequest{"TorqueCurrentFOC"},
+    constexpr TorqueCurrentFOC(units::current::ampere_t Output) : ControlRequest{},
         Output{std::move(Output)}
     {}
+
+    constexpr ~TorqueCurrentFOC() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "TorqueCurrentFOC";
+    }
     
     /**
      * \brief Modifies this Control Request's Output parameter and returns itself for
@@ -164,7 +168,7 @@ public:
      * \param newOutput Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithOutput(units::current::ampere_t newOutput)
+    constexpr TorqueCurrentFOC &WithOutput(units::current::ampere_t newOutput)
     {
         Output = std::move(newOutput);
         return *this;
@@ -187,7 +191,7 @@ public:
      * \param newMaxAbsDutyCycle Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithMaxAbsDutyCycle(units::dimensionless::scalar_t newMaxAbsDutyCycle)
+    constexpr TorqueCurrentFOC &WithMaxAbsDutyCycle(units::dimensionless::scalar_t newMaxAbsDutyCycle)
     {
         MaxAbsDutyCycle = std::move(newMaxAbsDutyCycle);
         return *this;
@@ -210,7 +214,7 @@ public:
      * \param newDeadband Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithDeadband(units::current::ampere_t newDeadband)
+    constexpr TorqueCurrentFOC &WithDeadband(units::current::ampere_t newDeadband)
     {
         Deadband = std::move(newDeadband);
         return *this;
@@ -228,7 +232,7 @@ public:
      * \param newOverrideCoastDurNeutral Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithOverrideCoastDurNeutral(bool newOverrideCoastDurNeutral)
+    constexpr TorqueCurrentFOC &WithOverrideCoastDurNeutral(bool newOverrideCoastDurNeutral)
     {
         OverrideCoastDurNeutral = std::move(newOverrideCoastDurNeutral);
         return *this;
@@ -245,7 +249,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr TorqueCurrentFOC &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -262,7 +266,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr TorqueCurrentFOC &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -285,9 +289,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr TorqueCurrentFOC &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr TorqueCurrentFOC &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -307,15 +332,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithUseTimesync(bool newUseTimesync)
+    constexpr TorqueCurrentFOC &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -326,51 +354,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    TorqueCurrentFOC &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr TorqueCurrentFOC &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: TorqueCurrentFOC" << std::endl;
-        ss << "    Output: " << Output.to<double>() << " A" << std::endl;
-        ss << "    MaxAbsDutyCycle: " << MaxAbsDutyCycle.to<double>() << " fractional" << std::endl;
-        ss << "    Deadband: " << Deadband.to<double>() << " A" << std::endl;
-        ss << "    OverrideCoastDurNeutral: " << OverrideCoastDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << Output.to<double>(); controlInfo["Output"] = ss.str(); ss.str(std::string{});
-        ss << MaxAbsDutyCycle.to<double>(); controlInfo["MaxAbsDutyCycle"] = ss.str(); ss.str(std::string{});
-        ss << Deadband.to<double>(); controlInfo["Deadband"] = ss.str(); ss.str(std::string{});
-        ss << OverrideCoastDurNeutral; controlInfo["OverrideCoastDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

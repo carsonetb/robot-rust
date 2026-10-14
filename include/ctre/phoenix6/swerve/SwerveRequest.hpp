@@ -37,6 +37,23 @@ enum class ForwardPerspectiveValue {
 };
 
 /**
+ * \brief In field-centric control, the direction of "forward" for the target direction
+ * sometimes differs from "forward" for translation. This addresses which forward to use.
+ */
+enum class TargetDirectionPerspectiveValue {
+    /**
+     * \brief Match the ForwardPerspective parameter for heading control.
+     */
+    UseForwardPerspective = 0,
+    /**
+     * \brief "Forward" (0 deg) is always from the perspective of the blue alliance (i.e.
+     * towards the red alliance). This can be used to allow for the robot rotation to track
+     * vision targets while using operator-perspective joystick control for translation.
+     */
+    BlueAlliance = 1,
+};
+
+/**
  * \brief Container for all the Swerve Requests. Use this to find all applicable swerve
  * drive requests.
  *
@@ -57,7 +74,7 @@ public:
      * \param modulesToApply Modules to which the control request is applied
      * \returns Status code of sending the request
      */
-    virtual ctre::phoenix::StatusCode Apply(ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) = 0;
+    virtual ctre::phoenix::StatusCode Apply(ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) = 0;
 };
 
 /**
@@ -66,7 +83,7 @@ public:
  */
 class Idle : public SwerveRequest {
 public:
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> ) override
     {
         return ctre::phoenix::StatusCode::OK;
     }
@@ -88,7 +105,7 @@ public:
      */
     impl::SteerRequestType SteerRequestType = impl::SteerRequestType::Position;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto moduleRequest = impl::SwerveModuleImpl::ModuleRequest{}
             .WithDriveRequest(DriveRequestType)
@@ -157,16 +174,17 @@ public:
 };
 
 /**
- * \brief Drives the swerve drivetrain in a field-centric manner.
+ * \brief Drives the swerve drivetrain in a field-centric manner. This request
+ * is optimized for joystick control during teleop with built-in deadbands.
  *
- * When users use this request, they specify the direction the robot should
- * travel oriented against the field, and the rate at which their robot should
- * rotate about the center of the robot.
+ * This request specifies the direction the robot should travel oriented against
+ * the field, and the rate at which their robot should rotate about the center
+ * of the robot.
  *
- * An example scenario is that the robot is oriented to the east, the
- * VelocityX is +5 m/s, VelocityY is 0 m/s, and RotationRate is 0.5 rad/s.
- * In this scenario, the robot would drive northward at 5 m/s and turn
- * counterclockwise at 0.5 rad/s.
+ * An example scenario is that the robot is oriented to the field +Y (left), the
+ * VelocityX is +5 m/s, VelocityY is 0 m/s, and RotationRate is 0.5 rad/s. In
+ * this scenario, the robot would drive along the field +X (forward) at 5 m/s
+ * and turn counterclockwise at 0.5 rad/s.
  */
 class FieldCentric : public SwerveRequest {
 public:
@@ -220,7 +238,7 @@ public:
      */
     ForwardPerspectiveValue ForwardPerspective = ForwardPerspectiveValue::OperatorPerspective;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto toApplyX = VelocityX;
         auto toApplyY = VelocityY;
@@ -549,16 +567,17 @@ public:
 };
 
 /**
- * \brief Drives the swerve drivetrain in a robot-centric manner.
+ * \brief Drives the swerve drivetrain in a robot-centric manner. This request
+ * is optimized for joystick control during teleop with built-in deadbands.
  *
- * When users use this request, they specify the direction the robot should
- * travel oriented against the robot itself, and the rate at which their
- * robot should rotate about the center of the robot.
+ * This request specifies the direction the robot should travel oriented against
+ * the robot itself, and the rate at which their robot should rotate about the
+ * center of the robot.
  *
- * An example scenario is that the robot is oriented to the east, the
- * VelocityX is +5 m/s, VelocityY is 0 m/s, and RotationRate is 0.5 rad/s.
- * In this scenario, the robot would drive eastward at 5 m/s and turn
- * counterclockwise at 0.5 rad/s.
+ * An example scenario is that the robot is oriented to the field +Y (left), the
+ * VelocityX is +5 m/s, VelocityY is 0 m/s, and RotationRate is 0.5 rad/s. In
+ * this scenario, the robot would drive forward relative to itself (or left
+ * along the field +Y) at 5 m/s and turn counterclockwise at 0.5 rad/s.
  */
 class RobotCentric : public SwerveRequest {
 public:
@@ -608,7 +627,7 @@ public:
      */
     bool DesaturateWheelSpeeds = true;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto toApplyX = VelocityX;
         auto toApplyY = VelocityY;
@@ -913,7 +932,7 @@ public:
      */
     impl::SteerRequestType SteerRequestType = impl::SteerRequestType::Position;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto moduleRequest = impl::SwerveModuleImpl::ModuleRequest{}
             .WithDriveRequest(DriveRequestType)
@@ -1012,11 +1031,17 @@ public:
 
 /**
  * \brief Accepts a generic robot-centric ChassisSpeeds to apply to the drivetrain.
+ * This request is optimized for autonomous or profiled control, which typically
+ * directly provides ChassisSpeeds and optionally wheel force feedforwards.
+ *
+ * Unlike the field-centric requests, this request does not automatically
+ * discretize the provided ChassisSpeeds.
  */
 class ApplyRobotSpeeds : public SwerveRequest {
 public:
     /**
      * \brief The robot-centric chassis speeds to apply to the drivetrain.
+     * Users must manually discretize these speeds if appropriate.
      */
     ChassisSpeeds Speeds{};
     /**
@@ -1059,7 +1084,7 @@ public:
      */
     bool DesaturateWheelSpeeds = true;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto states = parameters.kinematics->ToSwerveModuleStates(Speeds, CenterOfRotation);
         if (DesaturateWheelSpeeds && parameters.kMaxSpeed > 0_mps) {
@@ -1085,6 +1110,7 @@ public:
      * \brief Modifies the Speeds parameter and returns itself.
      *
      * The robot-centric chassis speeds to apply to the drivetrain.
+     * Users must manually discretize these speeds if appropriate.
      *
      * \param newSpeeds Parameter to modify
      * \returns this object
@@ -1305,6 +1331,8 @@ public:
 
 /**
  * \brief Accepts a generic field-centric ChassisSpeeds to apply to the drivetrain.
+ * This request is optimized for autonomous or profiled control, which typically
+ * directly provides ChassisSpeeds and optionally wheel force feedforwards.
  */
 class ApplyFieldSpeeds : public SwerveRequest {
 public:
@@ -1357,7 +1385,7 @@ public:
      */
     ForwardPerspectiveValue ForwardPerspective = ForwardPerspectiveValue::BlueAlliance;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         auto fieldSpeeds = Speeds;
         if (ForwardPerspective == ForwardPerspectiveValue::OperatorPerspective) {
@@ -1740,6 +1768,12 @@ public:
      * \brief The perspective to use when determining which direction is forward.
      */
     ForwardPerspectiveValue ForwardPerspective = ForwardPerspectiveValue::OperatorPerspective;
+    /**
+     * \brief The perspective to use when determining which direction is forward
+     * for the #TargetDirection. This allows for the heading control to use a different
+     * perspective from the translation control.
+     */
+    TargetDirectionPerspectiveValue TargetDirectionPerspective = TargetDirectionPerspectiveValue::UseForwardPerspective;
 
     /**
      * \brief The PID controller used to maintain the desired heading.
@@ -1757,10 +1791,13 @@ public:
         HeadingController.EnableContinuousInput(-units::constants::detail::PI_VAL, units::constants::detail::PI_VAL);
     }
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         Rotation2d angleToFace = TargetDirection;
-        if (ForwardPerspective == ForwardPerspectiveValue::OperatorPerspective) {
+        if (
+            TargetDirectionPerspective == TargetDirectionPerspectiveValue::UseForwardPerspective &&
+            ForwardPerspective == ForwardPerspectiveValue::OperatorPerspective
+        ) {
             /* If we're operator perspective, rotate the direction we want to face by the angle */
             angleToFace = angleToFace.RotateBy(parameters.operatorForwardDirection);
         }
@@ -1992,6 +2029,22 @@ public:
         this->ForwardPerspective = std::move(newForwardPerspective);
         return *this;
     }
+
+    /**
+     * \brief Modifies the TargetDirectionPerspective parameter and returns itself.
+     *
+     * The perspective to use when determining which direction is forward for the
+     * #TargetDirection. This allows for the rotation control to use a different
+     * perspective from the translation control.
+     *
+     * \param newTargetDirectionPerspective Parameter to modify
+     * \returns this object
+     */
+    FieldCentricFacingAngle &WithTargetDirectionPerspective(TargetDirectionPerspectiveValue newTargetDirectionPerspective)
+    {
+        this->TargetDirectionPerspective = std::move(newTargetDirectionPerspective);
+        return *this;
+    }
 };
 
 /**
@@ -2093,7 +2146,7 @@ public:
         HeadingController.EnableContinuousInput(-units::constants::detail::PI_VAL, units::constants::detail::PI_VAL);
     }
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         Rotation2d angleToFace = TargetDirection;
         if (ForwardPerspective == ForwardPerspectiveValue::OperatorPerspective) {
@@ -2341,7 +2394,7 @@ public:
      */
     units::volt_t VoltsToApply = 0_V;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         for (size_t i = 0; i < modulesToApply.size(); ++i) {
             switch (modulesToApply[i]->GetSteerClosedLoopOutputType()) {
@@ -2408,7 +2461,7 @@ public:
      */
     units::radians_per_second_t RotationalRate = 0_rad_per_s;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         for (size_t i = 0; i < modulesToApply.size(); ++i) {
             auto const speed = RotationalRate * (parameters.moduleLocations[i].Norm() / 1_rad);
@@ -2469,7 +2522,7 @@ public:
      */
     units::volt_t VoltsToApply = 0_V;
 
-    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::vector<std::unique_ptr<impl::SwerveModuleImpl>> const &modulesToApply) override
+    ctre::phoenix::StatusCode Apply(SwerveRequest::ControlParameters const &parameters, std::span<std::unique_ptr<impl::SwerveModuleImpl> const> modulesToApply) override
     {
         for (size_t i = 0; i < modulesToApply.size(); ++i) {
             modulesToApply[i]->Apply(controls::CoastOut{}, controls::VoltageOut{VoltsToApply});

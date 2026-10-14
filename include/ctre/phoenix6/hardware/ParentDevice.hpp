@@ -6,44 +6,25 @@
  */
 #pragma once
 
-#include "ctre/phoenix6/controls/ControlRequest.hpp"
 #include "ctre/phoenix6/hardware/DeviceIdentifier.hpp"
-#include "ctre/phoenix6/signals/SpnEnums.hpp"
-#include "ctre/phoenix6/spns/SpnValue.hpp"
+#include "ctre/phoenix6/hardware/traits/CommonDevice.hpp"
 #include "ctre/phoenix6/StatusSignal.hpp"
 #include "ctre/phoenix6/Utils.hpp"
 #include <map>
-#include <memory>
 #include <mutex>
-#include <units/dimensionless.h>
 
 namespace ctre {
 namespace phoenix6 {
 namespace hardware {
 
     /**
-     * \brief Parent class for all devices
+     * \brief Parent class for all devices.
      */
-    class ParentDevice
-    {
+    class ParentDevice : public virtual traits::CommonDevice {
     protected:
-        static inline controls::EmptyControl _emptyControl{};
+        static constexpr controls::EmptyControl _emptyControl{};
 
         DeviceIdentifier deviceIdentifier;
-
-        /**
-         * \brief Type trait to verify that all types passed in are subclasses of ParentDevice.
-         */
-        template <typename... Devices>
-        struct is_all_device :
-            std::conjunction<std::is_base_of<ParentDevice, std::remove_reference_t<Devices>>...>
-        {};
-
-        /**
-         * \brief Whether all types passed in are subclasses of ParentDevice.
-         */
-        template <typename... Devices>
-        static constexpr bool is_all_device_v = is_all_device<Devices...>::value;
 
     private:
         std::map<uint32_t, std::unique_ptr<BaseStatusSignal>> _signalValues;
@@ -55,21 +36,29 @@ namespace hardware {
         std::shared_ptr<controls::ControlRequest> _controlReq = std::make_shared<controls::EmptyControl>();
         std::mutex _controlReqLck;
 
-        double _creationTime = utils::GetCurrentTimeSeconds();
+        struct FirmwareVersChecker {
+        private:
+            DeviceIdentifier _deviceIdentifier;
 
-        bool _isInitialized = false;
-        ctre::phoenix::StatusCode _versionStatus{ctre::phoenix::StatusCode::CouldNotRetrieveV6Firmware};
-        double _timeToRefreshVersion = utils::GetCurrentTimeSeconds();
+        public:
+            StatusSignal<int> _compliancy;
 
-        StatusSignal<int> &_compliancy{LookupStatusSignal<int>(ctre::phoenix6::spns::SpnValue::Compliancy_Version, "Compliancy", false, true)};
-        StatusSignal<int> &_resetSignal{LookupStatusSignal<int>(ctre::phoenix6::spns::SpnValue::Startup_ResetFlags, "ResetFlags", false, true)};
+            double _creationTime = utils::GetCurrentTimeSeconds();
+            double _timeToRefreshVersion = utils::GetCurrentTimeSeconds();
+            ctre::phoenix::StatusCode _versionStatus{ctre::phoenix::StatusCode::CouldNotRetrieveV6Firmware};
 
-        void ReportIfTooOld();
+            FirmwareVersChecker(DeviceIdentifier deviceIdentifier);
+            void ReportIfTooOld();
+        };
+
+        std::shared_ptr<FirmwareVersChecker> _versChecker;
+        StatusSignal<int> _resetSignal;
 
         template <typename T>
         StatusSignal<T> &LookupCommon(
-            uint16_t spn, std::function<std::map<uint16_t, std::string>()> mapFiller,
-            std::string signalName, bool reportOnConstruction, bool refresh)
+            uint16_t spn, std::string signalName,
+            std::function<std::map<uint16_t, std::string>()> mapFiller,
+            bool reportOnConstruction, bool refresh)
         {
             static StatusSignal<T> failure{ctre::phoenix::StatusCode::InvalidParamValue};
 
@@ -91,16 +80,21 @@ namespace hardware {
                         _signalValues.emplace(spn,
                             std::unique_ptr<StatusSignal<T>>{new StatusSignal<T>{
                                 deviceIdentifier, spn,
-                                [this] { ReportIfTooOld(); },
-                                std::move(signalName)
+                                std::move(signalName),
+                                [versChecker=_versChecker]() mutable {
+                                    versChecker->ReportIfTooOld();
+                                }
                             }}
                         );
                     } else {
                         _signalValues.emplace(spn,
                             std::unique_ptr<StatusSignal<T>>{new StatusSignal<T>{
                                 deviceIdentifier, spn,
-                                [this] { ReportIfTooOld(); },
-                                mapFiller, std::move(signalName)
+                                std::move(signalName),
+                                [versChecker=_versChecker]() mutable {
+                                    versChecker->ReportIfTooOld();
+                                },
+                                mapFiller
                             }}
                         );
                     }
@@ -127,14 +121,8 @@ namespace hardware {
         }
 
     public:
-        ParentDevice(int deviceID, std::string model, std::string canbus) :
-            deviceIdentifier{DeviceIdentifier{deviceID, std::move(model), std::move(canbus)}}
-        {
-            /* This needs to be set to true after everything else has already been initialized */
-            _isInitialized = true;
-        }
-
-        virtual ~ParentDevice() = default;
+        ParentDevice(int deviceID, std::string model, CANBus canbus);
+        virtual ~ParentDevice() = 0; // Declare virtual destructor to make this class abstract
 
         ParentDevice(ParentDevice const &) = delete;
         ParentDevice &operator=(ParentDevice const &) = delete;
@@ -142,17 +130,17 @@ namespace hardware {
         /**
          * \returns The device ID of this device [0,62].
          */
-        int GetDeviceID() const
+        int GetDeviceID() const final
         {
             return deviceIdentifier.deviceID;
         }
 
         /**
-         * \returns Name of the network this device is on.
+         * \returns The network this device is on.
          */
-        const std::string &GetNetwork() const
+        CANBus GetNetwork() const final
         {
-            return deviceIdentifier.network;
+            return CANBus{deviceIdentifier.network};
         }
 
         /**
@@ -164,7 +152,7 @@ namespace hardware {
          *
          * \returns Hash of this device.
          */
-        uint64_t GetDeviceHash() const
+        uint64_t GetDeviceHash() const final
         {
             return deviceIdentifier.deviceHash;
         }
@@ -181,7 +169,7 @@ namespace hardware {
          *
          * \returns Latest applied control
          */
-        std::shared_ptr<const controls::ControlRequest> GetAppliedControl() const
+        std::shared_ptr<controls::ControlRequest const> GetAppliedControl() const final
         {
             return _controlReq;
         }
@@ -198,7 +186,7 @@ namespace hardware {
          *
          * \returns Latest applied control
          */
-        std::shared_ptr<controls::ControlRequest> GetAppliedControl()
+        std::shared_ptr<controls::ControlRequest> GetAppliedControl() final
         {
             return _controlReq;
         }
@@ -206,7 +194,7 @@ namespace hardware {
         /**
          * \returns true if device has reset since the previous call of this routine.
          */
-        bool HasResetOccurred()
+        bool HasResetOccurred() final
         {
             return _resetSignal.Refresh(false).HasUpdated();
         }
@@ -214,7 +202,7 @@ namespace hardware {
         /**
          * \returns a function that checks for device resets.
          */
-        std::function<bool()> GetResetOccurredChecker() const
+        std::function<bool()> GetResetOccurredChecker() const final
         {
             return [resetSignal=_resetSignal]() mutable {
                 return resetSignal.Refresh(false).HasUpdated();
@@ -230,9 +218,9 @@ namespace hardware {
          *                          before the device is reported as disconnected
          * \returns true if the device is connected
          */
-        bool IsConnected(units::second_t maxLatencySeconds = 500_ms)
+        bool IsConnected(units::second_t maxLatencySeconds = 500_ms) final
         {
-            return _compliancy.Refresh(false).GetTimestamp().GetLatency() <= maxLatencySeconds;
+            return _versChecker->_compliancy.Refresh(false).GetTimestamp().GetLatency() <= maxLatencySeconds;
         }
 
         /**
@@ -242,7 +230,7 @@ namespace hardware {
          * \param refresh Whether to refresh
          * \returns StatusSignalValue holding value
          */
-        StatusSignal<double> & GetGenericSignal(uint32_t signal, bool refresh = true)
+        StatusSignal<double> &GetGenericSignal(uint32_t signal, bool refresh = true)
         {
             return LookupStatusSignal<double>((uint16_t)signal, "Generic", true, refresh);
         }
@@ -251,7 +239,7 @@ namespace hardware {
          * \brief Optimizes the device's bus utilization by reducing the update frequencies of its status signals.
          *
          * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
+         * BaseStatusSignal#SetUpdateFrequency will be slowed down. Note that if other status
          * signals in the same status frame have been given an update frequency, the update
          * frequency will be honored for the entire frame.
          *
@@ -263,20 +251,21 @@ namespace hardware {
          * the device on the bus. The user can also override individual status update frequencies
          * using BaseStatusSignal#SetUpdateFrequency.
          *
-         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency of
-         *                        0 Hz (default) will turn off the signals. Otherwise, the minimum supported signal
-         *                        frequency is 4 Hz.
+         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency
+         *                        of 0 Hz will turn off the signals. Otherwise, the minimum supported signal
+         *                        frequency is 4 Hz (default).
          * \param timeoutSeconds Maximum amount of time to wait for each status frame when performing the action
          * \returns Status code of the first failed update frequency set call, or OK if all succeeded
          */
-        ctre::phoenix::StatusCode OptimizeBusUtilization(units::frequency::hertz_t optimizedFreqHz = 0_Hz, units::time::second_t timeoutSeconds = 100_ms);
+        ctre::phoenix::StatusCode OptimizeBusUtilization(units::frequency::hertz_t optimizedFreqHz = 4_Hz, units::time::second_t timeoutSeconds = 100_ms) final;
 
         /**
          * \brief Optimizes the bus utilization of the provided devices by reducing the update
-         * frequencies of their status signals.
+         * frequencies of their status signals. This API defaults to an optimized update frequency
+         * of 4 Hz to preserve log data.
          *
          * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
+         * BaseStatusSignal#SetUpdateFrequency will be slowed down. Note that if other status
          * signals in the same status frame have been given an update frequency, the update
          * frequency will be honored for the entire frame.
          *
@@ -294,18 +283,19 @@ namespace hardware {
          * \param devices Devices for which to optimize bus utilization, passed as a comma-separated list of device references.
          * \returns Status code of the first failed optimize call, or OK if all succeeded
          */
-        template <typename... Devices, typename = std::enable_if_t<is_all_device_v<Devices...>>>
+        template <std::derived_from<traits::CommonDevice>... Devices>
         static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(Devices &... devices)
         {
-            return OptimizeBusUtilizationForAll(0_Hz, devices...);
+            return OptimizeBusUtilizationForAll(4_Hz, devices...);
         }
 
         /**
          * \brief Optimizes the bus utilization of the provided devices by reducing the update
-         * frequencies of their status signals.
+         * frequencies of their status signals. This API defaults to an optimized update frequency
+         * of 4 Hz to preserve log data.
          *
          * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
+         * BaseStatusSignal#SetUpdateFrequency will be slowed down. Note that if other status
          * signals in the same status frame have been given an update frequency, the update
          * frequency will be honored for the entire frame.
          *
@@ -320,12 +310,12 @@ namespace hardware {
          *
          * This will wait up to 0.100 seconds (100ms) for each status frame.
          *
-         * \param devices Devices for which to optimize bus utilization, passed as a vector or initializer list of device addresses.
+         * \param devices Devices for which to optimize bus utilization, passed as a span of device pointers.
          * \returns Status code of the first failed optimize call, or OK if all succeeded
          */
-        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(const std::vector<ParentDevice *> &devices)
+        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(std::span<traits::CommonDevice* const> devices)
         {
-            return OptimizeBusUtilizationForAll(0_Hz, devices);
+            return OptimizeBusUtilizationForAll(4_Hz, devices);
         }
 
         /**
@@ -333,7 +323,7 @@ namespace hardware {
          * frequencies of their status signals.
          *
          * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
+         * BaseStatusSignal#SetUpdateFrequency will be slowed down. Note that if other status
          * signals in the same status frame have been given an update frequency, the update
          * frequency will be honored for the entire frame.
          *
@@ -348,45 +338,16 @@ namespace hardware {
          *
          * This will wait up to 0.100 seconds (100ms) for each status frame.
          *
-         * \param devices Devices for which to optimize bus utilization, passed as an array of device addresses.
-         * \returns Status code of the first failed optimize call, or OK if all succeeded
-         */
-        template <size_t N>
-        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(const std::array<ParentDevice *, N> &devices)
-        {
-            return OptimizeBusUtilizationForAll(0_Hz, devices);
-        }
-
-        /**
-         * \brief Optimizes the bus utilization of the provided devices by reducing the update
-         * frequencies of their status signals.
-         *
-         * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
-         * signals in the same status frame have been given an update frequency, the update
-         * frequency will be honored for the entire frame.
-         *
-         * This function only needs to be called once in the robot program for the provided devices.
-         * Additionally, this method does not necessarily need to be called after setting the update
-         * frequencies of other signals.
-         *
-         * To restore the default status update frequencies, call ResetSignalFrequenciesForAll.
-         * Alternatively, remove this method call, redeploy the robot application, and power-cycle
-         * the devices on the bus. The user can also override individual status update frequencies
-         * using BaseStatusSignal#SetUpdateFrequency.
-         *
-         * This will wait up to 0.100 seconds (100ms) for each status frame.
-         *
-         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency of
-         *                        0 Hz (default) will turn off the signals. Otherwise, the minimum supported signal
-         *                        frequency is 4 Hz.
+         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency
+         *                        of 0 Hz will turn off the signals. Otherwise, the minimum supported signal
+         *                        frequency is 4 Hz (default).
          * \param devices Devices for which to optimize bus utilization, passed as a comma-separated list of device references.
          * \returns Status code of the first failed optimize call, or OK if all succeeded
          */
-        template <typename... Devices, typename = std::enable_if_t<is_all_device_v<Devices...>>>
+        template <std::derived_from<traits::CommonDevice>... Devices>
         static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(units::frequency::hertz_t optimizedFreqHz, Devices &... devices)
         {
-            return OptimizeBusUtilizationForAll(optimizedFreqHz, std::array<ParentDevice *, sizeof...(Devices)>{(&devices)...});
+            return OptimizeBusUtilizationForAll(optimizedFreqHz, std::array<traits::CommonDevice *, sizeof...(Devices)>{(&devices)...});
         }
 
         /**
@@ -394,7 +355,7 @@ namespace hardware {
          * frequencies of their status signals.
          *
          * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
+         * BaseStatusSignal#SetUpdateFrequency will be slowed down. Note that if other status
          * signals in the same status frame have been given an update frequency, the update
          * frequency will be honored for the entire frame.
          *
@@ -409,56 +370,17 @@ namespace hardware {
          *
          * This will wait up to 0.100 seconds (100ms) for each status frame.
          *
-         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency of
-         *                        0 Hz (default) will turn off the signals. Otherwise, the minimum supported signal
-         *                        frequency is 4 Hz.
-         * \param devices Devices for which to optimize bus utilization, passed as a vector or initializer list of device addresses.
+         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency
+         *                        of 0 Hz will turn off the signals. Otherwise, the minimum supported signal
+         *                        frequency is 4 Hz (default).
+         * \param devices Devices for which to optimize bus utilization, passed as a span of device pointers.
          * \returns Status code of the first failed optimize call, or OK if all succeeded
          */
-        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(units::frequency::hertz_t optimizedFreqHz, const std::vector<ParentDevice *> &devices)
+        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(units::frequency::hertz_t optimizedFreqHz, std::span<traits::CommonDevice* const> devices)
         {
             ctre::phoenix::StatusCode retval = ctre::phoenix::StatusCode::OK;
             for (auto device : devices) {
-                const auto err = device->OptimizeBusUtilization(optimizedFreqHz);
-                if (retval.IsOK()) {
-                    retval = err;
-                }
-            }
-            return retval;
-        }
-
-        /**
-         * \brief Optimizes the bus utilization of the provided devices by reducing the update
-         * frequencies of their status signals.
-         *
-         * All status signals that have not been explicitly given an update frequency using
-         * BaseStatusSignal#SetUpdateFrequency will be disabled. Note that if other status
-         * signals in the same status frame have been given an update frequency, the update
-         * frequency will be honored for the entire frame.
-         *
-         * This function only needs to be called once in the robot program for the provided devices.
-         * Additionally, this method does not necessarily need to be called after setting the update
-         * frequencies of other signals.
-         *
-         * To restore the default status update frequencies, call ResetSignalFrequenciesForAll.
-         * Alternatively, remove this method call, redeploy the robot application, and power-cycle
-         * the devices on the bus. The user can also override individual status update frequencies
-         * using BaseStatusSignal#SetUpdateFrequency.
-         *
-         * This will wait up to 0.100 seconds (100ms) for each status frame.
-         *
-         * \param optimizedFreqHz The update frequency to apply to the optimized status signals. A frequency of
-         *                        0 Hz (default) will turn off the signals. Otherwise, the minimum supported signal
-         *                        frequency is 4 Hz.
-         * \param devices Devices for which to optimize bus utilization, passed as an array of device addresses.
-         * \returns Status code of the first failed optimize call, or OK if all succeeded
-         */
-        template <size_t N>
-        static ctre::phoenix::StatusCode OptimizeBusUtilizationForAll(units::frequency::hertz_t optimizedFreqHz, const std::array<ParentDevice *, N> &devices)
-        {
-            ctre::phoenix::StatusCode retval = ctre::phoenix::StatusCode::OK;
-            for (auto device : devices) {
-                const auto err = device->OptimizeBusUtilization(optimizedFreqHz);
+                auto const err = device->OptimizeBusUtilization(optimizedFreqHz);
                 if (retval.IsOK()) {
                     retval = err;
                 }
@@ -476,7 +398,7 @@ namespace hardware {
          * \param timeoutSeconds Maximum amount of time to wait for each status frame when performing the action
          * \returns Status code of the first failed update frequency set call, or OK if all succeeded
          */
-        ctre::phoenix::StatusCode ResetSignalFrequencies(units::time::second_t timeoutSeconds = 100_ms);
+        ctre::phoenix::StatusCode ResetSignalFrequencies(units::time::second_t timeoutSeconds = 100_ms) final;
 
         /**
          * \brief Resets the update frequencies of all the devices' status signals to the defaults.
@@ -490,10 +412,10 @@ namespace hardware {
          * \param devices Devices for which to restore default update frequencies, passed as a comma-separated list of device references.
          * \returns Status code of the first failed restore call, or OK if all succeeded
          */
-        template <typename... Devices, typename = std::enable_if_t<is_all_device_v<Devices...>>>
+        template <std::derived_from<traits::CommonDevice>... Devices>
         static ctre::phoenix::StatusCode ResetSignalFrequenciesForAll(Devices &... devices)
         {
-            return ResetSignalFrequenciesForAll(std::array<ParentDevice *, sizeof...(Devices)>{(&devices)...});
+            return ResetSignalFrequenciesForAll(std::array<traits::CommonDevice *, sizeof...(Devices)>{(&devices)...});
         }
 
         /**
@@ -505,39 +427,14 @@ namespace hardware {
          *
          * This will wait up to 0.100 seconds (100ms) for each status frame.
          *
-         * \param devices Devices for which to restore default update frequencies, passed as a vector or initializer list of device addresses.
+         * \param devices Devices for which to restore default update frequencies, passed as a span of device pointers.
          * \returns Status code of the first failed restore call, or OK if all succeeded
          */
-        static ctre::phoenix::StatusCode ResetSignalFrequenciesForAll(const std::vector<ParentDevice *> &devices)
+        static ctre::phoenix::StatusCode ResetSignalFrequenciesForAll(std::span<traits::CommonDevice* const> devices)
         {
             ctre::phoenix::StatusCode retval = ctre::phoenix::StatusCode::OK;
             for (auto device : devices) {
-                const auto err = device->ResetSignalFrequencies();
-                if (retval.IsOK()) {
-                    retval = err;
-                }
-            }
-            return retval;
-        }
-
-        /**
-         * \brief Resets the update frequencies of all the devices' status signals to the defaults.
-         *
-         * This restores the default update frequency of all status signals, including status signals
-         * explicitly given an update frequency using BaseStatusSignal#SetUpdateFrequency and status
-         * signals optimized out using OptimizeBusUtilizationForAll.
-         *
-         * This will wait up to 0.100 seconds (100ms) for each status frame.
-         *
-         * \param devices Devices for which to restore default update frequencies, passed as an array of device addresses.
-         * \returns Status code of the first failed restore call, or OK if all succeeded
-         */
-        template <size_t N>
-        static ctre::phoenix::StatusCode ResetSignalFrequenciesForAll(const std::array<ParentDevice *, N> &devices)
-        {
-            ctre::phoenix::StatusCode retval = ctre::phoenix::StatusCode::OK;
-            for (auto device : devices) {
-                const auto err = device->ResetSignalFrequencies();
+                auto const err = device->ResetSignalFrequencies();
                 if (retval.IsOK()) {
                     retval = err;
                 }
@@ -546,25 +443,18 @@ namespace hardware {
         }
 
     protected:
-        virtual ctre::phoenix::StatusCode SetControlPrivate(const controls::ControlRequest &request);
+        virtual ctre::phoenix::StatusCode SetControlPrivate(controls::ControlRequest const &request);
 
         template <typename T>
         StatusSignal<T> &LookupStatusSignal(uint16_t spn, std::string signalName, bool reportOnConstruction, bool refresh)
         {
-            return LookupCommon<T>(spn, nullptr, std::move(signalName), reportOnConstruction, refresh);
+            return LookupCommon<T>(spn, std::move(signalName), nullptr, reportOnConstruction, refresh);
         }
 
         template <typename T>
-        StatusSignal<T> &LookupStatusSignal(uint16_t spn, std::function<std::map<uint16_t, std::string>()> mapFiller, std::string signalName, bool reportOnConstruction, bool refresh)
+        StatusSignal<T> &LookupStatusSignal(uint16_t spn, std::string signalName, std::function<std::map<uint16_t, std::string>()> mapFiller, bool reportOnConstruction, bool refresh)
         {
-            return LookupCommon<T>(spn, std::move(mapFiller), std::move(signalName), reportOnConstruction, refresh);
-        }
-
-        /** Returns a unitless version of the StatusSignal by value. Do not store the result in a reference. */
-        template <typename T, typename U>
-        StatusSignal<T> LookupDimensionlessStatusSignal(uint16_t spn, std::string signalName, bool refresh)
-        {
-            return StatusSignal<T>{LookupStatusSignal<U>(spn, std::move(signalName), true, refresh)};
+            return LookupCommon<T>(spn, std::move(signalName), std::move(mapFiller), reportOnConstruction, refresh);
         }
     };
 

@@ -23,13 +23,18 @@ struct SwerveDrivetrainConstants {
      * \brief Name of the CAN bus the swerve drive is on. Possible CAN bus strings
      * are:
      * 
-     * - empty string or "rio" for the native roboRIO CAN bus
+     * - "rio" for the native roboRIO CAN bus
      * - CANivore name or serial number
+     * - SocketCAN interface (non-FRC Linux only)
      * - "*" for any CANivore seen by the program
+     * - empty string (default) to select the default for the system:
+     *   - "rio" on roboRIO
+     *   - "can0" on Linux
+     *   - "*" on Windows
      * 
      * Note that all devices must be on the same CAN bus.
      */
-    std::string_view CANBusName = "rio";
+    std::string_view CANBusName = "";
     /**
      * \brief CAN ID of the Pigeon2 on the drivetrain.
      */
@@ -47,9 +52,14 @@ struct SwerveDrivetrainConstants {
      *
      * Name of the CAN bus the swerve drive is on. Possible CAN bus strings are:
      * 
-     * - empty string or "rio" for the native roboRIO CAN bus
+     * - "rio" for the native roboRIO CAN bus
      * - CANivore name or serial number
+     * - SocketCAN interface (non-FRC Linux only)
      * - "*" for any CANivore seen by the program
+     * - empty string (default) to select the default for the system:
+     *   - "rio" on roboRIO
+     *   - "can0" on Linux
+     *   - "*" on Windows
      * 
      * Note that all devices must be on the same CAN bus.
      *
@@ -87,10 +97,7 @@ struct SwerveDrivetrainConstants {
      * \param newPigeon2Configs Parameter to modify
      * \returns this object
      */
-    #if __cpp_lib_optional >= 202106L || (defined(__APPLE__) && __cplusplus >= 202002L)
-    constexpr
-    #endif
-    SwerveDrivetrainConstants &WithPigeon2Configs(const std::optional<configs::Pigeon2Configuration>& newPigeon2Configs)
+    constexpr SwerveDrivetrainConstants &WithPigeon2Configs(const std::optional<configs::Pigeon2Configuration>& newPigeon2Configs)
     {
         this->Pigeon2Configs = newPigeon2Configs;
         return *this;

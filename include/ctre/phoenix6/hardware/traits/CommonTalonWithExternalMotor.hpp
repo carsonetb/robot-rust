@@ -13,6 +13,7 @@
 #include "ctre/phoenix6/hardware/traits/HasExternalMotor.hpp"
 
 
+
 namespace ctre {
 namespace phoenix6 {
 namespace hardware {

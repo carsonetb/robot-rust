@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/voltage.h>
@@ -26,36 +23,19 @@ namespace controls {
  * the requested voltage, the motor controller will output the supply voltage. It will also set the motor's
  * differential position setpoint to the specified position.
  */
-class DifferentialVoltage : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<DifferentialVoltage *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<DifferentialVoltage>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlDifferentialVoltage(network, deviceHash, UpdateFreqHz.to<double>(), TargetOutput.to<double>(), DifferentialPosition.to<double>(), EnableFOC, DifferentialSlot, OverrideBrakeDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class DifferentialVoltage final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
-     * \brief Voltage to attempt to drive at
+     * \brief Voltage to attempt to drive at on the Average axis.
      * 
      * - Units: Volts
      * 
      */
-    units::voltage::volt_t TargetOutput;
+    units::voltage::volt_t AverageOutput;
     /**
-     * \brief Differential position to drive towards in rotations
+     * \brief Differential position to drive towards in rotations.
      * 
      * - Units: rotations
      * 
@@ -114,6 +94,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -126,9 +116,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -147,30 +139,42 @@ public:
      *          the motor's differential position setpoint to the specified
      *          position.
      * 
-     * \param TargetOutput    Voltage to attempt to drive at
-     * \param DifferentialPosition    Differential position to drive towards in
-     *                                rotations
+     * \param AverageOutput Voltage to attempt to drive at on the Average axis.
+     * \param DifferentialPosition Differential position to drive towards in
+     *                             rotations.
      */
-    DifferentialVoltage(units::voltage::volt_t TargetOutput, units::angle::turn_t DifferentialPosition) : ControlRequest{"DifferentialVoltage"},
-        TargetOutput{std::move(TargetOutput)},
+    constexpr DifferentialVoltage(units::voltage::volt_t AverageOutput, units::angle::turn_t DifferentialPosition) : ControlRequest{},
+        AverageOutput{std::move(AverageOutput)},
         DifferentialPosition{std::move(DifferentialPosition)}
     {}
+
+    constexpr ~DifferentialVoltage() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "DifferentialVoltage";
+    }
     
     /**
-     * \brief Modifies this Control Request's TargetOutput parameter and returns itself for
+     * \brief Modifies this Control Request's AverageOutput parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Voltage to attempt to drive at
+     * Voltage to attempt to drive at on the Average axis.
      * 
      * - Units: Volts
      * 
      *
-     * \param newTargetOutput Parameter to modify
+     * \param newAverageOutput Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithTargetOutput(units::voltage::volt_t newTargetOutput)
+    constexpr DifferentialVoltage &WithAverageOutput(units::voltage::volt_t newAverageOutput)
     {
-        TargetOutput = std::move(newTargetOutput);
+        AverageOutput = std::move(newAverageOutput);
         return *this;
     }
     
@@ -178,7 +182,7 @@ public:
      * \brief Modifies this Control Request's DifferentialPosition parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Differential position to drive towards in rotations
+     * Differential position to drive towards in rotations.
      * 
      * - Units: rotations
      * 
@@ -186,7 +190,7 @@ public:
      * \param newDifferentialPosition Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
+    constexpr DifferentialVoltage &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
     {
         DifferentialPosition = std::move(newDifferentialPosition);
         return *this;
@@ -211,7 +215,7 @@ public:
      * \param newEnableFOC Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithEnableFOC(bool newEnableFOC)
+    constexpr DifferentialVoltage &WithEnableFOC(bool newEnableFOC)
     {
         EnableFOC = std::move(newEnableFOC);
         return *this;
@@ -228,7 +232,7 @@ public:
      * \param newDifferentialSlot Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithDifferentialSlot(int newDifferentialSlot)
+    constexpr DifferentialVoltage &WithDifferentialSlot(int newDifferentialSlot)
     {
         DifferentialSlot = std::move(newDifferentialSlot);
         return *this;
@@ -246,7 +250,7 @@ public:
      * \param newOverrideBrakeDurNeutral Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
+    constexpr DifferentialVoltage &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
     {
         OverrideBrakeDurNeutral = std::move(newOverrideBrakeDurNeutral);
         return *this;
@@ -263,7 +267,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr DifferentialVoltage &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -280,7 +284,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr DifferentialVoltage &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -303,9 +307,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr DifferentialVoltage &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr DifferentialVoltage &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -325,15 +350,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithUseTimesync(bool newUseTimesync)
+    constexpr DifferentialVoltage &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -344,53 +372,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    DifferentialVoltage &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr DifferentialVoltage &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: DifferentialVoltage" << std::endl;
-        ss << "    TargetOutput: " << TargetOutput.to<double>() << " Volts" << std::endl;
-        ss << "    DifferentialPosition: " << DifferentialPosition.to<double>() << " rotations" << std::endl;
-        ss << "    EnableFOC: " << EnableFOC << std::endl;
-        ss << "    DifferentialSlot: " << DifferentialSlot << std::endl;
-        ss << "    OverrideBrakeDurNeutral: " << OverrideBrakeDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << TargetOutput.to<double>(); controlInfo["TargetOutput"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialPosition.to<double>(); controlInfo["DifferentialPosition"] = ss.str(); ss.str(std::string{});
-        ss << EnableFOC; controlInfo["EnableFOC"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialSlot; controlInfo["DifferentialSlot"] = ss.str(); ss.str(std::string{});
-        ss << OverrideBrakeDurNeutral; controlInfo["OverrideBrakeDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

@@ -42,6 +42,15 @@ namespace sim {
 		 * between the CANcoder and the robot changes.
 		 */
 		ChassisReference Orientation;
+		/**
+		 * \brief The offset of the CANcoder position relative to the robot chassis,
+		 * in rotations. This offset is subtracted from the raw position, allowing
+		 * for a non-zero magnet offset config to behave correctly in simulation.
+		 *
+		 * This value should not be changed after initialization unless the
+		 * mechanical linkage between the CANcoder and the robot changes.
+		 */
+		units::angle::turn_t SensorOffset = 0_tr;
 
 		/**
 		 * \brief Creates an object to control the state of the given hardware#CANcoder.

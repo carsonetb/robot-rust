@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include "ctre/phoenix6/hardware/traits/CommonTalonWithFOC.hpp"
 #include "ctre/phoenix6/swerve/SwerveModuleConstants.hpp"
 #include "ctre/phoenix6/swerve/impl/SwerveDriveKinematics.hpp"
 #include "ctre/phoenix6/CANBus.hpp"
@@ -243,6 +244,7 @@ private:
     StatusSignal<units::turns_per_second_t> _driveVelocity;
     StatusSignal<units::turn_t> _steerPosition;
     StatusSignal<units::turns_per_second_t> _steerVelocity;
+    StatusSignal<units::turn_t> _encoderPosition;
 
     mutable StatusSignal<ctre::unit::newton_meters_per_ampere_t> _driveMotorKT;
     mutable StatusSignal<units::ampere_t> _driveMotorStallCurrent;
@@ -273,7 +275,11 @@ public:
      * \param constants Constants used to construct the module
      * \param canbus    The CAN bus this module is on
      */
-    template <typename DriveMotorConfigsT, typename SteerMotorConfigsT, typename EncoderConfigsT>
+    template <
+        std::derived_from<configs::ParentConfiguration> DriveMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> SteerMotorConfigsT,
+        std::derived_from<configs::ParentConfiguration> EncoderConfigsT
+    >
     SwerveModuleImpl(
         SwerveModuleConstants<DriveMotorConfigsT, SteerMotorConfigsT, EncoderConfigsT> const &constants,
         CANBus canbus
@@ -296,7 +302,10 @@ public:
      * \param driveRequest The control request to apply to the drive motor
      * \param steerRequest The control request to apply to the steer motor
      */
-    template <typename DriveReq, typename SteerReq>
+    template <
+        std::derived_from<controls::ControlRequest> DriveReq,
+        std::derived_from<controls::ControlRequest> SteerReq
+    >
     void Apply(DriveReq &&driveRequest, SteerReq &&steerRequest)
     {
         if (_driveMotorFOC) {
@@ -319,7 +328,7 @@ public:
      * \param timeoutSeconds Maximum amount of time to wait when performing configuration
      * \returns Status code response of the request
      */
-    ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode, units::second_t timeoutSeconds = 0.100_s);
+    ctre::phoenix::StatusCode ConfigNeutralMode(signals::NeutralModeValue neutralMode, units::second_t timeoutSeconds);
 
     /**
      * \brief Gets the state of this module and passes it back as a
@@ -414,6 +423,10 @@ private:
     std::array<BaseStatusSignal *, 4> GetSignals()
     {
         return std::array<BaseStatusSignal *, 4>{&_drivePosition, &_driveVelocity, &_steerPosition, &_steerVelocity};
+    }
+    StatusSignal<units::turn_t> &GetEncoderPositionSignal()
+    {
+        return _encoderPosition;
     }
 };
 

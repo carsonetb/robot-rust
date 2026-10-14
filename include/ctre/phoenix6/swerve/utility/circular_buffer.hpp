@@ -58,9 +58,6 @@ class circular_buffer {
     bool operator==(const iterator& other) const {
       return m_buffer == other.m_buffer && m_index == other.m_index;
     }
-    bool operator!=(const iterator& other) const {
-      return !(*this == other);
-    }
     reference operator*() { return (*m_buffer)[m_index]; }
 
    private:
@@ -90,9 +87,6 @@ class circular_buffer {
     }
     bool operator==(const iterator& other) const {
       return m_buffer == other.m_buffer && m_index == other.m_index;
-    }
-    bool operator!=(const iterator& other) const {
-      return !(*this == other);
     }
     const_reference operator*() const { return (*m_buffer)[m_index]; }
 

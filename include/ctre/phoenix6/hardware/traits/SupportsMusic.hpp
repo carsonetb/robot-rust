@@ -9,6 +9,7 @@
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
 #include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include "ctre/phoenix6/StatusSignal.hpp"
+#include "ctre/phoenix6/hardware/traits/CommonDevice.hpp"
 #include "ctre/phoenix6/controls/MusicTone.hpp"
 
 
@@ -21,7 +22,7 @@ namespace traits {
  * Contains all control functions available for motors that support playing
  * music.
  */
-class SupportsMusic
+class SupportsMusic : public virtual CommonDevice
 {
 public:
     virtual ~SupportsMusic() = default;
@@ -31,15 +32,24 @@ public:
      * \brief Plays a single tone at the user specified frequency.
      * 
      * - MusicTone Parameters: 
-     *   - AudioFrequency: Sound frequency to play.  A value of zero will silence the
-     *                  device. The effective frequency range is 10-20000 Hz.  Any
-     *                  nonzero frequency less than 10 Hz will be capped to 10 Hz. 
-     *                  Any frequency above 20 kHz will be capped to 20 kHz.
+     *   - AudioFrequency: Sound frequency to play.  A value of zero will silence
+     *                     the device. The effective frequency range is 10-20000 Hz.
+     *                      Any nonzero frequency less than 10 Hz will be capped to
+     *                     10 Hz.  Any frequency above 20 kHz will be capped to 20
+     *                     kHz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::MusicTone &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::MusicTone const &request) = 0;
+
+    /**
+     * \brief Apply a generic empty control used to do nothing.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::EmptyControl const &request) = 0;
 
     /**
      * \brief Control device with generic control request object. User must make
@@ -48,9 +58,9 @@ public:
      *        StatusCode
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::ControlRequest &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::ControlRequest const &request) = 0;
     
 };
 

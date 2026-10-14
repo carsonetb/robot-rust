@@ -9,6 +9,7 @@
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
 #include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include "ctre/phoenix6/StatusSignal.hpp"
+#include "ctre/phoenix6/hardware/traits/CommonDevice.hpp"
 
 #include <units/angle.h>
 #include <units/angular_velocity.h>
@@ -24,7 +25,7 @@ namespace traits {
  * Contains all status signals for motor controllers that support external
  * motors.
  */
-class HasExternalMotor
+class HasExternalMotor : public virtual CommonDevice
 {
 public:
     virtual ~HasExternalMotor() = default;
@@ -35,7 +36,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ExternalMotorTempStatus Status Signal Object
      */
     virtual StatusSignal<signals::ExternalMotorTempStatusValue> &GetExternalMotorTempStatus(bool refresh = true) = 0;
@@ -50,7 +52,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns ExternalMotorTemp Status Signal Object
      */
     virtual StatusSignal<units::temperature::celsius_t> &GetExternalMotorTemp(bool refresh = true) = 0;
@@ -66,7 +69,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns FiveVRailVoltage Status Signal Object
      */
     virtual StatusSignal<units::voltage::volt_t> &GetFiveVRailVoltage(bool refresh = true) = 0;
@@ -82,7 +86,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns AnalogVoltage Status Signal Object
      */
     virtual StatusSignal<units::voltage::volt_t> &GetAnalogVoltage(bool refresh = true) = 0;
@@ -103,7 +108,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawQuadraturePosition Status Signal Object
      */
     virtual StatusSignal<units::angle::turn_t> &GetRawQuadraturePosition(bool refresh = true) = 0;
@@ -124,7 +130,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawQuadratureVelocity Status Signal Object
      */
     virtual StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawQuadratureVelocity(bool refresh = true) = 0;
@@ -145,7 +152,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawPulseWidthPosition Status Signal Object
      */
     virtual StatusSignal<units::angle::turn_t> &GetRawPulseWidthPosition(bool refresh = true) = 0;
@@ -166,7 +174,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns RawPulseWidthVelocity Status Signal Object
      */
     virtual StatusSignal<units::angular_velocity::turns_per_second_t> &GetRawPulseWidthVelocity(bool refresh = true) = 0;
@@ -179,7 +188,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_BridgeShort Status Signal Object
      */
     virtual StatusSignal<bool> &GetFault_BridgeShort(bool refresh = true) = 0;
@@ -192,7 +202,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_BridgeShort Status Signal Object
      */
     virtual StatusSignal<bool> &GetStickyFault_BridgeShort(bool refresh = true) = 0;
@@ -206,7 +217,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_HallSensorMissing Status Signal Object
      */
     virtual StatusSignal<bool> &GetFault_HallSensorMissing(bool refresh = true) = 0;
@@ -220,7 +232,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_HallSensorMissing Status Signal Object
      */
     virtual StatusSignal<bool> &GetStickyFault_HallSensorMissing(bool refresh = true) = 0;
@@ -233,7 +246,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_DriveDisabledHallSensor Status Signal Object
      */
     virtual StatusSignal<bool> &GetFault_DriveDisabledHallSensor(bool refresh = true) = 0;
@@ -246,7 +260,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_DriveDisabledHallSensor Status Signal Object
      */
     virtual StatusSignal<bool> &GetStickyFault_DriveDisabledHallSensor(bool refresh = true) = 0;
@@ -258,7 +273,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MotorTempSensorMissing Status Signal Object
      */
     virtual StatusSignal<bool> &GetFault_MotorTempSensorMissing(bool refresh = true) = 0;
@@ -270,7 +286,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MotorTempSensorMissing Status Signal Object
      */
     virtual StatusSignal<bool> &GetStickyFault_MotorTempSensorMissing(bool refresh = true) = 0;
@@ -282,7 +299,8 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns Fault_MotorTempSensorTooHot Status Signal Object
      */
     virtual StatusSignal<bool> &GetFault_MotorTempSensorTooHot(bool refresh = true) = 0;
@@ -294,10 +312,65 @@ public:
      * 
      * This refreshes and returns a cached StatusSignal object.
      * 
-     * \param refresh Whether to refresh the StatusSignal before returning it; defaults to true
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
      * \returns StickyFault_MotorTempSensorTooHot Status Signal Object
      */
     virtual StatusSignal<bool> &GetStickyFault_MotorTempSensorTooHot(bool refresh = true) = 0;
+        
+    /**
+     * \brief Motor arrangement has not been set in configuration.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_MotorArrangementNotSelected Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetFault_MotorArrangementNotSelected(bool refresh = true) = 0;
+        
+    /**
+     * \brief Motor arrangement has not been set in configuration.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_MotorArrangementNotSelected Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetStickyFault_MotorArrangementNotSelected(bool refresh = true) = 0;
+        
+    /**
+     * \brief The CTR Electronics' TalonFX device has detected a 5V fault.
+     * This may be due to overcurrent or a short-circuit.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_5V Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetFault_5V(bool refresh = true) = 0;
+        
+    /**
+     * \brief The CTR Electronics' TalonFX device has detected a 5V fault.
+     * This may be due to overcurrent or a short-circuit.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_5V Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetStickyFault_5V(bool refresh = true) = 0;
     
 
     
@@ -392,6 +465,24 @@ public:
      * \returns StatusCode of the set command
      */
     virtual ctre::phoenix::StatusCode ClearStickyFault_MotorTempSensorTooHot() = 0;
+    
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * \param timeoutSeconds Maximum time to wait up to in seconds.
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected(units::time::second_t timeoutSeconds) = 0;
+    /**
+     * \brief Clear sticky fault: Motor arrangement has not been set in
+     * configuration.
+     * 
+     * This will wait up to 0.100 seconds (100ms) by default.
+     * 
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_MotorArrangementNotSelected() = 0;
 };
 
 }

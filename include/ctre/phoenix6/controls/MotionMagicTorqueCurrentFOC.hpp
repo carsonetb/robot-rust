@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/angle.h>
@@ -31,25 +28,8 @@ namespace controls {
  * Target position can be changed on-the-fly and Motion Magic® will do its best to adjust the profile.  This
  * control mode is based on torque current, so relevant closed-loop gains will use Amperes for the numerator.
  */
-class MotionMagicTorqueCurrentFOC : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<MotionMagicTorqueCurrentFOC *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<MotionMagicTorqueCurrentFOC>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlMotionMagicTorqueCurrentFOC(network, deviceHash, UpdateFreqHz.to<double>(), Position.to<double>(), FeedForward.to<double>(), Slot, OverrideCoastDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class MotionMagicTorqueCurrentFOC final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -60,8 +40,10 @@ public:
      */
     units::angle::turn_t Position;
     /**
-     * \brief Feedforward to apply in torque current in Amperes.  User can use
-     * motor's kT to scale Newton-meter to Amperes.
+     * \brief Feedforward to apply in torque current in Amperes. This is added to
+     * the output of the onboard feedforward terms.
+     * 
+     * User can use motor's kT to scale Newton-meter to Amperes.
      * 
      * - Units: A
      * 
@@ -106,6 +88,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -118,9 +110,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -146,11 +140,23 @@ public:
      *          torque current, so relevant closed-loop gains will use Amperes for
      *          the numerator.
      * 
-     * \param Position    Position to drive toward in rotations.
+     * \param Position Position to drive toward in rotations.
      */
-    MotionMagicTorqueCurrentFOC(units::angle::turn_t Position) : ControlRequest{"MotionMagicTorqueCurrentFOC"},
+    constexpr MotionMagicTorqueCurrentFOC(units::angle::turn_t Position) : ControlRequest{},
         Position{std::move(Position)}
     {}
+
+    constexpr ~MotionMagicTorqueCurrentFOC() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "MotionMagicTorqueCurrentFOC";
+    }
     
     /**
      * \brief Modifies this Control Request's Position parameter and returns itself for
@@ -164,7 +170,7 @@ public:
      * \param newPosition Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithPosition(units::angle::turn_t newPosition)
+    constexpr MotionMagicTorqueCurrentFOC &WithPosition(units::angle::turn_t newPosition)
     {
         Position = std::move(newPosition);
         return *this;
@@ -174,8 +180,10 @@ public:
      * \brief Modifies this Control Request's FeedForward parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Feedforward to apply in torque current in Amperes.  User can use motor's kT
-     * to scale Newton-meter to Amperes.
+     * Feedforward to apply in torque current in Amperes. This is added to the
+     * output of the onboard feedforward terms.
+     * 
+     * User can use motor's kT to scale Newton-meter to Amperes.
      * 
      * - Units: A
      * 
@@ -183,7 +191,7 @@ public:
      * \param newFeedForward Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithFeedForward(units::current::ampere_t newFeedForward)
+    constexpr MotionMagicTorqueCurrentFOC &WithFeedForward(units::current::ampere_t newFeedForward)
     {
         FeedForward = std::move(newFeedForward);
         return *this;
@@ -200,7 +208,7 @@ public:
      * \param newSlot Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithSlot(int newSlot)
+    constexpr MotionMagicTorqueCurrentFOC &WithSlot(int newSlot)
     {
         Slot = std::move(newSlot);
         return *this;
@@ -218,7 +226,7 @@ public:
      * \param newOverrideCoastDurNeutral Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithOverrideCoastDurNeutral(bool newOverrideCoastDurNeutral)
+    constexpr MotionMagicTorqueCurrentFOC &WithOverrideCoastDurNeutral(bool newOverrideCoastDurNeutral)
     {
         OverrideCoastDurNeutral = std::move(newOverrideCoastDurNeutral);
         return *this;
@@ -235,7 +243,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr MotionMagicTorqueCurrentFOC &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -252,7 +260,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr MotionMagicTorqueCurrentFOC &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -275,9 +283,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr MotionMagicTorqueCurrentFOC &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr MotionMagicTorqueCurrentFOC &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -297,15 +326,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithUseTimesync(bool newUseTimesync)
+    constexpr MotionMagicTorqueCurrentFOC &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -316,51 +348,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    MotionMagicTorqueCurrentFOC &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr MotionMagicTorqueCurrentFOC &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: MotionMagicTorqueCurrentFOC" << std::endl;
-        ss << "    Position: " << Position.to<double>() << " rotations" << std::endl;
-        ss << "    FeedForward: " << FeedForward.to<double>() << " A" << std::endl;
-        ss << "    Slot: " << Slot << std::endl;
-        ss << "    OverrideCoastDurNeutral: " << OverrideCoastDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << Position.to<double>(); controlInfo["Position"] = ss.str(); ss.str(std::string{});
-        ss << FeedForward.to<double>(); controlInfo["FeedForward"] = ss.str(); ss.str(std::string{});
-        ss << Slot; controlInfo["Slot"] = ss.str(); ss.str(std::string{});
-        ss << OverrideCoastDurNeutral; controlInfo["OverrideCoastDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

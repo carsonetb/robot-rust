@@ -7,14 +7,12 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <initializer_list>
+#include <span>
 #include <stdexcept>
 
 #include "ctre/phoenix6/swerve/utility/circular_buffer.hpp"
-#include "ctre/phoenix6/swerve/utility/span.hpp"
-#include "Eigen/Core"
 #include "units/time.h"
 
 namespace ctre {
@@ -83,7 +81,7 @@ class LinearFilter {
    * @param ffGains The "feedforward" or FIR gains.
    * @param fbGains The "feedback" or IIR gains.
    */
-  LinearFilter(span<const double> ffGains, span<const double> fbGains)
+  LinearFilter(std::span<const double> ffGains, std::span<const double> fbGains)
       : m_inputs(ffGains.size()),
         m_outputs(fbGains.size()),
         m_inputGains(ffGains.begin(), ffGains.end()),
@@ -167,101 +165,6 @@ class LinearFilter {
   }
 
   /**
-   * Creates a finite difference filter that computes the nth derivative of the
-   * input given the specified stencil points.
-   *
-   * Stencil points are the indices of the samples to use in the finite
-   * difference. 0 is the current sample, -1 is the previous sample, -2 is the
-   * sample before that, etc. Don't use positive stencil points (samples from
-   * the future) if the LinearFilter will be used for stream-based online
-   * filtering (e.g., taking derivative of encoder samples in real-time).
-   *
-   * @tparam Derivative The order of the derivative to compute.
-   * @tparam Samples    The number of samples to use to compute the given
-   *                    derivative. This must be one more than the order of
-   *                    the derivative or higher.
-   * @param stencil     List of stencil points.
-   * @param period      The period in seconds between samples taken by the user.
-   */
-  template <int Derivative, int Samples>
-  static LinearFilter<T> FiniteDifference(
-      const std::array<int, Samples> stencil, units::second_t period) {
-    // See
-    // https://en.wikipedia.org/wiki/Finite_difference_coefficient#Arbitrary_stencil_points
-    //
-    // For a given list of stencil points s of length n and the order of
-    // derivative d < n, the finite difference coefficients can be obtained by
-    // solving the following linear system for the vector a.
-    //
-    // [s₁⁰   ⋯  sₙ⁰ ][a₁]      [ δ₀,d ]
-    // [ ⋮    ⋱  ⋮   ][⋮ ] = d! [  ⋮   ]
-    // [s₁ⁿ⁻¹ ⋯ sₙⁿ⁻¹][aₙ]      [δₙ₋₁,d]
-    //
-    // where δᵢ,ⱼ are the Kronecker delta. The FIR gains are the elements of the
-    // vector a in reverse order divided by hᵈ.
-    //
-    // The order of accuracy of the approximation is of the form O(hⁿ⁻ᵈ).
-
-    static_assert(Derivative >= 1,
-                  "Order of derivative must be greater than or equal to one.");
-    static_assert(Samples > 0, "Number of samples must be greater than zero.");
-    static_assert(Derivative < Samples,
-                  "Order of derivative must be less than number of samples.");
-
-    Eigen::Matrix<double, Samples, Samples> S;
-    for (int row = 0; row < Samples; ++row) {
-      for (int col = 0; col < Samples; ++col) {
-        S(row, col) = std::pow(stencil[col], row);
-      }
-    }
-
-    // Fill in Kronecker deltas: https://en.wikipedia.org/wiki/Kronecker_delta
-    Eigen::Vector<double, Samples> d;
-    for (int i = 0; i < Samples; ++i) {
-      d(i) = (i == Derivative) ? Factorial(Derivative) : 0.0;
-    }
-
-    Eigen::Vector<double, Samples> a =
-        S.householderQr().solve(d) / std::pow(period.value(), Derivative);
-
-    // Reverse gains list
-    std::vector<double> ffGains;
-    for (int i = Samples - 1; i >= 0; --i) {
-      ffGains.push_back(a(i));
-    }
-
-    return LinearFilter(ffGains, {});
-  }
-
-  /**
-   * Creates a backward finite difference filter that computes the nth
-   * derivative of the input given the specified number of samples.
-   *
-   * For example, a first derivative filter that uses two samples and a sample
-   * period of 20 ms would be
-   *
-   * <pre><code>
-   * LinearFilter<double>::BackwardFiniteDifference<1, 2>(20_ms);
-   * </code></pre>
-   *
-   * @tparam Derivative The order of the derivative to compute.
-   * @tparam Samples    The number of samples to use to compute the given
-   *                    derivative. This must be one more than the order of
-   *                    derivative or higher.
-   * @param period      The period in seconds between samples taken by the user.
-   */
-  template <int Derivative, int Samples>
-  static LinearFilter<T> BackwardFiniteDifference(units::second_t period) {
-    // Generate stencil points from -(samples - 1) to 0
-    std::array<int, Samples> stencil{};
-    for (int i = 0; i < Samples; ++i) {
-      stencil[i] = -(Samples - 1) + i;
-    }
-
-    return FiniteDifference<Derivative, Samples>(stencil, period);
-  }
-
-  /**
    * Reset the filter state.
    */
   void Reset() {
@@ -319,7 +222,7 @@ class LinearFilter {
    * @throws std::runtime_error if size of inputBuffer or outputBuffer does not
    *   match the size of ffGains and fbGains provided in the constructor.
    */
-  void Reset(span<const T> inputBuffer, span<const T> outputBuffer) {
+  void Reset(std::span<const T> inputBuffer, std::span<const T> outputBuffer) {
     // Clear buffers
     Reset();
 

@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include <units/frequency.h>
 #include <units/time.h>
@@ -24,25 +21,8 @@ namespace controls {
  * 
  * 
  */
-class RainbowAnimation : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<RainbowAnimation *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<RainbowAnimation>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlRainbowAnimation(network, deviceHash, UpdateFreqHz.to<double>(), LEDStartIndex, LEDEndIndex, Slot, Brightness.to<double>(), Direction.value, FrameRate.to<double>());
-    }
+class RainbowAnimation final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
@@ -87,9 +67,11 @@ public:
     units::frequency::hertz_t FrameRate = 100_Hz;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -104,25 +86,37 @@ public:
      * 
      * \details 
      * 
-     * \param LEDStartIndex    The index of the first LED this animation controls
-     *                         (inclusive). Indices 0-7 control the onboard LEDs,
-     *                         and 8-399 control an attached LED strip
-     *                         
-     *                         If the start index is greater than the end index, the
-     *                         direction will be reversed. The direction can also be
-     *                         changed using the Direction parameter.
-     * \param LEDEndIndex    The index of the last LED this animation controls
-     *                       (inclusive). Indices 0-7 control the onboard LEDs, and
-     *                       8-399 control an attached LED strip.
-     *                       
-     *                       If the end index is less than the start index, the
-     *                       direction will be reversed. The direction can also be
-     *                       changed using the Direction parameter.
+     * \param LEDStartIndex The index of the first LED this animation controls
+     *                      (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                      8-399 control an attached LED strip
+     *                      
+     *                      If the start index is greater than the end index, the
+     *                      direction will be reversed. The direction can also be
+     *                      changed using the Direction parameter.
+     * \param LEDEndIndex The index of the last LED this animation controls
+     *                    (inclusive). Indices 0-7 control the onboard LEDs, and
+     *                    8-399 control an attached LED strip.
+     *                    
+     *                    If the end index is less than the start index, the
+     *                    direction will be reversed. The direction can also be
+     *                    changed using the Direction parameter.
      */
-    RainbowAnimation(int LEDStartIndex, int LEDEndIndex) : ControlRequest{"RainbowAnimation"},
+    constexpr RainbowAnimation(int LEDStartIndex, int LEDEndIndex) : ControlRequest{},
         LEDStartIndex{std::move(LEDStartIndex)},
         LEDEndIndex{std::move(LEDEndIndex)}
     {}
+
+    constexpr ~RainbowAnimation() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "RainbowAnimation";
+    }
     
     /**
      * \brief Modifies this Control Request's LEDStartIndex parameter and returns itself for
@@ -137,7 +131,7 @@ public:
      * \param newLEDStartIndex Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithLEDStartIndex(int newLEDStartIndex)
+    constexpr RainbowAnimation &WithLEDStartIndex(int newLEDStartIndex)
     {
         LEDStartIndex = std::move(newLEDStartIndex);
         return *this;
@@ -156,7 +150,7 @@ public:
      * \param newLEDEndIndex Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithLEDEndIndex(int newLEDEndIndex)
+    constexpr RainbowAnimation &WithLEDEndIndex(int newLEDEndIndex)
     {
         LEDEndIndex = std::move(newLEDEndIndex);
         return *this;
@@ -172,7 +166,7 @@ public:
      * \param newSlot Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithSlot(int newSlot)
+    constexpr RainbowAnimation &WithSlot(int newSlot)
     {
         Slot = std::move(newSlot);
         return *this;
@@ -187,7 +181,7 @@ public:
      * \param newBrightness Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithBrightness(units::dimensionless::scalar_t newBrightness)
+    constexpr RainbowAnimation &WithBrightness(units::dimensionless::scalar_t newBrightness)
     {
         Brightness = std::move(newBrightness);
         return *this;
@@ -202,7 +196,7 @@ public:
      * \param newDirection Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithDirection(signals::AnimationDirectionValue newDirection)
+    constexpr RainbowAnimation &WithDirection(signals::AnimationDirectionValue newDirection)
     {
         Direction = std::move(newDirection);
         return *this;
@@ -224,15 +218,18 @@ public:
      * \param newFrameRate Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithFrameRate(units::frequency::hertz_t newFrameRate)
+    constexpr RainbowAnimation &WithFrameRate(units::frequency::hertz_t newFrameRate)
     {
         FrameRate = std::move(newFrameRate);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -243,47 +240,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    RainbowAnimation &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr RainbowAnimation &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: RainbowAnimation" << std::endl;
-        ss << "    LEDStartIndex: " << LEDStartIndex << std::endl;
-        ss << "    LEDEndIndex: " << LEDEndIndex << std::endl;
-        ss << "    Slot: " << Slot << std::endl;
-        ss << "    Brightness: " << Brightness.to<double>() << std::endl;
-        ss << "    Direction: " << Direction << std::endl;
-        ss << "    FrameRate: " << FrameRate.to<double>() << " Hz" << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << LEDStartIndex; controlInfo["LEDStartIndex"] = ss.str(); ss.str(std::string{});
-        ss << LEDEndIndex; controlInfo["LEDEndIndex"] = ss.str(); ss.str(std::string{});
-        ss << Slot; controlInfo["Slot"] = ss.str(); ss.str(std::string{});
-        ss << Brightness.to<double>(); controlInfo["Brightness"] = ss.str(); ss.str(std::string{});
-        ss << Direction; controlInfo["Direction"] = ss.str(); ss.str(std::string{});
-        ss << FrameRate.to<double>(); controlInfo["FrameRate"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

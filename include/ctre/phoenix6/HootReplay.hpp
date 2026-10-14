@@ -7,9 +7,18 @@
 #pragma once
 
 #include "ctre/phoenix/StatusCodes.h"
-#include "units/time.h"
+#include "ctre/phoenix6/HootSchemaType.hpp"
+#include "ctre/phoenix6/SignalMeasurement.hpp"
+#include <units/time.h>
 #include <string>
 #include <vector>
+
+#if __has_include("wpi/struct/Struct.h")
+#include "wpi/struct/Struct.h"
+#endif
+#if __has_include("wpi/protobuf/Protobuf.h")
+#include "wpi/protobuf/Protobuf.h"
+#endif
 
 namespace ctre {
 namespace phoenix6 {
@@ -20,6 +29,10 @@ namespace phoenix6 {
  * This replays all signals in the given hoot log in simulation. Hoot logs can
  * be created by a robot program using SignalLogger. Only one hoot log,
  * corresponding to one CAN bus, may be replayed at a time.
+ *
+ * The signal logger always runs while replay is running. All custom signals written
+ * during replay will be automatically placed under `hoot_replay/`. Additionally, the
+ * log will contain all status signals and custom signals from the original log.
  *
  * During replay, all transmits from the robot program are ignored. This includes
  * features such as control requests, configs, and setting signal update frequency.
@@ -138,6 +151,14 @@ public:
     }
 
     /**
+     * \brief Gets whether hoot log replay has reached the end of the log.
+     *
+     * \returns true if replay has reached the end of the log, or
+     *          if no log is currently loaded
+     */
+    static bool IsFinished();
+
+    /**
      * \brief Sets the speed of the hoot log replay. A speed of 1.0 corresponds
      * to replaying the file in real time, and larger values increase the speed.
      *
@@ -161,31 +182,121 @@ public:
     }
 
     /**
-     * \brief Stores information about a user signal from replay.
+     * \brief Gets a schema-serialized user signal.
+     *
+     * In an FRC robot program, users can call #GetStruct, #GetStructArray,
+     * and #GetProtobuf to directly get schema values instead.
+     *
+     * \param name Name of the signal
+     * \param type Type of the associated schema, such as struct or protobuf
+     * \returns Structure with all information about the signal
      */
-    template <typename T>
-    struct SignalData {
-        /**
-         * \brief The name of the signal
-         */
-        std::string_view name;
-        /**
-         * \brief The units of the signal
-         */
-        std::string units;
-        /**
-         * \brief The timestamp of the signal
-         */
-        units::second_t timestamp;
-        /**
-         * \brief Status code response of getting the signal
-         */
-        ctre::phoenix::StatusCode status;
-        /**
-         * \brief The value of the signal
-         */
-        T value;
-    };
+    static SignalMeasurement<std::vector<uint8_t>> GetSchemaValue(std::string_view name, HootSchemaType type)
+    {
+        return GetSchemaValueImpl(name, type).ToSignalMeasurement();
+    }
+
+#if __has_include("wpi/struct/Struct.h") || defined(_CTRE_DOCS_)
+    /**
+     * \brief Gets a WPILib Struct user signal.
+     *
+     * \param name Name of the signal
+     * \param info Optional struct type info
+     * \returns Structure with all information about the signal
+     */
+    template <typename T, typename... I>
+        requires wpi::StructSerializable<T, I...>
+    static SignalMeasurement<std::optional<T>> GetStruct(std::string_view name, I const &... info)
+    {
+        auto rawSig = GetSchemaValue(name, HootSchemaType::Struct);
+
+        std::optional<T> value;
+        if (rawSig.status.IsOK()) {
+            if (rawSig.value.size() == wpi::Struct<T>::GetSize(info...)) {
+                value = wpi::Struct<T>::Unpack(rawSig.value, info...);
+            } else {
+                value = std::nullopt;
+                rawSig.status = ctre::phoenix::StatusCode::InvalidParamValue;
+            }
+        } else {
+            value = std::nullopt;
+        }
+
+        return {
+            rawSig.name,
+            std::move(value),
+            rawSig.timestamp,
+            std::move(rawSig.units),
+            rawSig.status
+        };
+    }
+    /**
+     * \brief Gets a WPILib Struct array user signal.
+     *
+     * \param name Name of the signal
+     * \param info Optional struct type info
+     * \returns Structure with all information about the signal
+     */
+    template <typename T, typename... I>
+        requires wpi::StructSerializable<T, I...>
+    static SignalMeasurement<std::optional<std::vector<T>>> GetStructArray(std::string_view name, I const &... info)
+    {
+        auto rawSig = GetSchemaValue(name, HootSchemaType::Struct);
+
+        std::optional<std::vector<T>> value;
+        if (rawSig.status.IsOK()) {
+            std::span<uint8_t const> data{rawSig.value};
+            auto const size = wpi::Struct<T>::GetSize(info...);
+            size_t const arr_size = data.size() / size;
+
+            if (arr_size * size == data.size()) {
+                std::vector<T> arr;
+                arr.reserve(arr_size);
+                for (size_t i = 0; i < arr_size; ++i) {
+                    arr.emplace_back(wpi::UnpackStruct<T>(data, info...));
+                    data = data.subspan(size);
+                }
+                value = std::move(arr);
+            } else {
+                value = std::nullopt;
+                rawSig.status = ctre::phoenix::StatusCode::InvalidParamValue;
+            }
+        } else {
+            value = std::nullopt;
+        }
+
+        return {
+            rawSig.name,
+            std::move(value),
+            rawSig.timestamp,
+            std::move(rawSig.units),
+            rawSig.status
+        };
+    }
+#endif
+
+#if __has_include("wpi/protobuf/Protobuf.h") || defined(_CTRE_DOCS_)
+    /**
+     * \brief Gets a Protobuf user signal.
+     *
+     * \param name Name of the signal
+     * \returns Structure with all information about the signal
+     */
+    template <wpi::ProtobufSerializable T>
+    static SignalMeasurement<std::optional<T>> GetProtobuf(std::string_view name)
+    {
+        auto rawSig = GetSchemaValue(name, HootSchemaType::Protobuf);
+        return {
+            rawSig.name,
+            rawSig.status.IsOK()
+                ? wpi::ProtobufMessage<T>{}.Unpack(rawSig.value)
+                : std::nullopt,
+            rawSig.timestamp,
+            std::move(rawSig.units),
+            rawSig.status
+        };
+    }
+#endif
 
     /**
      * \brief Gets a raw-bytes user signal.
@@ -193,9 +304,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::vector<uint8_t>> GetRaw(std::string_view name)
+    static SignalMeasurement<std::vector<uint8_t>> GetRaw(std::string_view name)
     {
-        return GetRawImpl(name).ToSignalData();
+        return GetRawImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Gets a boolean user signal.
@@ -203,9 +314,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<bool> GetBoolean(std::string_view name)
+    static SignalMeasurement<bool> GetBoolean(std::string_view name)
     {
-        return GetBooleanImpl(name).ToSignalData();
+        return GetBooleanImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Gets an integer user signal.
@@ -213,9 +324,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<int64_t> GetInteger(std::string_view name)
+    static SignalMeasurement<int64_t> GetInteger(std::string_view name)
     {
-        return GetIntegerImpl(name).ToSignalData();
+        return GetIntegerImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Gets a float user signal.
@@ -223,9 +334,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<float> GetFloat(std::string_view name)
+    static SignalMeasurement<float> GetFloat(std::string_view name)
     {
-        return GetFloatImpl(name).ToSignalData();
+        return GetFloatImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Gets a double user signal.
@@ -233,9 +344,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<double> GetDouble(std::string_view name)
+    static SignalMeasurement<double> GetDouble(std::string_view name)
     {
-        return GetDoubleImpl(name).ToSignalData();
+        return GetDoubleImpl(name).ToSignalMeasurement();
     }
 
     /**
@@ -244,16 +355,17 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    template <typename U, typename = std::enable_if_t<units::traits::is_unit_t_v<U>>>
-    static SignalData<U> GetValue(std::string_view name)
+    template <typename U>
+        requires units::traits::is_unit_t_v<U>
+    static SignalMeasurement<U> GetValue(std::string_view name)
     {
-        SignalData<double> doubleSig = GetDouble(name);
+        SignalMeasurement<double> doubleSig = GetDouble(name);
         return {
             doubleSig.name,
-            std::move(doubleSig.units),
+            U{doubleSig.value},
             doubleSig.timestamp,
-            doubleSig.status,
-            U{doubleSig.value}
+            std::move(doubleSig.units),
+            doubleSig.status
         };
     }
 
@@ -263,9 +375,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::string> GetString(std::string_view name)
+    static SignalMeasurement<std::string> GetString(std::string_view name)
     {
-        return GetStringImpl(name).ToSignalData();
+        return GetStringImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Get a boolean array user signal.
@@ -273,9 +385,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::vector<uint8_t>> GetBooleanArray(std::string_view name)
+    static SignalMeasurement<std::vector<uint8_t>> GetBooleanArray(std::string_view name)
     {
-        return GetBooleanArrayImpl(name).ToSignalData();
+        return GetBooleanArrayImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Get an integer array user signal.
@@ -283,9 +395,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::vector<int64_t>> GetIntegerArray(std::string_view name)
+    static SignalMeasurement<std::vector<int64_t>> GetIntegerArray(std::string_view name)
     {
-        return GetIntegerArrayImpl(name).ToSignalData();
+        return GetIntegerArrayImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Get a float array user signal.
@@ -293,9 +405,9 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::vector<float>> GetFloatArray(std::string_view name)
+    static SignalMeasurement<std::vector<float>> GetFloatArray(std::string_view name)
     {
-        return GetFloatArrayImpl(name).ToSignalData();
+        return GetFloatArrayImpl(name).ToSignalMeasurement();
     }
     /**
      * \brief Get a double array user signal.
@@ -303,9 +415,19 @@ public:
      * \param name Name of the signal
      * \returns Structure with all information about the signal
      */
-    static SignalData<std::vector<double>> GetDoubleArray(std::string_view name)
+    static SignalMeasurement<std::vector<double>> GetDoubleArray(std::string_view name)
     {
-        return GetDoubleArrayImpl(name).ToSignalData();
+        return GetDoubleArrayImpl(name).ToSignalMeasurement();
+    }
+    /**
+     * \brief Get a string array user signal.
+     *
+     * \param name Name of the signal
+     * \returns Structure with all information about the signal
+     */
+    static SignalMeasurement<std::vector<std::string>> GetStringArray(std::string_view name)
+    {
+        return GetStringArrayImpl(name).ToSignalMeasurement();
     }
 
 private:
@@ -315,23 +437,24 @@ private:
     template <typename T>
     struct UnitlessSignalData {
         std::string_view name;
-        std::string units;
-        double timestampSec;
-        ctre::phoenix::StatusCode status;
         T value;
+        double timestampSec;
+        std::string units;
+        ctre::phoenix::StatusCode status;
 
-        SignalData<T> ToSignalData() &&
+        SignalMeasurement<T> ToSignalMeasurement() &&
         {
             return {
                 name,
+                std::move(value),
+                timestampSec * 1_s,
                 std::move(units),
-                units::second_t{timestampSec},
-                status,
-                std::move(value)
+                status
             };
         }
     };
 
+    static UnitlessSignalData<std::vector<uint8_t>> GetSchemaValueImpl(std::string_view name, HootSchemaType type);
     static UnitlessSignalData<std::vector<uint8_t>> GetRawImpl(std::string_view name);
     static UnitlessSignalData<bool> GetBooleanImpl(std::string_view name);
     static UnitlessSignalData<int64_t> GetIntegerImpl(std::string_view name);
@@ -342,6 +465,7 @@ private:
     static UnitlessSignalData<std::vector<int64_t>> GetIntegerArrayImpl(std::string_view name);
     static UnitlessSignalData<std::vector<float>> GetFloatArrayImpl(std::string_view name);
     static UnitlessSignalData<std::vector<double>> GetDoubleArrayImpl(std::string_view name);
+    static UnitlessSignalData<std::vector<std::string>> GetStringArrayImpl(std::string_view name);
 };
 
 }

@@ -28,6 +28,13 @@ namespace sim {
 
 	/**
 	 * \brief Class to control the state of a simulated hardware#TalonFXS.
+	 *
+	 * For simulated PID control and current limits to behave correctly,
+	 * #SetRawRotorPosition and #SetRotorVelocity must be updated
+	 * periodically. This is typically done by sending the motor output from
+	 * #GetMotorVoltage() or #GetTorqueCurrent() to a physics simulator
+	 * (such as WPILib's `DCMotorSim`), which then calculates the new motor
+	 * position and velocity.
 	 */
 	class TalonFXSSimState
 	{
@@ -45,6 +52,7 @@ namespace sim {
 		 * between the motor and the robot changes.
 		 */
 		ChassisReference MotorOrientation;
+
 		/**
 		 * \brief The orientation of an external sensor attached to the TalonFXS
 		 * relative to the robot chassis. This does NOT include the Commutation
@@ -55,6 +63,16 @@ namespace sim {
 		 * between the external sensor and the robot changes.
 		 */
 		ChassisReference ExtSensorOrientation;
+		/**
+		 * \brief The offset of an absolute external sensor attached to the Talon FXS 
+		 * relative to the robot chassis, in rotations. This offset is subtracted
+		 * from the Pulse Width position, allowing for a non-zero sensor offset
+		 * config to behave correctly in simulation.
+		 *
+		 * This value should not be changed after initialization unless the
+		 * mechanical linkage between the external sensor and the robot changes.
+		 */
+		units::angle::turn_t PulseWidthSensorOffset = 0_tr;
 		/**
 		 * \brief The number of quadrature edges per sensor rotation for an
 		 * external quadrature sensor attached to the TalonFXS.

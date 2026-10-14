@@ -9,6 +9,7 @@
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
 #include "ctre/phoenix6/signals/SpnEnums.hpp"
 #include "ctre/phoenix6/StatusSignal.hpp"
+#include "ctre/phoenix6/hardware/traits/CommonDevice.hpp"
 #include "ctre/phoenix6/controls/TorqueCurrentFOC.hpp"
 #include "ctre/phoenix6/controls/PositionTorqueCurrentFOC.hpp"
 #include "ctre/phoenix6/controls/VelocityTorqueCurrentFOC.hpp"
@@ -16,14 +17,25 @@
 #include "ctre/phoenix6/controls/MotionMagicVelocityTorqueCurrentFOC.hpp"
 #include "ctre/phoenix6/controls/MotionMagicExpoTorqueCurrentFOC.hpp"
 #include "ctre/phoenix6/controls/DynamicMotionMagicTorqueCurrentFOC.hpp"
+#include "ctre/phoenix6/controls/DynamicMotionMagicExpoTorqueCurrentFOC.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_TorqueCurrentFOC_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionTorqueCurrentFOC_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityTorqueCurrentFOC_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicTorqueCurrentFOC_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoTorqueCurrentFOC_Position.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityTorqueCurrentFOC_Position.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_TorqueCurrentFOC_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_PositionTorqueCurrentFOC_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_VelocityTorqueCurrentFOC_Velocity.hpp"
 #include "ctre/phoenix6/controls/compound/Diff_MotionMagicTorqueCurrentFOC_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoTorqueCurrentFOC_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityTorqueCurrentFOC_Velocity.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_TorqueCurrentFOC_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_PositionTorqueCurrentFOC_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_VelocityTorqueCurrentFOC_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicTorqueCurrentFOC_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicExpoTorqueCurrentFOC_Open.hpp"
+#include "ctre/phoenix6/controls/compound/Diff_MotionMagicVelocityTorqueCurrentFOC_Open.hpp"
 
 
 namespace ctre {
@@ -35,11 +47,74 @@ namespace traits {
  * Requires Phoenix Pro; Contains all FOC-exclusive control functions available
  * for devices that support FOC.
  */
-class SupportsFOC
+class SupportsFOC : public virtual CommonDevice
 {
 public:
     virtual ~SupportsFOC() = default;
-    
+        
+    /**
+     * \brief Trips if a major mechanical or ESD event caused a brief loss
+     * of position data triggering a recovery while not in motion. If the
+     * event occurs often, inspect for excess axial force or sources of
+     * ESD at the rotor.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_RotorFault1 Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetFault_RotorFault1(bool refresh = true) = 0;
+        
+    /**
+     * \brief Trips if a major mechanical or ESD event caused a brief loss
+     * of position data triggering a recovery while not in motion. If the
+     * event occurs often, inspect for excess axial force or sources of
+     * ESD at the rotor.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_RotorFault1 Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetStickyFault_RotorFault1(bool refresh = true) = 0;
+        
+    /**
+     * \brief Trips if a major mechanical or ESD event caused a brief loss
+     * of position data triggering a recovery while in motion. If the
+     * event occurs often, inspect for excess axial force or sources of
+     * ESD at the rotor.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns Fault_RotorFault2 Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetFault_RotorFault2(bool refresh = true) = 0;
+        
+    /**
+     * \brief Trips if a major mechanical or ESD event caused a brief loss
+     * of position data triggering a recovery while in motion. If the
+     * event occurs often, inspect for excess axial force or sources of
+     * ESD at the rotor.
+     * 
+     * - Default Value: False
+     * 
+     * This refreshes and returns a cached StatusSignal object.
+     * 
+     * \param refresh Whether to refresh the StatusSignal before returning it;
+     *                defaults to true
+     * \returns StickyFault_RotorFault2 Status Signal Object
+     */
+    virtual StatusSignal<bool> &GetStickyFault_RotorFault2(bool refresh = true) = 0;
     
     /**
      * \brief Request a specified motor current (field oriented control).
@@ -52,58 +127,68 @@ public:
      * - TorqueCurrentFOC Parameters: 
      *   - Output: Amount of motor current in Amperes
      *   - MaxAbsDutyCycle: The maximum absolute motor output that can be applied,
-     *                   which effectively limits the velocity. For example, 0.50
-     *                   means no more than 50% output in either direction.  This is
-     *                   useful for preventing the motor from spinning to its
-     *                   terminal velocity when there is no external torque applied
-     *                   unto the rotor.  Note this is absolute maximum, so the
-     *                   value should be between zero and one.
+     *                      which effectively limits the velocity. For example, 0.50
+     *                      means no more than 50% output in either direction.  This
+     *                      is useful for preventing the motor from spinning to its
+     *                      terminal velocity when there is no external torque
+     *                      applied unto the rotor.  Note this is absolute maximum,
+     *                      so the value should be between zero and one.
      *   - Deadband: Deadband in Amperes.  If torque request is within deadband, the
-     *            bridge output is neutral. If deadband is set to zero then there is
-     *            effectively no deadband. Note if deadband is zero, a free spinning
-     *            motor will spin for quite a while as the firmware attempts to hold
-     *            the motor's bemf. If user expects motor to cease spinning quickly
-     *            with a demand of zero, we recommend a deadband of one Ampere. This
-     *            value will be converted to an integral value of amps.
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *               bridge output is neutral. If deadband is set to zero then there
+     *               is effectively no deadband. Note if deadband is zero, a free
+     *               spinning motor will spin for quite a while as the firmware
+     *               attempts to hold the motor's bemf. If user expects motor to
+     *               cease spinning quickly with a demand of zero, we recommend a
+     *               deadband of one Ampere. This value will be converted to an
+     *               integral value of amps.
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::TorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::TorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Request PID to target position with torque current
@@ -116,51 +201,63 @@ public:
      * - PositionTorqueCurrentFOC Parameters: 
      *   - Position: Position to drive toward in rotations.
      *   - Velocity: Velocity to drive toward in rotations per second. This is
-     *            typically used for motion profiles generated by the robot program.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *               typically used for motion profiles generated by the robot
+     *               program.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::PositionTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::PositionTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Request PID to target velocity with torque current
@@ -172,53 +269,64 @@ public:
      * 
      * - VelocityTorqueCurrentFOC Parameters: 
      *   - Velocity: Velocity to drive toward in rotations per second.
-     *   - Acceleration: Acceleration to drive toward in rotations per second squared.
-     *                This is typically used for motion profiles generated by the
-     *                robot program.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *   - Acceleration: Acceleration to drive toward in rotations per second
+     *                   squared. This is typically used for motion profiles
+     *                   generated by the robot program.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::VelocityTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::VelocityTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
@@ -238,50 +346,61 @@ public:
      * 
      * - MotionMagicTorqueCurrentFOC Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::MotionMagicTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::MotionMagicTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Requests Motion Magic® to target a final velocity using a
@@ -306,70 +425,69 @@ public:
      * for the numerator.
      * 
      * - MotionMagicVelocityTorqueCurrentFOC Parameters: 
-     *   - Velocity: Target velocity to drive toward in rotations per second.  This can
-     *            be changed on-the fly.
+     *   - Velocity: Target velocity to drive toward in rotations per second.  This
+     *               can be changed on-the fly.
      *   - Acceleration: This is the absolute Acceleration to use generating the
-     *                profile.  If this parameter is zero, the Acceleration
-     *                persistent configuration parameter is used instead.
-     *                Acceleration is in rotations per second squared.  If nonzero,
-     *                the signage does not matter as the absolute value is used.
-     *   - EnableFOC: Set to true to use FOC commutation (requires Phoenix Pro), which
-     *             increases peak power by ~15% on supported devices (see
-     *             hardware#traits#SupportsFOC). Set to false to use trapezoidal
-     *             commutation.
-     *             
-     *             FOC improves motor performance by leveraging torque (current)
-     *             control.  However, this may be inconvenient for applications that
-     *             require specifying duty cycle or voltage.  CTR-Electronics has
-     *             developed a hybrid method that combines the performances gains of
-     *             FOC while still allowing applications to provide duty cycle or
-     *             voltage demand.  This not to be confused with simple sinusoidal
-     *             control or phase voltage control which lacks the performance
-     *             gains.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *                   profile.  If this parameter is zero, the Acceleration
+     *                   persistent configuration parameter is used instead.
+     *                   Acceleration is in rotations per second squared.  If
+     *                   nonzero, the signage does not matter as the absolute value
+     *                   is used.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::MotionMagicVelocityTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::MotionMagicVelocityTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Requests Motion Magic® to target a final position using an
@@ -393,57 +511,67 @@ public:
      * 
      * - MotionMagicExpoTorqueCurrentFOC Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::MotionMagicExpoTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::MotionMagicExpoTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Requests Motion Magic® to target a final position using a
      * motion profile.  This dynamic request allows runtime changes to
-     * Cruise Velocity, Acceleration, and Jerk.  Users can optionally
-     * provide a torque current feedforward.  This control requires use of
-     * a CANivore.
+     * Cruise Velocity, Acceleration, and (optional) Jerk.  Users can
+     * optionally provide a torque current feedforward.
      * 
      * \details Motion Magic® produces a motion profile in real-time while
      * attempting to honor the specified Cruise Velocity, Acceleration,
@@ -457,59 +585,165 @@ public:
      * 
      * - DynamicMotionMagicTorqueCurrentFOC Parameters: 
      *   - Position: Position to drive toward in rotations.
-     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as the
-     *            device will use the absolute value for profile generation.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation.
      *   - Acceleration: Acceleration for profiling.  The signage does not matter as
-     *                the device will use the absolute value for profile generation.
+     *                   the device will use the absolute value for profile
+     *                   generation.
      *   - Jerk: Jerk for profiling.  The signage does not matter as the device will
-     *        use the absolute value for profile generation.
-     *        
-     *        Jerk is optional; if this is set to zero, then Motion Magic® will not
-     *        apply a Jerk limit.
-     *   - FeedForward: Feedforward to apply in torque current in Amperes.  User can
-     *               use motor's kT to scale Newton-meter to Amperes.
+     *           use the absolute value for profile generation.
+     *           
+     *           Jerk is optional; if this is set to zero, then Motion Magic® will
+     *           not apply a Jerk limit.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
      *   - Slot: Select which gains are applied by selecting the slot.  Use the
-     *        configuration api to set the gain values for the selected slot before
-     *        enabling this feature. Slot must be within [0,2].
-     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is zero
-     *                           (or within deadband).  Set to false to use the
-     *                           NeutralMode configuration setting (default). This
-     *                           flag exists to provide the fundamental behavior of
-     *                           this control when output is zero, which is to
-     *                           provide 0A (zero torque).
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
      *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
      *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
-     *                      users to use other limit switch sensors connected to
-     *                      robot controller.  This also allows use of active
-     *                      sensors that require external power.
-     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and the
-     *                        LimitForwardMotion and LimitReverseMotion parameters,
-     *                        instead allowing motion.
-     *                        
-     *                        This can be useful on mechanisms such as an
-     *                        intake/feeder, where a limit switch stops motion while
-     *                        intaking but should be ignored when feeding to a
-     *                        shooter.
-     *                        
-     *                        The hardware limit faults and Forward/ReverseLimit
-     *                        signals will still report the values of the limit
-     *                        switches regardless of this parameter.
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
      *   - UseTimesync: Set to true to delay applying this control request until a
-     *               timesync boundary (requires Phoenix Pro and CANivore). This
-     *               eliminates the impact of nondeterministic network delays in
-     *               exchange for a larger but deterministic control latency.
-     *               
-     *               This requires setting the ControlTimesyncFreqHz config in
-     *               MotorOutputConfigs. Additionally, when this is enabled, the
-     *               UpdateFreqHz of this request should be set to 0 Hz.
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::DynamicMotionMagicTorqueCurrentFOC &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicTorqueCurrentFOC const &request) = 0;
+    
+    /**
+     * \brief Requests Motion Magic® Expo to target a final position using
+     * an exponential motion profile.  This dynamic request allows runtime
+     * changes to the profile kV, kA, and (optional) Cruise Velocity. 
+     * Users can optionally provide a torque current feedforward.
+     * 
+     * \details Motion Magic® Expo produces a motion profile in real-time
+     * while attempting to honor the specified Cruise Velocity (optional)
+     * and the mechanism kV and kA.  Note that unlike the slot gains, the
+     * Expo_kV and Expo_kA parameters are always in output units of Volts.
+     * 
+     * Setting the Cruise Velocity to 0 will allow the profile to run to
+     * the max possible velocity based on Expo_kV.  This control mode does
+     * not use the Acceleration or Jerk configs.
+     * 
+     * Target position can be changed on-the-fly and Motion Magic® will do
+     * its best to adjust the profile. This control mode is based on
+     * torque current, so relevant closed-loop gains will use Amperes for
+     * the numerator.
+     * 
+     * - DynamicMotionMagicExpoTorqueCurrentFOC Parameters: 
+     *   - Position: Position to drive toward in rotations.
+     *   - kV: Mechanism kV for profiling.  Unlike the kV slot gain, this is always
+     *         in units of V/rps.
+     *         
+     *         This represents the amount of voltage necessary to hold a velocity. 
+     *         In terms of the Motion Magic® Expo profile, a higher kV results in a
+     *         slower maximum velocity.
+     *   - kA: Mechanism kA for profiling.  Unlike the kA slot gain, this is always
+     *         in units of V/rps².
+     *         
+     *         This represents the amount of voltage necessary to achieve an
+     *         acceleration.  In terms of the Motion Magic® Expo profile, a higher
+     *         kA results in a slower acceleration.
+     *   - Velocity: Cruise velocity for profiling.  The signage does not matter as
+     *               the device will use the absolute value for profile generation. 
+     *               Setting this to 0 will allow the profile to run to the max
+     *               possible velocity based on Expo_kV.
+     *   - FeedForward: Feedforward to apply in torque current in Amperes. This is
+     *                  added to the output of the onboard feedforward terms.
+     *                  
+     *                  User can use motor's kT to scale Newton-meter to Amperes.
+     *   - Slot: Select which gains are applied by selecting the slot.  Use the
+     *           configuration api to set the gain values for the selected slot
+     *           before enabling this feature. Slot must be within [0,2].
+     *   - OverrideCoastDurNeutral: Set to true to coast the rotor when output is
+     *                              zero (or within deadband).  Set to false to use
+     *                              the NeutralMode configuration setting (default).
+     *                              This flag exists to provide the fundamental
+     *                              behavior of this control when output is zero,
+     *                              which is to provide 0A (zero torque).
+     *   - LimitForwardMotion: Set to true to force forward limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - LimitReverseMotion: Set to true to force reverse limiting.  This allows
+     *                         users to use other limit switch sensors connected to
+     *                         robot controller.  This also allows use of active
+     *                         sensors that require external power.
+     *   - IgnoreHardwareLimits: Set to true to ignore hardware limit switches and
+     *                           the LimitForwardMotion and LimitReverseMotion
+     *                           parameters, instead allowing motion.
+     *                           
+     *                           This can be useful on mechanisms such as an
+     *                           intake/feeder, where a limit switch stops motion
+     *                           while intaking but should be ignored when feeding
+     *                           to a shooter.
+     *                           
+     *                           The hardware limit faults and Forward/ReverseLimit
+     *                           signals will still report the values of the limit
+     *                           switches regardless of this parameter.
+     *   - IgnoreSoftwareLimits: Set to true to ignore software limits, instead
+     *                           allowing motion.
+     *                           
+     *                           This can be useful when calibrating the zero point
+     *                           of a mechanism such as an elevator.
+     *                           
+     *                           The software limit faults will still report the
+     *                           values of the software limits regardless of this
+     *                           parameter.
+     *   - UseTimesync: Set to true to delay applying this control request until a
+     *                  timesync boundary (requires Phoenix Pro and CANivore). This
+     *                  eliminates the impact of nondeterministic network delays in
+     *                  exchange for a larger but deterministic control latency.
+     *                  
+     *                  This requires setting the ControlTimesyncFreqHz config in
+     *                  MotorOutputConfigs. Additionally, when this is enabled, the
+     *                  UpdateFreqHz of this request should be set to 0 Hz.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::DynamicMotionMagicExpoTorqueCurrentFOC const &request) = 0;
     
     /**
      * \brief Differential control with torque current average target and
@@ -518,40 +752,42 @@ public:
      * - Diff_TorqueCurrentFOC_Position Parameters: 
      *   - AverageRequest: Average TorqueCurrentFOC request of the mechanism.
      *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_TorqueCurrentFOC_Position &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_TorqueCurrentFOC_Position const &request) = 0;
     
     /**
      * \brief Differential control with position average target and
      * position difference target using torque current control.
      * 
      * - Diff_PositionTorqueCurrentFOC_Position Parameters: 
-     *   - AverageRequest: Average PositionTorqueCurrentFOC request of the mechanism.
+     *   - AverageRequest: Average PositionTorqueCurrentFOC request of the
+     *                     mechanism.
      *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionTorqueCurrentFOC_Position &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionTorqueCurrentFOC_Position const &request) = 0;
     
     /**
      * \brief Differential control with velocity average target and
      * position difference target using torque current control.
      * 
      * - Diff_VelocityTorqueCurrentFOC_Position Parameters: 
-     *   - AverageRequest: Average VelocityTorqueCurrentFOC request of the mechanism.
+     *   - AverageRequest: Average VelocityTorqueCurrentFOC request of the
+     *                     mechanism.
      *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityTorqueCurrentFOC_Position &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityTorqueCurrentFOC_Position const &request) = 0;
     
     /**
      * \brief Differential control with Motion Magic® average target and
@@ -559,14 +795,44 @@ public:
      * 
      * - Diff_MotionMagicTorqueCurrentFOC_Position Parameters: 
      *   - AverageRequest: Average MotionMagicTorqueCurrentFOC request of the
-     *                  mechanism.
+     *                     mechanism.
      *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicTorqueCurrentFOC_Position &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicTorqueCurrentFOC_Position const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and position difference target using torque current control.
+     * 
+     * - Diff_MotionMagicExpoTorqueCurrentFOC_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoTorqueCurrentFOC_Position const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and position difference target using torque current control.
+     * 
+     * - Diff_MotionMagicVelocityTorqueCurrentFOC_Position Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityTorqueCurrentFOC request of
+     *                     the mechanism.
+     *   - DifferentialRequest: Differential PositionTorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityTorqueCurrentFOC_Position const &request) = 0;
     
     /**
      * \brief Differential control with torque current average target and
@@ -575,40 +841,42 @@ public:
      * - Diff_TorqueCurrentFOC_Velocity Parameters: 
      *   - AverageRequest: Average TorqueCurrentFOC request of the mechanism.
      *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_TorqueCurrentFOC_Velocity &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_TorqueCurrentFOC_Velocity const &request) = 0;
     
     /**
      * \brief Differential control with position average target and
      * velocity difference target using torque current control.
      * 
      * - Diff_PositionTorqueCurrentFOC_Velocity Parameters: 
-     *   - AverageRequest: Average PositionTorqueCurrentFOC request of the mechanism.
+     *   - AverageRequest: Average PositionTorqueCurrentFOC request of the
+     *                     mechanism.
      *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_PositionTorqueCurrentFOC_Velocity &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionTorqueCurrentFOC_Velocity const &request) = 0;
     
     /**
      * \brief Differential control with velocity average target and
      * velocity difference target using torque current control.
      * 
      * - Diff_VelocityTorqueCurrentFOC_Velocity Parameters: 
-     *   - AverageRequest: Average VelocityTorqueCurrentFOC request of the mechanism.
+     *   - AverageRequest: Average VelocityTorqueCurrentFOC request of the
+     *                     mechanism.
      *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_VelocityTorqueCurrentFOC_Velocity &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityTorqueCurrentFOC_Velocity const &request) = 0;
     
     /**
      * \brief Differential control with Motion Magic® average target and
@@ -616,14 +884,141 @@ public:
      * 
      * - Diff_MotionMagicTorqueCurrentFOC_Velocity Parameters: 
      *   - AverageRequest: Average MotionMagicTorqueCurrentFOC request of the
-     *                  mechanism.
+     *                     mechanism.
      *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
-     *                       mechanism.
+     *                          mechanism.
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::compound::Diff_MotionMagicTorqueCurrentFOC_Velocity &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicTorqueCurrentFOC_Velocity const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and velocity difference target using torque current control.
+     * 
+     * - Diff_MotionMagicExpoTorqueCurrentFOC_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoTorqueCurrentFOC_Velocity const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and velocity difference target using torque current control.
+     * 
+     * - Diff_MotionMagicVelocityTorqueCurrentFOC_Velocity Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityTorqueCurrentFOC request of
+     *                     the mechanism.
+     *   - DifferentialRequest: Differential VelocityTorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityTorqueCurrentFOC_Velocity const &request) = 0;
+    
+    /**
+     * \brief Differential control with torque current average target and
+     * torque current difference target.
+     * 
+     * - Diff_TorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average TorqueCurrentFOC request of the mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_TorqueCurrentFOC_Open const &request) = 0;
+    
+    /**
+     * \brief Differential control with position average target and torque
+     * current difference target.
+     * 
+     * - Diff_PositionTorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average PositionTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_PositionTorqueCurrentFOC_Open const &request) = 0;
+    
+    /**
+     * \brief Differential control with velocity average target and torque
+     * current difference target.
+     * 
+     * - Diff_VelocityTorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average VelocityTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_VelocityTorqueCurrentFOC_Open const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® average target and
+     * torque current difference target.
+     * 
+     * - Diff_MotionMagicTorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicTorqueCurrentFOC_Open const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Expo average target
+     * and torque current difference target.
+     * 
+     * - Diff_MotionMagicExpoTorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicExpoTorqueCurrentFOC request of the
+     *                     mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicExpoTorqueCurrentFOC_Open const &request) = 0;
+    
+    /**
+     * \brief Differential control with Motion Magic® Velocity average
+     * target and torque current difference target.
+     * 
+     * - Diff_MotionMagicVelocityTorqueCurrentFOC_Open Parameters: 
+     *   - AverageRequest: Average MotionMagicVelocityTorqueCurrentFOC request of
+     *                     the mechanism.
+     *   - DifferentialRequest: Differential TorqueCurrentFOC request of the
+     *                          mechanism.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::compound::Diff_MotionMagicVelocityTorqueCurrentFOC_Open const &request) = 0;
+
+    /**
+     * \brief Apply a generic empty control used to do nothing.
+     *
+     * \param request Control object to request of the device
+     * \returns Status code of the request
+     */
+    virtual ctre::phoenix::StatusCode SetControl(controls::EmptyControl const &request) = 0;
 
     /**
      * \brief Control device with generic control request object. User must make
@@ -632,10 +1027,53 @@ public:
      *        StatusCode
      *
      * \param request Control object to request of the device
-     * \returns Status Code of the request, 0 is OK
+     * \returns Status code of the request
      */
-    virtual ctre::phoenix::StatusCode SetControl(const controls::ControlRequest &request) = 0;
+    virtual ctre::phoenix::StatusCode SetControl(controls::ControlRequest const &request) = 0;
     
+    /**
+     * \brief Clear sticky fault: Trips if a major mechanical or ESD event
+     * caused a brief loss of position data triggering a recovery while
+     * not in motion. If the event occurs often, inspect for excess axial
+     * force or sources of ESD at the rotor.
+     * 
+     * \param timeoutSeconds Maximum time to wait up to in seconds.
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_RotorFault1(units::time::second_t timeoutSeconds) = 0;
+    /**
+     * \brief Clear sticky fault: Trips if a major mechanical or ESD event
+     * caused a brief loss of position data triggering a recovery while
+     * not in motion. If the event occurs often, inspect for excess axial
+     * force or sources of ESD at the rotor.
+     * 
+     * This will wait up to 0.100 seconds (100ms) by default.
+     * 
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_RotorFault1() = 0;
+    
+    /**
+     * \brief Clear sticky fault: Trips if a major mechanical or ESD event
+     * caused a brief loss of position data triggering a recovery while in
+     * motion. If the event occurs often, inspect for excess axial force
+     * or sources of ESD at the rotor.
+     * 
+     * \param timeoutSeconds Maximum time to wait up to in seconds.
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_RotorFault2(units::time::second_t timeoutSeconds) = 0;
+    /**
+     * \brief Clear sticky fault: Trips if a major mechanical or ESD event
+     * caused a brief loss of position data triggering a recovery while in
+     * motion. If the event occurs often, inspect for excess axial force
+     * or sources of ESD at the rotor.
+     * 
+     * This will wait up to 0.100 seconds (100ms) by default.
+     * 
+     * \returns StatusCode of the set command
+     */
+    virtual ctre::phoenix::StatusCode ClearStickyFault_RotorFault2() = 0;
 };
 
 }

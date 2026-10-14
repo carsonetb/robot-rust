@@ -16,7 +16,6 @@ namespace platform {
         VictorSPXType,	\
         PigeonIMUType,	\
         RibbonPigeonIMUType,	\
-        CANCoderType,	\
         P6_TalonFXType,	\
         P6_CANcoderType,	\
         P6_Pigeon2Type,	\

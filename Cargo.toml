@@ -7,6 +7,7 @@ description = "The robot-rust project, bindings for wpilib, ctre, and rev in rus
 homepage = "https://github.com/carsonetb/robot-rust"
 repository = "https://github.com/carsonetb/robot-rust"
 exclude = ["*.so", "*.so.*"]
+link = "wpilib"
 
 [build-dependencies]
 bindgen = "0.73.2"

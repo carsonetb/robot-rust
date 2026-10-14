@@ -7,9 +7,6 @@
 #pragma once
 
 #include "ctre/phoenix6/controls/ControlRequest.hpp"
-#include "ctre/phoenix6/networking/interfaces/Control_Interface.h"
-#include <sstream>
-
 #include <units/frequency.h>
 #include <units/time.h>
 #include <units/dimensionless.h>
@@ -26,37 +23,20 @@ namespace controls {
  * This control mode will output a proportion of the supplied voltage which is supplied by the user. It will
  * also set the motor's differential position setpoint to the specified position.
  */
-class DifferentialDutyCycle : public ControlRequest
-{
-    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override
-    {
-        if (req.get() != this)
-        {
-            auto const reqCast = dynamic_cast<DifferentialDutyCycle *>(req.get());
-            if (reqCast != nullptr)
-            {
-                *reqCast = *this;
-            }
-            else
-            {
-                req = std::make_shared<DifferentialDutyCycle>(*this);
-            }
-        }
-
-        return c_ctre_phoenix6_RequestControlDifferentialDutyCycle(network, deviceHash, UpdateFreqHz.to<double>(), TargetOutput.to<double>(), DifferentialPosition.to<double>(), EnableFOC, DifferentialSlot, OverrideBrakeDurNeutral, LimitForwardMotion, LimitReverseMotion, IgnoreHardwareLimits, UseTimesync);
-    }
+class DifferentialDutyCycle final : public ControlRequest {
+    ctre::phoenix::StatusCode SendRequest(const char *network, uint32_t deviceHash, std::shared_ptr<ControlRequest> &req) const override;
 
 public:
     /**
-     * \brief Proportion of supply voltage to apply in fractional units between -1
-     * and +1
+     * \brief Proportion of supply voltage to apply on the Average axis in
+     * fractional units between -1 and +1.
      * 
      * - Units: fractional
      * 
      */
-    units::dimensionless::scalar_t TargetOutput;
+    units::dimensionless::scalar_t AverageOutput;
     /**
-     * \brief Differential position to drive towards in rotations
+     * \brief Differential position to drive towards in rotations.
      * 
      * - Units: rotations
      * 
@@ -115,6 +95,16 @@ public:
      */
     bool IgnoreHardwareLimits = false;
     /**
+     * \brief Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     */
+    bool IgnoreSoftwareLimits = false;
+    /**
      * \brief Set to true to delay applying this control request until a timesync
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
@@ -127,9 +117,11 @@ public:
     bool UseTimesync = false;
 
     /**
-     * \brief The period at which this control will update at.
+     * \brief The frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -147,31 +139,44 @@ public:
      *          which is supplied by the user. It will also set the motor's
      *          differential position setpoint to the specified position.
      * 
-     * \param TargetOutput    Proportion of supply voltage to apply in fractional
-     *                        units between -1 and +1
-     * \param DifferentialPosition    Differential position to drive towards in
-     *                                rotations
+     * \param AverageOutput Proportion of supply voltage to apply on the Average
+     *                      axis in fractional units between -1 and +1.
+     * \param DifferentialPosition Differential position to drive towards in
+     *                             rotations.
      */
-    DifferentialDutyCycle(units::dimensionless::scalar_t TargetOutput, units::angle::turn_t DifferentialPosition) : ControlRequest{"DifferentialDutyCycle"},
-        TargetOutput{std::move(TargetOutput)},
+    constexpr DifferentialDutyCycle(units::dimensionless::scalar_t AverageOutput, units::angle::turn_t DifferentialPosition) : ControlRequest{},
+        AverageOutput{std::move(AverageOutput)},
         DifferentialPosition{std::move(DifferentialPosition)}
     {}
+
+    constexpr ~DifferentialDutyCycle() override {}
+
+    /**
+     * \brief Gets the name of this control request.
+     *
+     * \returns Name of the control request
+     */
+    constexpr std::string_view GetName() const override
+    {
+        return "DifferentialDutyCycle";
+    }
     
     /**
-     * \brief Modifies this Control Request's TargetOutput parameter and returns itself for
+     * \brief Modifies this Control Request's AverageOutput parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Proportion of supply voltage to apply in fractional units between -1 and +1
+     * Proportion of supply voltage to apply on the Average axis in fractional units
+     * between -1 and +1.
      * 
      * - Units: fractional
      * 
      *
-     * \param newTargetOutput Parameter to modify
+     * \param newAverageOutput Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithTargetOutput(units::dimensionless::scalar_t newTargetOutput)
+    constexpr DifferentialDutyCycle &WithAverageOutput(units::dimensionless::scalar_t newAverageOutput)
     {
-        TargetOutput = std::move(newTargetOutput);
+        AverageOutput = std::move(newAverageOutput);
         return *this;
     }
     
@@ -179,7 +184,7 @@ public:
      * \brief Modifies this Control Request's DifferentialPosition parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
-     * Differential position to drive towards in rotations
+     * Differential position to drive towards in rotations.
      * 
      * - Units: rotations
      * 
@@ -187,7 +192,7 @@ public:
      * \param newDifferentialPosition Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
+    constexpr DifferentialDutyCycle &WithDifferentialPosition(units::angle::turn_t newDifferentialPosition)
     {
         DifferentialPosition = std::move(newDifferentialPosition);
         return *this;
@@ -212,7 +217,7 @@ public:
      * \param newEnableFOC Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithEnableFOC(bool newEnableFOC)
+    constexpr DifferentialDutyCycle &WithEnableFOC(bool newEnableFOC)
     {
         EnableFOC = std::move(newEnableFOC);
         return *this;
@@ -229,7 +234,7 @@ public:
      * \param newDifferentialSlot Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithDifferentialSlot(int newDifferentialSlot)
+    constexpr DifferentialDutyCycle &WithDifferentialSlot(int newDifferentialSlot)
     {
         DifferentialSlot = std::move(newDifferentialSlot);
         return *this;
@@ -247,7 +252,7 @@ public:
      * \param newOverrideBrakeDurNeutral Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
+    constexpr DifferentialDutyCycle &WithOverrideBrakeDurNeutral(bool newOverrideBrakeDurNeutral)
     {
         OverrideBrakeDurNeutral = std::move(newOverrideBrakeDurNeutral);
         return *this;
@@ -264,7 +269,7 @@ public:
      * \param newLimitForwardMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
+    constexpr DifferentialDutyCycle &WithLimitForwardMotion(bool newLimitForwardMotion)
     {
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
@@ -281,7 +286,7 @@ public:
      * \param newLimitReverseMotion Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
+    constexpr DifferentialDutyCycle &WithLimitReverseMotion(bool newLimitReverseMotion)
     {
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
@@ -304,9 +309,30 @@ public:
      * \param newIgnoreHardwareLimits Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
+    constexpr DifferentialDutyCycle &WithIgnoreHardwareLimits(bool newIgnoreHardwareLimits)
     {
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
+        return *this;
+    }
+    
+    /**
+     * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
+     *        method-chaining and easier to use request API.
+     *
+     * Set to true to ignore software limits, instead allowing motion.
+     * 
+     * This can be useful when calibrating the zero point of a mechanism such as an
+     * elevator.
+     * 
+     * The software limit faults will still report the values of the software limits
+     * regardless of this parameter.
+     *
+     * \param newIgnoreSoftwareLimits Parameter to modify
+     * \returns Itself
+     */
+    constexpr DifferentialDutyCycle &WithIgnoreSoftwareLimits(bool newIgnoreSoftwareLimits)
+    {
+        IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
     
@@ -326,15 +352,18 @@ public:
      * \param newUseTimesync Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithUseTimesync(bool newUseTimesync)
+    constexpr DifferentialDutyCycle &WithUseTimesync(bool newUseTimesync)
     {
         UseTimesync = std::move(newUseTimesync);
         return *this;
     }
+
     /**
-     * \brief Sets the period at which this control will update at.
+     * \brief Sets the frequency at which this control will update.
      * This is designated in Hertz, with a minimum of 20 Hz
      * (every 50 ms) and a maximum of 1000 Hz (every 1 ms).
+     * Some update frequencies are not supported and will be
+     * promoted up to the next highest supported frequency.
      *
      * If this field is set to 0 Hz, the control request will
      * be sent immediately as a one-shot frame. This may be useful
@@ -345,53 +374,25 @@ public:
      * \param newUpdateFreqHz Parameter to modify
      * \returns Itself
      */
-    DifferentialDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
+    constexpr DifferentialDutyCycle &WithUpdateFreqHz(units::frequency::hertz_t newUpdateFreqHz)
     {
         UpdateFreqHz = newUpdateFreqHz;
         return *this;
     }
+
     /**
      * \brief Returns a string representation of the object.
      *
      * \returns a string representation of the object.
      */
-    std::string ToString() const override
-    {
-        std::stringstream ss;
-        ss << "Control: DifferentialDutyCycle" << std::endl;
-        ss << "    TargetOutput: " << TargetOutput.to<double>() << " fractional" << std::endl;
-        ss << "    DifferentialPosition: " << DifferentialPosition.to<double>() << " rotations" << std::endl;
-        ss << "    EnableFOC: " << EnableFOC << std::endl;
-        ss << "    DifferentialSlot: " << DifferentialSlot << std::endl;
-        ss << "    OverrideBrakeDurNeutral: " << OverrideBrakeDurNeutral << std::endl;
-        ss << "    LimitForwardMotion: " << LimitForwardMotion << std::endl;
-        ss << "    LimitReverseMotion: " << LimitReverseMotion << std::endl;
-        ss << "    IgnoreHardwareLimits: " << IgnoreHardwareLimits << std::endl;
-        ss << "    UseTimesync: " << UseTimesync << std::endl;
-        return ss.str();
-    }
+    std::string ToString() const override;
 
     /**
      * \brief Gets information about this control request.
      *
      * \returns Map of control parameter names and corresponding applied values
      */
-    std::map<std::string, std::string> GetControlInfo() const override
-    {
-        std::map<std::string, std::string> controlInfo;
-        std::stringstream ss;
-        controlInfo["Name"] = GetName();
-        ss << TargetOutput.to<double>(); controlInfo["TargetOutput"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialPosition.to<double>(); controlInfo["DifferentialPosition"] = ss.str(); ss.str(std::string{});
-        ss << EnableFOC; controlInfo["EnableFOC"] = ss.str(); ss.str(std::string{});
-        ss << DifferentialSlot; controlInfo["DifferentialSlot"] = ss.str(); ss.str(std::string{});
-        ss << OverrideBrakeDurNeutral; controlInfo["OverrideBrakeDurNeutral"] = ss.str(); ss.str(std::string{});
-        ss << LimitForwardMotion; controlInfo["LimitForwardMotion"] = ss.str(); ss.str(std::string{});
-        ss << LimitReverseMotion; controlInfo["LimitReverseMotion"] = ss.str(); ss.str(std::string{});
-        ss << IgnoreHardwareLimits; controlInfo["IgnoreHardwareLimits"] = ss.str(); ss.str(std::string{});
-        ss << UseTimesync; controlInfo["UseTimesync"] = ss.str(); ss.str(std::string{});
-        return controlInfo;
-    }
+    std::map<std::string, std::string> GetControlInfo() const override;
 };
 
 }

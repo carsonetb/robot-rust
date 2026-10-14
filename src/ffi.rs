@@ -76,8 +76,12 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix6::configs::GyroTrimConfigs")
     generate!("ctre::phoenix6::configs::Pigeon2FeaturesConfigs")
 
+    generate!("ctre_helpers::talonfx::set")
     generate!("ctre_helpers::talonfx::set_voltage")
     generate!("ctre_helpers::talonfx::set_position")
+    generate!("ctre_helpers::talonfx::neutral")
+    generate!("ctre_helpers::talonfx::coast")
+    generate!("ctre_helpers::talonfx::get_duty_cycle")
     generate!("ctre_helpers::talonfx::get_output_voltage")
     generate!("ctre_helpers::talonfx::get_supply_voltage")
     generate!("ctre_helpers::talonfx::get_torque_current")
@@ -220,9 +224,10 @@ pub mod talon {
         set_kA, set_kD, set_kG, set_kI, set_kP, set_kS, set_kV,
     };
     pub use ffi::ctre_helpers::talonfx::{
-        get_acceleration, get_configurator, get_device_temp, get_kt, get_kv, get_output_voltage,
-        get_position, get_stall_current, get_stator_current, get_supply_current,
-        get_supply_voltage, get_torque_current, get_velocity, set_position, set_voltage,
+        coast, get_acceleration, get_configurator, get_device_temp, get_duty_cycle, get_kt, get_kv,
+        get_output_voltage, get_position, get_stall_current, get_stator_current,
+        get_supply_current, get_supply_voltage, get_torque_current, get_velocity, neutral, set,
+        set_position, set_voltage,
     };
 }
 

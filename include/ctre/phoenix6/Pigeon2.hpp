@@ -8,61 +8,36 @@
 
 #include "ctre/phoenix6/core/CorePigeon2.hpp"
 
-#include "frc/geometry/Rotation2d.h"
-#include "frc/geometry/Rotation3d.h"
-#include "wpi/sendable/Sendable.h"
-#include "wpi/sendable/SendableBuilder.h"
-#include "wpi/sendable/SendableHelper.h"
-#include <hal/SimDevice.h>
-
-
 namespace ctre {
 namespace phoenix6 {
 namespace hardware {
 
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(push)
+#pragma warning(disable : 4250)
+#endif
+
 /**
  * Class description for the Pigeon 2 IMU sensor that measures orientation.
  */
-class Pigeon2 : public core::CorePigeon2,
-                public wpi::Sendable,
-                public wpi::SendableHelper<Pigeon2>
-{
-    /*
-     * The StatusSignal getters are copies so that calls
-     * to the WPI interface do not update any references
-     *
-     * These are also mutable so the const getter methods are
-     * properly managed.
-     */
-    mutable StatusSignal<units::angle::degree_t> m_yawGetter = GetYaw(false);
-    mutable StatusSignal<units::angular_velocity::degrees_per_second_t> m_yawRateGetter = GetAngularVelocityZWorld(false);
-    mutable StatusSignal<units::dimensionless::scalar_t> m_quatWGetter = GetQuatW(false);
-    mutable StatusSignal<units::dimensionless::scalar_t> m_quatXGetter = GetQuatX(false);
-    mutable StatusSignal<units::dimensionless::scalar_t> m_quatYGetter = GetQuatY(false);
-    mutable StatusSignal<units::dimensionless::scalar_t> m_quatZGetter = GetQuatZ(false);
-
-    hal::SimDevice m_simPigeon;
-    hal::SimDouble m_simSupplyVoltage;
-    hal::SimDouble m_simYaw;
-    hal::SimDouble m_simRawYaw;
-    hal::SimDouble m_simPitch;
-    hal::SimDouble m_simRoll;
-    hal::SimDouble m_simAngularVelocityX;
-    hal::SimDouble m_simAngularVelocityY;
-    hal::SimDouble m_simAngularVelocityZ;
-
-    int32_t m_simPeriodicUid{-1};
-    std::vector<int32_t> m_simValueChangedUids;
-
-    static void OnValueChanged(const char* name, void* param, HAL_SimValueHandle handle,
-                               HAL_Bool readonly, const struct HAL_Value* value);
-    static void OnPeriodic(void* param);
-
+class Pigeon2 : public core::CorePigeon2 {
 public:
+    Pigeon2(Pigeon2 const &) = delete;
+    Pigeon2(Pigeon2 &&) noexcept : Pigeon2(0) {}
+
     /**
      * Constructs a new Pigeon 2 sensor object.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
+     * \param canbus      The CAN bus this device is on
+     */
+    Pigeon2(int deviceId, CANBus canbus = {}) : CorePigeon2{deviceId, std::move(canbus)}
+    {}
+
+    /**
+     * Constructs a new Pigeon 2 sensor object.
+     *
+     * \param deviceId    ID of the device, as configured in Phoenix Tuner
      * \param canbus      Name of the CAN bus this device is on. Possible CAN bus strings are:
      *                    - "rio" for the native roboRIO CAN bus
      *                    - CANivore name or serial number
@@ -72,88 +47,33 @@ public:
      *                      - "rio" on roboRIO
      *                      - "can0" on Linux
      *                      - "*" on Windows
-     */
-    Pigeon2(int deviceId, std::string canbus = "");
-    /**
-     * Constructs a new Pigeon 2 sensor object.
      *
-     * \param deviceId    ID of the device, as configured in Phoenix Tuner.
-     * \param canbus      The CAN bus this device is on.
+     * \deprecated Constructing devices with a CAN bus string is deprecated for removal
+     * in the 2027 season. Construct devices using a CANBus instance instead.
      */
-    Pigeon2(int deviceId, CANBus canbus) :
-        Pigeon2{deviceId, std::string{canbus.GetName()}}
+    [[deprecated(
+        "Constructing devices with a CAN bus string is deprecated for removal "
+        "in the 2027 season. Construct devices using a CANBus instance instead."
+    )]]
+    Pigeon2(int deviceId, std::string canbus) : CorePigeon2{deviceId, std::move(canbus)}
     {}
 
-    ~Pigeon2();
-
-    void InitSendable(wpi::SendableBuilder& builder) override;
-
     /**
-     * \brief Resets the Pigeon 2 to a heading of zero.
+     * \brief Constructs a stubbed-out Pigeon2, where all status signals, controls,
+     * configs, etc. perform no action and immediately return OK. This can be used to
+     * silence error messages for devices that have been completely removed from the robot.
      *
-     * \details This can be used if there is significant drift in the gyro,
-     * and it needs to be recalibrated after it has been running.
+     * \returns Stubbed-out Pigeon2
      */
-    void Reset();
-    /**
-     * \brief Returns the heading of the robot in degrees.
-     *
-     * The angle increases as the Pigeon 2 turns clockwise when looked
-     * at from the top. This follows the NED axis convention.
-     *
-     * \details The angle is continuous; that is, it will continue from
-     * 360 to 361 degrees. This allows for algorithms that wouldn't want
-     * to see a discontinuity in the gyro output as it sweeps past from
-     * 360 to 0 on the second time around.
-     *
-     * \deprecated This API is deprecated for removal in the 2026 season.
-     * Users should use #GetYaw instead. Note that Yaw is CCW+, whereas
-     * this API is CW+.
-     *
-     * \returns The current heading of the robot in degrees
-     */
-    [[deprecated("This API is deprecated for removal in the 2026 season."
-                "Users should use GetYaw() instead."
-                "Note that Yaw is CCW+, whereas this API is CW+.")]]
-    double GetAngle() const;
-    /**
-     * \brief Returns the rate of rotation of the Pigeon 2.
-     *
-     * The rate is positive as the Pigeon 2 turns clockwise when looked
-     * at from the top.
-     *
-     * \deprecated This API is deprecated for removal in the 2026 season.
-     * Users should use #GetAngularVelocityZWorld instead. Note that
-     * AngularVelocityZWorld is CCW+, whereas this API is CW+.
-     *
-     * \returns The current rate in degrees per second
-     */
-    [[deprecated("This API is deprecated for removal in the 2026 season."
-                "Users should use GetAngularVelocityZWorld() instead."
-                "Note that AngularVelocityZWorld is CCW+, whereas this API is CW+.")]]
-    double GetRate() const;
-    /**
-     * \brief Returns the heading of the robot as a frc#Rotation2d.
-     *
-     * The angle increases as the Pigeon 2 turns counterclockwise when
-     * looked at from the top. This follows the NWU axis convention.
-     *
-     * \details The angle is continuous; that is, it will continue from
-     * 360 to 361 degrees. This allows for algorithms that wouldn't want
-     * to see a discontinuity in the gyro output as it sweeps past from
-     * 360 to 0 on the second time around.
-     *
-     * \returns The current heading of the robot as a frc#Rotation2d
-     */
-    frc::Rotation2d GetRotation2d() const;
-    /**
-     * \brief Returns the orientation of the robot as a frc#Rotation3d
-     * created from the quaternion signals.
-     *
-     * \returns The current orientation of the robot as a frc#Rotation3d
-     */
-    frc::Rotation3d GetRotation3d() const;
+    static Pigeon2 None()
+    {
+        return Pigeon2{-1, CANBus{}};
+    }
 };
+
+#if defined(_WIN32) || defined(_WIN64)
+#pragma warning(pop)
+#endif
 
 }
 }
