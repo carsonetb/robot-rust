@@ -12,6 +12,9 @@ exclude = ["*.so", "*.so.*"]
 bindgen = "0.73.2"
 autocxx-build = "0.27"
 miette = { version = "5.10", features = ["fancy"] }
+reqwest = { version = "0.11", features = ["blocking"] }
+zip = "0.6"
+home = "0.5"
 
 [dependencies]
 autocxx = "0.30.0"
