@@ -79,6 +79,7 @@ macro_rules! define_unit_helpers {
 pub type Voltage = ElectricPotential;
 pub type Amps = ElectricCurrent;
 pub type Current = ElectricCurrent;
+pub type Temperature = ThermodynamicTemperature;
 
 define_unit_helpers! {
     pub trait UnitHelpers for f64 {

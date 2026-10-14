@@ -67,6 +67,14 @@ void apply_closed_loop(SparkConfigWrapper* wrapper, rev::spark::ClosedLoopConfig
     wrapper->config.Apply(config);
 }
 
+void apply_inverted(SparkConfigWrapper* wrapper, bool inverted) {
+    wrapper->config.Inverted(inverted);
+}
+
+void apply_idle_mode(SparkConfigWrapper* wrapper, uint32_t mode) {
+    wrapper->config.SetIdleMode(rev::spark::SparkBaseConfig::IdleMode{mode});
+}
+
 }
 
 }  // namespace rev_helpers

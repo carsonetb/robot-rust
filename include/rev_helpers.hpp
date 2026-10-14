@@ -46,6 +46,10 @@ inline rev::spark::SparkAbsoluteEncoder& get_absolute_encoder(rev::spark::SparkM
     return spark.GetAbsoluteEncoder();
 }
 
+inline double get_applied_output(rev::spark::SparkMax& spark) {
+    return spark.GetAppliedOutput();
+}
+
 inline double get_bus_voltage(rev::spark::SparkMax& spark) {
     return spark.GetBusVoltage();
 }
@@ -56,6 +60,26 @@ inline double get_output_current(rev::spark::SparkMax& spark) {
 
 inline double get_motor_temperature(rev::spark::SparkMax& spark) {
     return spark.GetMotorTemperature();
+}
+
+inline double get_position(rev::spark::SparkRelativeEncoder& enc) {
+    return enc.GetPosition();
+}
+
+inline double get_velocity(rev::spark::SparkRelativeEncoder& enc) {
+    return enc.GetVelocity();
+}
+
+inline rev::REVLibError set_position(rev::spark::SparkRelativeEncoder& enc, double position) {
+    return enc.SetPosition(position);
+}
+
+inline double absolute_get_position(rev::spark::SparkAbsoluteEncoder& enc) {
+    return enc.GetPosition();
+}
+
+inline double absolute_get_velocity(rev::spark::SparkAbsoluteEncoder& enc) {
+    return enc.GetVelocity();
 }
 
 struct SparkConfigWrapper;
@@ -73,6 +97,8 @@ void apply_absolute_encoder(SparkConfigWrapper* wrapper, rev::spark::AbsoluteEnc
 void apply_analog_sensor(SparkConfigWrapper* wrapper, rev::spark::AnalogSensorConfig& config);
 void apply_encoder(SparkConfigWrapper* wrapper, rev::spark::EncoderConfig& config);
 void apply_closed_loop(SparkConfigWrapper* wrapper, rev::spark::ClosedLoopConfig& config);
+void apply_inverted(SparkConfigWrapper* wrapper, bool inverted);
+void apply_idle_mode(SparkConfigWrapper* wrapper, uint32_t mode);
 
 }
 

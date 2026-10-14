@@ -74,6 +74,20 @@ impl SparkBaseConfig {
         }
         self
     }
+
+    pub fn with_inverted(self, inverted: bool) -> Self {
+        unsafe {
+            ffi::rev::apply_inverted(self.conf, inverted);
+        }
+        self
+    }
+
+    pub fn with_idle_mode(self, mode: IdleMode) -> Self {
+        unsafe {
+            ffi::rev::apply_idle_mode(self.conf, mode as u32);
+        }
+        self
+    }
 }
 
 impl Drop for SparkBaseConfig {

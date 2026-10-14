@@ -24,8 +24,11 @@ autocxx::include_cpp! {
     #include "ctre_helpers.hpp"
 
     #include "rev/SparkMax.h"
+    #include "rev/SparkRelativeEncoder.h"
+    #include "rev/SparkAbsoluteEncoder.h"
     #include "rev/ClosedLoopTypes.h"
     #include "rev/ConfigureTypes.h"
+    #include "rev/REVLibError.h"
     #include "rev/config/AbsoluteEncoderConfig.h"
     #include "rev/config/AnalogSensorConfig.h"
     #include "rev/config/EncoderConfig.h"
@@ -142,6 +145,10 @@ autocxx::include_cpp! {
 
     generate!("rev::spark::SparkMax")
     block_constructors!("rev::spark::SparkMax")
+    generate!("rev::spark::SparkRelativeEncoder")
+    block_constructors!("rev::spark::SparkRelativeEncoder")
+    generate!("rev::spark::SparkAbsoluteEncoder")
+    block_constructors!("rev::spark::SparkAbsoluteEncoder")
 
     generate!("rev::spark::AbsoluteEncoderConfig")
     generate!("rev::spark::AnalogSensorConfig")
@@ -156,6 +163,8 @@ autocxx::include_cpp! {
     generate!("rev::ResetMode")
     generate!("rev::PersistMode")
 
+    generate!("rev::REVLibError")
+
     generate!("rev_helpers::spark::create")
     generate!("rev_helpers::spark::set")
     generate!("rev_helpers::spark::set_voltage")
@@ -164,6 +173,7 @@ autocxx::include_cpp! {
     generate!("rev_helpers::spark::get")
     generate!("rev_helpers::spark::get_encoder")
     generate!("rev_helpers::spark::get_absolute_encoder")
+    generate!("rev_helpers::spark::get_applied_output")
     generate!("rev_helpers::spark::get_bus_voltage")
     generate!("rev_helpers::spark::get_output_current")
     generate!("rev_helpers::spark::get_motor_temperature")
@@ -180,6 +190,15 @@ autocxx::include_cpp! {
     generate!("rev_helpers::spark::apply_analog_sensor")
     generate!("rev_helpers::spark::apply_encoder")
     generate!("rev_helpers::spark::apply_closed_loop")
+    generate!("rev_helpers::spark::apply_inverted")
+    generate!("rev_helpers::spark::apply_idle_mode")
+
+    generate!("rev_helpers::spark::get_position")
+    generate!("rev_helpers::spark::get_velocity")
+    generate!("rev_helpers::spark::set_position")
+
+    generate!("rev_helpers::spark::absolute_get_position")
+    generate!("rev_helpers::spark::absolute_get_velocity")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -240,13 +259,17 @@ pub mod rev {
 
     pub use ffi::rev::spark::{
         AbsoluteEncoderConfig, AnalogSensorConfig, ClosedLoopConfig, ClosedLoopSlot, EncoderConfig,
-        FeedbackSensor, LimitSwitchConfig, SignalsConfig, SoftLimitConfig, SparkMax,
+        FeedbackSensor, LimitSwitchConfig, SignalsConfig, SoftLimitConfig, SparkAbsoluteEncoder,
+        SparkMax, SparkRelativeEncoder,
     };
-    pub use ffi::rev::{PersistMode, ResetMode};
+    pub use ffi::rev::{PersistMode, REVLibError, ResetMode};
     pub use ffi::rev_helpers::spark::{
-        SparkConfigWrapper, apply_absolute_encoder, apply_analog_sensor, apply_closed_loop,
-        apply_encoder, config_create, config_ctre_minion, config_delete, config_neo, config_neo_2,
-        config_neo_550, config_vortex, configure, create as sparkmax_create,
+        SparkConfigWrapper, absolute_get_position, absolute_get_velocity, apply_absolute_encoder,
+        apply_analog_sensor, apply_closed_loop, apply_encoder, apply_idle_mode, apply_inverted,
+        config_create, config_ctre_minion, config_delete, config_neo, config_neo_2, config_neo_550,
+        config_vortex, configure, create as sparkmax_create, disable, get, get_absolute_encoder,
+        get_applied_output, get_bus_voltage, get_encoder, get_motor_temperature,
+        get_output_current, get_position, get_velocity, set, set_position, set_voltage, stop,
     };
 }
 
