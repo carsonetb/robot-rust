@@ -2,6 +2,11 @@
 name = "robot-rust"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "The robot-rust project, bindings for wpilib, ctre, and rev in rust."
+homepage = "https://github.com/carsonetb/robot-rust"
+repository = "https://github.com/carsonetb/robot-rust"
+exclude = ["*.so", "*.so.*"]
 
 [build-dependencies]
 bindgen = "0.73.2"
@@ -11,7 +16,7 @@ miette = { version = "5.10", features = ["fancy"] }
 [dependencies]
 autocxx = "0.30.0"
 cxx = "1.0.202"
-autolog_macro = { path = "./autolog_macro" }
+frc_autolog_macro = "0.1"
 uom = "0.38.0"
 bevy_ecs = "0.20.0"
 num-traits = "0.2.19"

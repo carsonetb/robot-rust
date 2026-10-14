@@ -60,6 +60,7 @@ fn main() -> miette::Result<()> {
         .file("include/rev_helpers.cpp")
         .flag_if_supported("-std=c++20")
         .flag_if_supported("-Wno-deprecated-declarations")
+        .flag_if_supported("-Wno-psabi")
         .compile("ctre_bindings");
 
     Ok(())

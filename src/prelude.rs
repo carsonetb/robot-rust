@@ -14,9 +14,9 @@ pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;
 pub use crate::units::revolution_per_second_squared::revolution_per_second_squared;
 pub use crate::units::rpm::rpm;
 pub use crate::units::*;
-pub use autolog_macro::AutoLog;
 pub use bevy_ecs::prelude::{Component, Query};
 use bevy_ecs::system::{NonSend, NonSendMut};
+pub use frc_autolog_macro::AutoLog;
 
 pub type Resource<'a, T> = NonSend<'a, T>;
 pub type ResourceMut<'a, T> = NonSendMut<'a, T>;

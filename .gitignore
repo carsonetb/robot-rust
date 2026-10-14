@@ -1,4 +1,5 @@
 /target
+/autolog_macro/target
 *.zip
 /wpilib
 compile_flags.txt

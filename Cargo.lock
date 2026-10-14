@@ -233,16 +233,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "autolog_macro"
-version = "0.1.0"
-dependencies = [
- "proc-macro-crate",
- "proc-macro2",
- "quote",
- "syn 2.0.119",
-]
-
-[[package]]
 name = "backtrace"
 version = "0.3.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -780,6 +770,18 @@ name = "foldhash"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
+
+[[package]]
+name = "frc_autolog_macro"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7fac12c5182d7da29284f1ed8363d51abce62aeafba6b182fd61215a74c69cc"
+dependencies = [
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
 
 [[package]]
 name = "futures-channel"
@@ -1333,10 +1335,10 @@ version = "0.1.0"
 dependencies = [
  "autocxx",
  "autocxx-build",
- "autolog_macro",
  "bevy_ecs",
  "bindgen",
  "cxx",
+ "frc_autolog_macro",
  "miette",
  "num-derive",
  "num-traits",
