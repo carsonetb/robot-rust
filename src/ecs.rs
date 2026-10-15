@@ -169,3 +169,31 @@ impl State {
         self
     }
 }
+
+pub type Resource<'a, T> = NonSend<'a, T>;
+pub type ResourceMut<'a, T> = NonSendMut<'a, T>;
+pub type Command<'a, T> = Resource<'a, CommandInternal<T>>;
+
+#[derive(DerefMut, Deref)]
+pub struct CommandInternal<T> {
+    #[deref]
+    #[deref_mut]
+    command: T,
+    enabled: bool,
+    just_ended: bool,
+    just_started: bool,
+}
+
+impl<T> CommandInternal<T> {
+    pub fn enabled(&self) -> bool {
+        self.enabled
+    }
+
+    pub fn just_ended(&self) -> bool {
+        self.just_ended
+    }
+
+    pub fn just_started(&self) -> bool {
+        self.just_started
+    }
+}
