@@ -7,7 +7,6 @@
 #include "rev/SparkLowLevel.h"
 #include "rev/SparkMax.h"
 #include "rev/SparkRelativeEncoder.h"
-#include "rev/config/SparkBaseConfig.h"
 #include "units/voltage.h"
 
 namespace rev_helpers {

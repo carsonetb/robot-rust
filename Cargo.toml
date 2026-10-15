@@ -1,13 +1,12 @@
 [package]
 name = "robot-rust"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 license = "MIT"
 description = "The robot-rust project, bindings for wpilib, ctre, and rev in rust."
 homepage = "https://github.com/carsonetb/robot-rust"
 repository = "https://github.com/carsonetb/robot-rust"
 exclude = ["*.so", "*.so.*"]
-link = "wpilib"
 
 [build-dependencies]
 bindgen = "0.73.2"

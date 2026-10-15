@@ -18,6 +18,9 @@ pub use bindings::*;
 autocxx::include_cpp! {
     #include "chooser_helpers.hpp"
 
+    #include "frc/XboxController.h"
+    #include "frc/event/BooleanEvent.h"
+
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre/phoenix6/CANcoder.hpp"
     #include "ctre/phoenix6/Pigeon2.hpp"
@@ -39,6 +42,9 @@ autocxx::include_cpp! {
     #include "rev_helpers.hpp"
 
     safety!(unsafe)
+
+    generate!("frc::BooleanEvent")
+    generate!("frc::XboxController")
 
     generate!("chooser::ChooserHandle")
     generate!("chooser::chooser_create")
@@ -292,3 +298,4 @@ pub use ffi::ctre::phoenix6::configs::{
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
 };
+pub use ffi::frc::XboxController;

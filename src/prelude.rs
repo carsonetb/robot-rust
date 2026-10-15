@@ -7,6 +7,7 @@ pub use crate::ecs::{
     DisabledPeriodic, Init, Mode, Periodic, State, TeleopExit, TeleopInit, TeleopPeriodic,
     TestExit, TestInit, TestPeriodic,
 };
+pub use crate::hid::XboxController;
 pub use crate::initialize::*;
 pub use crate::logging::{AutoLog, Loggable, Logger};
 pub use crate::rev::SparkMax;
