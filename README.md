@@ -14,4 +14,6 @@ This project is a new way to write code for FRC. At its completion, it will be a
 
 ## State of this Project
 
+WPILib 2026 is supported. 2027 support is planned when CTRE, REV, and WPILib can stabilize their APIs.
+
 Currently the project is too early-stages for me to even bother versioning it. It is currently possible to create a simple robot, but not much more. Unless I have stopped commiting to the project, I am actively working on it.
