@@ -2018,6 +2018,7 @@ dependencies = [
  "bevy_ecs",
  "bindgen",
  "cxx",
+ "derive_more",
  "frc_autolog_macro",
  "home",
  "miette",

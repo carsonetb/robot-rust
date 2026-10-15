@@ -12,6 +12,20 @@ This project is a new way to write code for FRC. At its completion, it will be a
 - **Simplicity**: The crate provides a prelude which includes everything you need to write your robot. CTRE and REV also have a prelude.
 - **Control & Math**: PID logic and other math (coming soon) is builtin to the crate.
 
+## Reading the book
+
+I am writing a book for this project, which you can use to learn how to use the library. It is not currently hosted online, but you can easily view it locally by cloning the [repository](https://github.com/carsonetb/robot-rust). These are the commands you need to run to do it:
+
+```Bash
+# Install mdbook, which renders the documentation, make sure the Cargo install
+# directory is in your PATH
+cargo install mdbook
+
+git clone https://github.com/carsonetb/robot-rust
+cd robot-rust/docs
+mdbook serve --open
+```
+
 ## State of this Project
 
 WPILib 2026 is supported. 2027 support is planned when CTRE, REV, and WPILib can stabilize their APIs.
