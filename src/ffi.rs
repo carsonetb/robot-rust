@@ -43,8 +43,8 @@ autocxx::include_cpp! {
 
     safety!(unsafe)
 
-    generate!("frc::BooleanEvent")
     generate!("frc::XboxController")
+    block!("frc::EventLoop")
 
     generate!("chooser::ChooserHandle")
     generate!("chooser::chooser_create")

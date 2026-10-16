@@ -2,6 +2,7 @@ use autocxx::WithinUniquePtr;
 use autocxx::c_int;
 
 use crate::ffi;
+use crate::prelude::*;
 
 pub struct XboxController {
     cont: cxx::UniquePtr<ffi::XboxController>,
@@ -50,6 +51,10 @@ impl XboxController {
         self.cont.pin_mut().GetAButtonReleased()
     }
 
+    pub fn a_trigger(controller: Resource<Self>) -> bool {
+        controller.a()
+    }
+
     pub fn b(&self) -> bool {
         self.cont.GetBButton()
     }
@@ -60,6 +65,10 @@ impl XboxController {
 
     pub fn b_released(&mut self) -> bool {
         self.cont.pin_mut().GetBButtonReleased()
+    }
+
+    pub fn b_trigger(controller: Resource<Self>) -> bool {
+        controller.b()
     }
 
     pub fn x(&self) -> bool {
@@ -74,6 +83,10 @@ impl XboxController {
         self.cont.pin_mut().GetXButtonReleased()
     }
 
+    pub fn x_trigger(controller: Resource<Self>) -> bool {
+        controller.x()
+    }
+
     pub fn y(&self) -> bool {
         self.cont.GetYButton()
     }
@@ -84,6 +97,10 @@ impl XboxController {
 
     pub fn y_released(&mut self) -> bool {
         self.cont.pin_mut().GetYButtonReleased()
+    }
+
+    pub fn y_trigger(controller: Resource<Self>) -> bool {
+        controller.y()
     }
 
     pub fn left_bumper(&self) -> bool {
@@ -98,6 +115,10 @@ impl XboxController {
         self.cont.pin_mut().GetLeftBumperButtonReleased()
     }
 
+    pub fn left_bumper_trigger(controller: Resource<Self>) -> bool {
+        controller.left_bumper()
+    }
+
     pub fn right_bumper(&self) -> bool {
         self.cont.GetRightBumperButton()
     }
@@ -108,6 +129,10 @@ impl XboxController {
 
     pub fn right_bumper_released(&mut self) -> bool {
         self.cont.pin_mut().GetRightBumperButtonReleased()
+    }
+
+    pub fn right_bumper_trigger(controller: Resource<Self>) -> bool {
+        controller.right_bumper()
     }
 
     pub fn back(&self) -> bool {
@@ -122,6 +147,10 @@ impl XboxController {
         self.cont.pin_mut().GetBackButtonReleased()
     }
 
+    pub fn back_trigger(controller: Resource<Self>) -> bool {
+        controller.back()
+    }
+
     pub fn start(&self) -> bool {
         self.cont.GetStartButton()
     }
@@ -132,6 +161,10 @@ impl XboxController {
 
     pub fn start_released(&mut self) -> bool {
         self.cont.pin_mut().GetStartButtonReleased()
+    }
+
+    pub fn start_trigger(controller: Resource<Self>) -> bool {
+        controller.start()
     }
 
     pub fn left_stick(&self) -> bool {
@@ -146,6 +179,10 @@ impl XboxController {
         self.cont.pin_mut().GetLeftStickButtonReleased()
     }
 
+    pub fn left_stick_trigger(controller: Resource<Self>) -> bool {
+        controller.left_stick()
+    }
+
     pub fn right_stick(&self) -> bool {
         self.cont.GetRightStickButton()
     }
@@ -156,5 +193,9 @@ impl XboxController {
 
     pub fn right_stick_released(&mut self) -> bool {
         self.cont.pin_mut().GetRightStickButtonReleased()
+    }
+
+    pub fn right_stick_trigger(controller: Resource<Self>) -> bool {
+        controller.right_stick()
     }
 }
