@@ -8,10 +8,11 @@ pub use uom::si::angle::{degree, radian, revolution};
 pub use uom::si::angular_acceleration::{degree_per_second_squared, radian_per_second_squared};
 pub use uom::si::angular_jerk::{degree_per_second_cubed, radian_per_second_cubed};
 pub use uom::si::angular_velocity::{degree_per_second, radian_per_second, revolution_per_second};
+pub use uom::si::area::square_meter;
 pub use uom::si::electric_current::{ampere, milliampere};
 pub use uom::si::electric_potential::{millivolt, volt};
 pub use uom::si::f64::{
-    Acceleration, Angle, AngularAcceleration, AngularJerk, AngularVelocity, ElectricCurrent,
+    Acceleration, Angle, AngularAcceleration, AngularJerk, AngularVelocity, Area, ElectricCurrent,
     ElectricPotential, Force, Frequency, Length, Mass, ThermodynamicTemperature, Time, Velocity,
 };
 pub use uom::si::force::newton;
@@ -88,6 +89,8 @@ define_unit_helpers! {
         fn millimeters -> Length<millimeter>;
         fn inches -> Length<inch>;
         fn feet -> Length<foot>;
+
+        fn square_meters -> Area<square_meter>;
 
         fn seconds -> Time<second>;
         fn milliseconds -> Time<millisecond>;

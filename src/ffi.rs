@@ -20,6 +20,7 @@ autocxx::include_cpp! {
 
     #include "frc/XboxController.h"
     #include "frc/event/BooleanEvent.h"
+    #include "frc/kinematics/ChassisSpeeds.h"
 
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre/phoenix6/CANcoder.hpp"
@@ -45,6 +46,8 @@ autocxx::include_cpp! {
 
     generate!("frc::XboxController")
     block!("frc::EventLoop")
+
+    generate!("frc::ChassisSpeeds")
 
     generate!("chooser::ChooserHandle")
     generate!("chooser::chooser_create")

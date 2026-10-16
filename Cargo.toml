@@ -24,7 +24,7 @@ uom = "0.38.0"
 bevy_ecs = "0.20.0"
 num-traits = "0.2.19"
 num-derive = "0.5.1"
-derive_more = { version = "2.1.1", features = ["deref"] }
+derive_more = { version = "2.1.1", features = ["full"] }
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "allow"
