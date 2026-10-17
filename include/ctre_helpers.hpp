@@ -6,6 +6,7 @@
 #include "ctre/phoenix6/TalonFX.hpp"
 #include "ctre/phoenix6/controls/CoastOut.hpp"
 #include "ctre/phoenix6/controls/DutyCycleOut.hpp"
+#include "ctre/phoenix6/controls/MotionMagicVoltage.hpp"
 #include "ctre/phoenix6/controls/NeutralOut.hpp"
 #include "ctre/phoenix6/controls/VoltageOut.hpp"
 #include "ctre/phoenix6/core/CoreCANcoder.hpp"
@@ -16,6 +17,7 @@
 #include "units/angular_acceleration.h"
 #include "units/angular_jerk.h"
 #include "units/angular_velocity.h"
+#include "units/frequency.h"
 #include "units/time.h"
 #include "units/voltage.h"
 
@@ -39,6 +41,10 @@ inline void neutral(ctre::phoenix6::hardware::TalonFX& motor) {
 
 inline void coast(ctre::phoenix6::hardware::TalonFX& motor) {
     motor.SetControl(ctre::phoenix6::controls::CoastOut());
+}
+
+inline void set_motionmagic_voltage(ctre::phoenix6::hardware::TalonFX& motor, ctre::phoenix6::controls::MotionMagicVoltage& voltage) {
+    motor.SetControl(voltage);
 }
 
 inline ctre::phoenix::StatusCode set_position(ctre::phoenix6::hardware::TalonFX& motor, double value_rotations) {
@@ -116,6 +122,20 @@ inline void set_kG(ctre::phoenix6::configs::Slot0Configs& conf, double value) {
 } // namespace slot0
 
 namespace motionmagic {
+
+inline ctre::phoenix6::controls::MotionMagicVoltage create_control(double position, bool enable_foc, double feed_forward, int slot, bool override_brake_dur_neutral, bool limit_forward_motion, bool limit_reverse_motion, bool ignore_hardware_limits, bool ignore_software_limits, bool use_timesync, double update_freq_hz) {
+    return ctre::phoenix6::controls::MotionMagicVoltage(units::angle::turn_t{position})
+        .WithEnableFOC(enable_foc)
+        .WithFeedForward(units::voltage::volt_t{feed_forward})
+        .WithSlot(slot)
+        .WithOverrideBrakeDurNeutral(override_brake_dur_neutral)
+        .WithLimitForwardMotion(limit_forward_motion)
+        .WithLimitReverseMotion(limit_reverse_motion)
+        .WithIgnoreHardwareLimits(ignore_hardware_limits)
+        .WithIgnoreSoftwareLimits(ignore_software_limits)
+        .WithUseTimesync(use_timesync)
+        .WithUpdateFreqHz(units::frequency::hertz_t{update_freq_hz});
+}
 
 inline void set_cruise_velocity(ctre::phoenix6::configs::MotionMagicConfigs& conf, double rps) {
     conf.MotionMagicCruiseVelocity = units::angular_velocity::turns_per_second_t{rps};

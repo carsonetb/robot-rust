@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
-use proc_macro_crate::{crate_name, FoundCrate};
+use proc_macro_crate::{FoundCrate, crate_name};
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields};
+use syn::{Data, DeriveInput, Fields, parse_macro_input};
 
 #[proc_macro_derive(AutoLog)]
 pub fn derive_auto_log(input: TokenStream) -> TokenStream {

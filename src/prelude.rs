@@ -9,6 +9,9 @@ pub use crate::ecs::{
 };
 pub use crate::hid::XboxController;
 pub use crate::initialize::*;
+pub use crate::kinematics::{
+    ChassisSpeeds, DifferentialDriveKinematics, DifferentialDriveWheelSpeeds,
+};
 pub use crate::logging::{AutoLog, Loggable, Logger};
 pub use crate::math::{Pose2D, Rotation2D, Twist2D, Vec2};
 pub use crate::rev::SparkMax;

@@ -90,6 +90,7 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::talonfx::set_position")
     generate!("ctre_helpers::talonfx::neutral")
     generate!("ctre_helpers::talonfx::coast")
+    generate!("ctre_helpers::talonfx::set_motionmagic_voltage")
     generate!("ctre_helpers::talonfx::get_duty_cycle")
     generate!("ctre_helpers::talonfx::get_output_voltage")
     generate!("ctre_helpers::talonfx::get_supply_voltage")
@@ -113,6 +114,7 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::talonfx::slot0::set_kA")
     generate!("ctre_helpers::talonfx::slot0::set_kG")
 
+    generate!("ctre_helpers::talonfx::motionmagic::create_control")
     generate!("ctre_helpers::talonfx::motionmagic::set_cruise_velocity")
     generate!("ctre_helpers::talonfx::motionmagic::set_acceleration")
     generate!("ctre_helpers::talonfx::motionmagic::set_jerk")
@@ -221,13 +223,15 @@ autocxx::include_cpp! {
 pub mod talon {
     use super::ffi;
 
+    pub use ffi::ctre::phoenix6::controls::MotionMagicVoltage;
     pub use ffi::ctre::phoenix6::hardware::TalonFX;
     pub use ffi::ctre_helpers::talonfx::feedback::{
         set_remote_sensor_id, set_rotor_offset, set_rotor_to_sensor_ratio,
         set_sensor_to_mechanism_ratio, set_velocity_filter_time_constant,
     };
     pub use ffi::ctre_helpers::talonfx::motionmagic::{
-        set_acceleration, set_cruise_velocity, set_expo_ka, set_expo_kv, set_jerk,
+        create_control as create_motionmagic_control, set_acceleration, set_cruise_velocity,
+        set_expo_ka, set_expo_kv, set_jerk,
     };
     pub use ffi::ctre_helpers::talonfx::slot0::{
         set_kA, set_kD, set_kG, set_kI, set_kP, set_kS, set_kV,
@@ -236,7 +240,7 @@ pub mod talon {
         coast, get_acceleration, get_configurator, get_device_temp, get_duty_cycle, get_kt, get_kv,
         get_output_voltage, get_position, get_stall_current, get_stator_current,
         get_supply_current, get_supply_voltage, get_torque_current, get_velocity, neutral, set,
-        set_position, set_voltage,
+        set_motionmagic_voltage, set_position, set_voltage,
     };
 }
 

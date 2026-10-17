@@ -13,6 +13,7 @@ use crate::prelude::*;
 use prelude::*;
 
 pub mod configuration;
+pub mod control;
 pub mod enums;
 pub mod prelude;
 
@@ -95,6 +96,10 @@ impl TalonFX {
     /// -12.0 volts to 12.0 volts.
     pub fn set_voltage(&mut self, voltage: ElectricPotential) {
         ffi::talon::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
+    }
+
+    pub fn set_motionmagic_voltage(&mut self, control: &MotionMagicVoltage) {
+        ffi::talon::set_motionmagic_voltage(self.motor.pin_mut(), control.to_ffi().pin_mut());
     }
 
     pub fn set_position(&mut self, position: Angle) -> StatusCode {
