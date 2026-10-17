@@ -30,4 +30,4 @@ mdbook serve --open
 
 WPILib 2026 is supported. 2027 support is planned when CTRE, REV, and WPILib can stabilize their APIs.
 
-Currently the project is too early-stages for me to even bother versioning it. It is currently possible to create a simple robot, but not much more. Unless I have stopped commiting to the project, I am actively working on it.
+Project is currently in alpha stages, and regular breaking changes should be expected. Testing for the library is currently minimal, but it should be possible to create a full tank drive robot. I plan to use this in competition as a proof-of-concept. Unless I have stopped committing to the project, I am actively working on it.

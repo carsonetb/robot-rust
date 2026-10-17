@@ -10,6 +10,7 @@ pub use crate::ecs::{
 pub use crate::hid::XboxController;
 pub use crate::initialize::*;
 pub use crate::logging::{AutoLog, Loggable, Logger};
+pub use crate::math::{Pose2D, Rotation2D, Twist2D, Vec2};
 pub use crate::rev::SparkMax;
 pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;
 pub use crate::units::revolution_per_second_squared::revolution_per_second_squared;

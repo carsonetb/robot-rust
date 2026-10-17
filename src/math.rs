@@ -1,5 +1,4 @@
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use num_traits::Pow;
 
 use crate::prelude::*;
 
@@ -23,17 +22,11 @@ use crate::prelude::*;
 )]
 pub struct Rotation2D {
     pub value: Angle,
-    cos: f64,
-    sin: f64,
 }
 
 impl Rotation2D {
     pub fn new(value: Angle) -> Self {
-        Self {
-            value,
-            cos: value.get::<radian>().cos(),
-            sin: value.get::<radian>().sin(),
-        }
+        Self { value }
     }
 
     pub fn to(x: f64, y: f64) -> Self {
@@ -43,14 +36,13 @@ impl Rotation2D {
         } else {
             panic!("X,Y components of Rotation2D are zero.");
         };
-        Self::new(f64::atan2(cos, sin).radians())
+        Self::new(f64::atan2(sin, cos).radians())
     }
 
     pub fn rotated(&self, other: &Self) -> Self {
-        Self::to(
-            self.cos * other.cos - self.sin * other.sin,
-            self.cos * other.sin + self.sin * other.cos,
-        )
+        let (cos, sin) = (self.cos(), self.sin());
+        let (ocos, osin) = (other.cos(), other.sin());
+        Self::to(cos * ocos - sin * osin, cos * ocos + sin * osin)
     }
 
     /// Current rotation relative to the given rotation.
@@ -59,15 +51,15 @@ impl Rotation2D {
     }
 
     pub fn sin(&self) -> f64 {
-        self.sin
+        self.value.get::<radian>().sin()
     }
 
     pub fn cos(&self) -> f64 {
-        self.cos
+        self.value.get::<radian>().cos()
     }
 
     pub fn tan(&self) -> f64 {
-        self.sin / self.cos
+        self.value.get::<radian>().tan()
     }
 }
 
@@ -99,7 +91,7 @@ impl Vec2 {
     }
 
     pub fn polar(distance: Length, angle: Rotation2D) -> Self {
-        Self::new(distance * angle.cos, distance * angle.sin)
+        Self::new(distance * angle.cos(), distance * angle.sin())
     }
 
     pub fn distance_to(&self, other: &Vec2) -> Length {
@@ -107,7 +99,7 @@ impl Vec2 {
     }
 
     pub fn distance_to_squared(&self, other: &Vec2) -> f64 {
-        (other.x - self.x).get::<meter>().pow(2.0) + (other.y - self.y).get::<meter>().pow(2.0)
+        (other.x - self.x).get::<meter>().powi(2) + (other.y - self.y).get::<meter>().powi(2)
     }
 
     pub fn norm(&self) -> Length {
@@ -115,20 +107,19 @@ impl Vec2 {
     }
 
     pub fn squared_norm(&self) -> f64 {
-        self.x.get::<meter>().pow(2.0) + self.y.get::<meter>().pow(2.0)
+        self.x.get::<meter>().powi(2) + self.y.get::<meter>().powi(2)
     }
 
     pub fn rotated(&self, by: &Rotation2D) -> Self {
-        Self::new(
-            self.x * by.cos - self.y * by.sin,
-            self.x * by.sin + self.y * by.cos,
-        )
+        let (cos, sin) = (by.cos(), by.sin());
+        Self::new(self.x * cos - self.y * sin, self.x * sin + self.y * cos)
     }
 
     pub fn rotated_around(&self, other: &Vec2, by: &Rotation2D) -> Self {
+        let (cos, sin) = (by.cos(), by.sin());
         Self::new(
-            (self.x - other.x) * by.cos - (self.y - other.y) * by.sin + other.x,
-            (self.x - other.x) * by.sin + (self.y - other.y) * by.cos + other.y,
+            (self.x - other.x) * cos - (self.y - other.y) * sin + other.x,
+            (self.x - other.x) * sin + (self.y - other.y) * cos + other.y,
         )
     }
 
@@ -160,13 +151,16 @@ impl Pose2D {
         Self::new(self.pos.rotated(other), self.rotation.rotated(other))
     }
 
-    pub fn transformed(&self, other: &Vec2) -> Self {
-        Self::new(self.pos.transformed(other), self.rotation)
+    pub fn transformed(&self, other: &Self) -> Self {
+        Self::new(
+            self.pos.transformed(&other.pos.rotated(&self.rotation)),
+            self.rotation.rotated(&other.rotation),
+        )
     }
 
     pub fn to(&self, other: &Self) -> Self {
         Self::new(
-            other.pos - self.pos,
+            (other.pos - self.pos).rotated(&-self.rotation),
             other.rotation.relative(&self.rotation),
         )
     }
@@ -178,18 +172,58 @@ impl Pose2D {
         )
     }
 
-    // TODO: Exp and Log for Twist2D
+    pub fn exp(&self, twist: &Twist2D) -> Self {
+        let dx = twist.dx.get::<meter>();
+        let dy = twist.dy.get::<meter>();
+        let dtheta = twist.dtheta.get::<radian>();
+
+        let sin_theta = dtheta.sin();
+        let cos_theta = dtheta.cos();
+
+        let (s, c) = if dtheta.abs() < 1e-9 {
+            (1.0 - 1.0 / 6.0 * dtheta * dtheta, 0.5 * dtheta)
+        } else {
+            (sin_theta / dtheta, (1.0 - cos_theta) / dtheta)
+        };
+
+        let offset = Pose2D::new(
+            Vec2::new((dx * s - dy * c).meters(), (dx * c + dy * s).meters()),
+            Rotation2D::to(cos_theta, sin_theta),
+        );
+        self.transformed(&offset)
+    }
+
+    pub fn log(&self, end: &Pose2D) -> Twist2D {
+        let transform = self.to(end);
+        let dtheta = transform.rotation.value.get::<radian>();
+        let half_dtheta = dtheta / 2.0;
+
+        let cos_m1 = transform.rotation.cos() - 1.0;
+
+        let htbtohdt = if cos_m1.abs() < 1e-9 {
+            1.0 - 1.0 / 12.0 * dtheta * dtheta
+        } else {
+            -(half_dtheta * transform.rotation.sin()) / cos_m1
+        };
+
+        let translation = transform
+            .pos
+            .rotated(&Rotation2D::to(htbtohdt, -half_dtheta))
+            * f64::hypot(htbtohdt, half_dtheta);
+
+        Twist2D::new(translation.x, translation.y, dtheta.radians())
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Mul, MulAssign)]
 pub struct Twist2D {
     pub dx: Length,
     pub dy: Length,
-    pub theta: Angle,
+    pub dtheta: Angle,
 }
 
 impl Twist2D {
-    pub fn new(dx: Length, dy: Length, theta: Angle) -> Self {
-        Self { dx, dy, theta }
+    pub fn new(dx: Length, dy: Length, dtheta: Angle) -> Self {
+        Self { dx, dy, dtheta }
     }
 }
