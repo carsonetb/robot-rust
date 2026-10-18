@@ -15,4 +15,5 @@ pub mod logging;
 pub mod math;
 pub mod prelude;
 pub mod rev;
+pub mod trajectory;
 pub mod units;

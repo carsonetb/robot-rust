@@ -2,6 +2,7 @@
 use std::{ffi::CStr, mem, ptr::null_mut};
 
 use crate::ffi::*;
+use crate::prelude::*;
 
 /// Wrapper for errors reported by the HAL.
 #[derive(Debug, Clone)]

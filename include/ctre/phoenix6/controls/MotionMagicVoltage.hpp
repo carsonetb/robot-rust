@@ -17,13 +17,13 @@ namespace phoenix6 {
 namespace controls {
 
 /**
- * Requests Motion Magic® to target a final position using a motion profile. 
+ * Requests Motion Magic® to target a final position using a motion profile.
  * Users can optionally provide a voltage feedforward.
- * 
+ *
  * Motion Magic® produces a motion profile in real-time while attempting to honor the Cruise Velocity,
  * Acceleration, and (optional) Jerk specified via the Motion Magic® configuration values.  This control mode
  * does not use the Expo_kV or Expo_kA configs.
- * 
+ *
  * Target position can be changed on-the-fly and Motion Magic® will do its best to adjust the profile.  This
  * control mode is voltage-based, so relevant closed-loop gains will use Volts for the numerator.
  */
@@ -33,17 +33,17 @@ class MotionMagicVoltage final : public ControlRequest {
 public:
     /**
      * \brief Position to drive toward in rotations.
-     * 
+     *
      * - Units: rotations
-     * 
+     *
      */
     units::angle::turn_t Position;
     /**
      * \brief Set to true to use FOC commutation (requires Phoenix Pro), which
      * increases peak power by ~15% on supported devices (see
      * hardware#traits#SupportsFOC). Set to false to use trapezoidal commutation.
-     * 
-     * FOC improves motor performance by leveraging torque (current) control. 
+     *
+     * FOC improves motor performance by leveraging torque (current) control.
      * However, this may be inconvenient for applications that require specifying
      * duty cycle or voltage.  CTR-Electronics has developed a hybrid method that
      * combines the performances gains of FOC while still allowing applications to
@@ -55,9 +55,9 @@ public:
     /**
      * \brief Feedforward to apply in volts. This is added to the output of the
      * onboard feedforward terms.
-     * 
+     *
      * - Units: Volts
-     * 
+     *
      */
     units::voltage::volt_t FeedForward = 0.0_V;
     /**
@@ -89,21 +89,21 @@ public:
      * \brief Set to true to ignore hardware limit switches and the
      * LimitForwardMotion and LimitReverseMotion parameters, instead allowing
      * motion.
-     * 
+     *
      * This can be useful on mechanisms such as an intake/feeder, where a limit
      * switch stops motion while intaking but should be ignored when feeding to a
      * shooter.
-     * 
+     *
      * The hardware limit faults and Forward/ReverseLimit signals will still report
      * the values of the limit switches regardless of this parameter.
      */
     bool IgnoreHardwareLimits = false;
     /**
      * \brief Set to true to ignore software limits, instead allowing motion.
-     * 
+     *
      * This can be useful when calibrating the zero point of a mechanism such as an
      * elevator.
-     * 
+     *
      * The software limit faults will still report the values of the software limits
      * regardless of this parameter.
      */
@@ -113,7 +113,7 @@ public:
      * boundary (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
      * control latency.
-     * 
+     *
      * This requires setting the ControlTimesyncFreqHz config in MotorOutputConfigs.
      * Additionally, when this is enabled, the UpdateFreqHz of this request should
      * be set to 0 Hz.
@@ -138,17 +138,17 @@ public:
     /**
      * \brief Requests Motion Magic® to target a final position using a motion
      *        profile.  Users can optionally provide a voltage feedforward.
-     * 
-     * \details Motion Magic® produces a motion profile in real-time while
+     *
+     * \details Motion Magic® produces a motion profile in real-time wme while
      *          attempting to honor the Cruise Velocity, Acceleration, and
      *          (optional) Jerk specified via the Motion Magic® configuration
      *          values.  This control mode does not use the Expo_kV or Expo_kA
      *          configs.
-     *          
+     *
      *          Target position can be changed on-the-fly and Motion Magic® will do
      *          its best to adjust the profile.  This control mode is voltage-based,
      *          so relevant closed-loop gains will use Volts for the numerator.
-     * 
+     *
      * \param Position Position to drive toward in rotations.
      */
     constexpr MotionMagicVoltage(units::angle::turn_t Position) : ControlRequest{},
@@ -166,15 +166,15 @@ public:
     {
         return "MotionMagicVoltage";
     }
-    
+
     /**
      * \brief Modifies this Control Request's Position parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
      * Position to drive toward in rotations.
-     * 
+     *
      * - Units: rotations
-     * 
+     *
      *
      * \param newPosition Parameter to modify
      * \returns Itself
@@ -184,7 +184,7 @@ public:
         Position = std::move(newPosition);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's EnableFOC parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -192,8 +192,8 @@ public:
      * Set to true to use FOC commutation (requires Phoenix Pro), which increases
      * peak power by ~15% on supported devices (see hardware#traits#SupportsFOC).
      * Set to false to use trapezoidal commutation.
-     * 
-     * FOC improves motor performance by leveraging torque (current) control. 
+     *
+     * FOC improves motor performance by leveraging torque (current) control.
      * However, this may be inconvenient for applications that require specifying
      * duty cycle or voltage.  CTR-Electronics has developed a hybrid method that
      * combines the performances gains of FOC while still allowing applications to
@@ -209,16 +209,16 @@ public:
         EnableFOC = std::move(newEnableFOC);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's FeedForward parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
      * Feedforward to apply in volts. This is added to the output of the onboard
      * feedforward terms.
-     * 
+     *
      * - Units: Volts
-     * 
+     *
      *
      * \param newFeedForward Parameter to modify
      * \returns Itself
@@ -228,7 +228,7 @@ public:
         FeedForward = std::move(newFeedForward);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's Slot parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -245,7 +245,7 @@ public:
         Slot = std::move(newSlot);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's OverrideBrakeDurNeutral parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -263,7 +263,7 @@ public:
         OverrideBrakeDurNeutral = std::move(newOverrideBrakeDurNeutral);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's LimitForwardMotion parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -280,7 +280,7 @@ public:
         LimitForwardMotion = std::move(newLimitForwardMotion);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's LimitReverseMotion parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -297,18 +297,18 @@ public:
         LimitReverseMotion = std::move(newLimitReverseMotion);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's IgnoreHardwareLimits parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
      * Set to true to ignore hardware limit switches and the LimitForwardMotion and
      * LimitReverseMotion parameters, instead allowing motion.
-     * 
+     *
      * This can be useful on mechanisms such as an intake/feeder, where a limit
      * switch stops motion while intaking but should be ignored when feeding to a
      * shooter.
-     * 
+     *
      * The hardware limit faults and Forward/ReverseLimit signals will still report
      * the values of the limit switches regardless of this parameter.
      *
@@ -320,16 +320,16 @@ public:
         IgnoreHardwareLimits = std::move(newIgnoreHardwareLimits);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's IgnoreSoftwareLimits parameter and returns itself for
      *        method-chaining and easier to use request API.
      *
      * Set to true to ignore software limits, instead allowing motion.
-     * 
+     *
      * This can be useful when calibrating the zero point of a mechanism such as an
      * elevator.
-     * 
+     *
      * The software limit faults will still report the values of the software limits
      * regardless of this parameter.
      *
@@ -341,7 +341,7 @@ public:
         IgnoreSoftwareLimits = std::move(newIgnoreSoftwareLimits);
         return *this;
     }
-    
+
     /**
      * \brief Modifies this Control Request's UseTimesync parameter and returns itself for
      *        method-chaining and easier to use request API.
@@ -350,7 +350,7 @@ public:
      * (requires Phoenix Pro and CANivore). This eliminates the impact of
      * nondeterministic network delays in exchange for a larger but deterministic
      * control latency.
-     * 
+     *
      * This requires setting the ControlTimesyncFreqHz config in MotorOutputConfigs.
      * Additionally, when this is enabled, the UpdateFreqHz of this request should
      * be set to 0 Hz.
@@ -404,4 +404,3 @@ public:
 }
 }
 }
-
