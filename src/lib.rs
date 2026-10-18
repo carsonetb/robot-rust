@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate uom;
 
+pub mod auto;
 pub mod chooser;
 pub mod control;
 pub mod ctre;
@@ -13,6 +14,7 @@ pub mod initialize;
 pub mod kinematics;
 pub mod logging;
 pub mod math;
+pub mod odometry;
 pub mod prelude;
 pub mod rev;
 pub mod trajectory;

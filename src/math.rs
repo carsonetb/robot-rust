@@ -102,11 +102,11 @@ impl Vec2 {
         (other.x - self.x).get::<meter>().powi(2) + (other.y - self.y).get::<meter>().powi(2)
     }
 
-    pub fn norm(&self) -> Length {
+    pub fn length(&self) -> Length {
         self.x.hypot(self.y)
     }
 
-    pub fn squared_norm(&self) -> f64 {
+    pub fn length_squared(&self) -> f64 {
         self.x.get::<meter>().powi(2) + self.y.get::<meter>().powi(2)
     }
 
@@ -133,6 +133,10 @@ impl Vec2 {
 
     pub fn cross(&self, other: &Vec2) -> Area {
         self.x * other.y - self.y * other.x
+    }
+
+    pub fn angle(&self) -> Rotation2D {
+        Rotation2D::to(self.x.value, self.y.value)
     }
 }
 

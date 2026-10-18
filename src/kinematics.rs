@@ -5,6 +5,13 @@ use derive_more::{Add, AddAssign, Neg, Sub, SubAssign};
 
 use crate::prelude::*;
 
+pub trait Kinematics<S, P> {
+    fn to_chassis_speeds(&mut self, wheel_speeds: &S) -> ChassisSpeeds;
+    fn to_wheel_speeds(&mut self, chassis_speeds: &ChassisSpeeds) -> S;
+    fn to_twist2d(&mut self, start: &P, end: &P) -> Twist2D;
+    fn interpolate(&mut self, start: &P, end: &P, t: f64) -> P;
+}
+
 #[derive(Debug, Default, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign, Neg)]
 pub struct ChassisSpeeds {
     pub vx: Velocity,
@@ -95,6 +102,25 @@ impl Div<f64> for ChassisSpeeds {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DifferentialDriveWheelPositions {
+    left: Length,
+    right: Length,
+}
+
+impl DifferentialDriveWheelPositions {
+    pub fn new(left: Length, right: Length) -> Self {
+        Self { left, right }
+    }
+
+    pub fn interpolate(&self, end: Self, t: f64) -> Self {
+        Self::new(
+            self.left + t * (end.left - self.left),
+            self.right + t * (end.right - self.right),
+        )
+    }
+}
+
 #[derive(Debug, Default, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign, Neg)]
 pub struct DifferentialDriveWheelSpeeds {
     pub left: Velocity,
@@ -116,6 +142,7 @@ impl DifferentialDriveWheelSpeeds {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct DifferentialDriveKinematics {
     width: Length,
 }
@@ -125,7 +152,19 @@ impl DifferentialDriveKinematics {
         Self { width: track_width }
     }
 
-    pub fn to_chassis_speeds(&self, speeds: DifferentialDriveWheelSpeeds) -> ChassisSpeeds {
+    pub fn distances_to_twist2d(&self, left: Length, right: Length) -> Twist2D {
+        Twist2D::new(
+            (left + right) / 2.0,
+            0.0.meters(),
+            ((right - left) / self.width).value.radians(),
+        )
+    }
+}
+
+impl Kinematics<DifferentialDriveWheelSpeeds, DifferentialDriveWheelPositions>
+    for DifferentialDriveKinematics
+{
+    fn to_chassis_speeds(&mut self, speeds: &DifferentialDriveWheelSpeeds) -> ChassisSpeeds {
         ChassisSpeeds::new(
             (speeds.left + speeds.right) / 2.0,
             0.0.meters_per_second(),
@@ -135,11 +174,28 @@ impl DifferentialDriveKinematics {
         )
     }
 
-    pub fn to_wheel_speeds(&self, speeds: ChassisSpeeds) -> DifferentialDriveWheelSpeeds {
+    fn to_wheel_speeds(&mut self, speeds: &ChassisSpeeds) -> DifferentialDriveWheelSpeeds {
         DifferentialDriveWheelSpeeds::new(
             speeds.vx - self.width / 2.0 * speeds.omega / 1.0.radians(),
             speeds.vx + self.width / 2.0 * speeds.omega / 1.0.radians(),
         )
+    }
+
+    fn to_twist2d(
+        &mut self,
+        start: &DifferentialDriveWheelPositions,
+        end: &DifferentialDriveWheelPositions,
+    ) -> Twist2D {
+        self.distances_to_twist2d(end.left - start.left, end.right - start.right)
+    }
+
+    fn interpolate(
+        &mut self,
+        start: &DifferentialDriveWheelPositions,
+        end: &DifferentialDriveWheelPositions,
+        t: f64,
+    ) -> DifferentialDriveWheelPositions {
+        start.interpolate(*end, t)
     }
 }
 

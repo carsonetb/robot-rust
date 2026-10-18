@@ -1,22 +1,105 @@
 use crate::prelude::*;
 
-#[derive(Debug, Clone)]
-pub struct TrapezoidProfile {
-    pub max_velocity: f64,
-    pub max_acceleration: f64,
+pub struct AngularTrapezoidState {
+    pub position: Angle,
+    pub velocity: AngularVelocity,
+}
 
-    current: TrapezoidState,
-    direction: i32,
+impl AngularTrapezoidState {
+    pub fn new(position: Angle, velocity: AngularVelocity) -> Self {
+        Self { position, velocity }
+    }
 
-    end_accel: f64,
-    end_full_speed: f64,
-    end_decel: f64,
+    pub fn from(state: TrapezoidState) -> Self {
+        Self::new(
+            state.position.radians(),
+            state.velocity.radians_per_second(),
+        )
+    }
+
+    pub fn to(&self) -> TrapezoidState {
+        TrapezoidState::new(self.position.value, self.velocity.value)
+    }
+}
+
+pub struct LinearTrapezoidState {
+    pub position: Length,
+    pub velocity: Velocity,
+}
+
+impl LinearTrapezoidState {
+    pub fn new(position: Length, velocity: Velocity) -> Self {
+        Self { position, velocity }
+    }
+
+    pub fn from(state: TrapezoidState) -> Self {
+        Self::new(state.position.meters(), state.velocity.meters_per_second())
+    }
+
+    pub fn to(&self) -> TrapezoidState {
+        TrapezoidState::new(self.position.value, self.velocity.value)
+    }
 }
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct TrapezoidState {
-    position: f64,
-    velocity: f64,
+    pub position: f64,
+    pub velocity: f64,
+}
+
+impl TrapezoidState {
+    pub fn new(position: f64, velocity: f64) -> Self {
+        Self { position, velocity }
+    }
+}
+
+#[derive(Debug, Deref, DerefMut, Clone)]
+pub struct AngularTrapezoidProfile(TrapezoidProfile);
+
+impl AngularTrapezoidProfile {
+    pub fn new(max_velocity: AngularVelocity, max_acceleration: AngularAcceleration) -> Self {
+        Self(TrapezoidProfile::new(
+            max_velocity.value,
+            max_acceleration.value,
+        ))
+    }
+
+    pub fn calculate(
+        &mut self,
+        timestep: Time,
+        current: AngularTrapezoidState,
+        goal: AngularTrapezoidState,
+    ) -> AngularTrapezoidState {
+        AngularTrapezoidState::from(self.0.calculate(timestep, current.to(), goal.to()))
+    }
+}
+
+#[derive(Debug, Deref, DerefMut, Clone)]
+pub struct LinearTrapezoidProfile(TrapezoidProfile);
+
+impl LinearTrapezoidProfile {
+    pub fn new(max_velocity: Velocity, max_acceleration: Acceleration) -> Self {
+        Self(TrapezoidProfile::new(
+            max_velocity.value,
+            max_acceleration.value,
+        ))
+    }
+
+    pub fn calculate(
+        &mut self,
+        timestep: Time,
+        current: LinearTrapezoidState,
+        goal: LinearTrapezoidState,
+    ) -> LinearTrapezoidState {
+        LinearTrapezoidState::from(self.0.calculate(timestep, current.to(), goal.to()))
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TrapezoidProfile {
+    pub max_velocity: f64,
+    pub max_acceleration: f64,
+    direction: i32,
 }
 
 impl TrapezoidProfile {
@@ -24,13 +107,7 @@ impl TrapezoidProfile {
         Self {
             max_velocity,
             max_acceleration,
-
-            current: TrapezoidState::default(),
             direction: 1,
-
-            end_accel: 0.0,
-            end_full_speed: 0.0,
-            end_decel: 0.0,
         }
     }
 
@@ -46,7 +123,7 @@ impl TrapezoidProfile {
 
     pub fn calculate(
         &mut self,
-        t: Time,
+        timestep: Time,
         current: TrapezoidState,
         goal: TrapezoidState,
     ) -> TrapezoidState {
@@ -55,14 +132,14 @@ impl TrapezoidProfile {
         } else {
             1
         };
-        self.current = self.direct(current);
+        let mut current = self.direct(current);
         let goal = self.direct(goal);
 
-        if self.current.velocity.abs() > self.max_velocity {
-            self.current.velocity = self.max_velocity.copysign(self.current.velocity);
+        if current.velocity.abs() > self.max_velocity {
+            current.velocity = self.max_velocity.copysign(current.velocity);
         }
 
-        let cutoff_begin = self.current.velocity / self.max_acceleration;
+        let cutoff_begin = current.velocity / self.max_acceleration;
         let cutoff_dist_begin = cutoff_begin.powi(2) * self.max_acceleration / 2.0;
 
         let cutoff_end = goal.velocity / self.max_acceleration;
@@ -80,25 +157,24 @@ impl TrapezoidProfile {
             full_speed_dist = 0.0;
         }
 
-        self.end_accel = acceleration_time - cutoff_begin;
-        self.end_full_speed = self.end_accel + full_speed_dist / self.max_velocity;
-        self.end_decel = self.end_full_speed + acceleration_time - cutoff_end;
+        let end_accel = acceleration_time - cutoff_begin;
+        let end_full_speed = end_accel + full_speed_dist / self.max_velocity;
+        let end_decel = end_full_speed + acceleration_time - cutoff_end;
 
-        let mut result = self.current;
+        let mut result = current;
 
-        let t = t.get::<second>();
-        if t < self.end_accel {
+        let t = timestep.get::<second>();
+        if t < end_accel {
             result.velocity += t * self.max_acceleration;
-            result.position += (self.current.velocity + t * self.max_acceleration / 2.0) * t;
-        } else if t < self.end_full_speed {
+            result.position += (current.velocity + t * self.max_acceleration / 2.0) * t;
+        } else if t < end_full_speed {
             result.velocity = self.max_velocity;
-            result.position += (self.current.velocity
-                + self.end_accel * self.max_acceleration / 2.0)
-                * self.end_accel
-                + self.max_velocity * (t - self.end_accel);
-        } else if t <= self.end_decel {
-            result.velocity = goal.velocity + (self.end_decel - t) * self.max_acceleration;
-            let time_left = self.end_decel - t;
+            result.position += (current.velocity + end_accel * self.max_acceleration / 2.0)
+                * end_accel
+                + self.max_velocity * (t - end_accel);
+        } else if t <= end_decel {
+            result.velocity = goal.velocity + (end_decel - t) * self.max_acceleration;
+            let time_left = end_decel - t;
             result.position = goal.position
                 - (goal.velocity + time_left * self.max_acceleration / 2.0) * time_left;
         } else {
