@@ -2,6 +2,12 @@ use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubA
 
 use crate::prelude::*;
 
+pub mod control;
+pub mod estimator;
+pub mod kinematics;
+pub mod odometry;
+pub mod prelude;
+
 /// A rotation in a 2D coordinate frame represented by a point on the unit
 /// circle (cosine and sine).
 #[derive(

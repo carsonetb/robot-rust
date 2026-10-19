@@ -1,9 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::kinematics::{
-    DifferentialDriveWheelPositions, Kinematics, SwerveDriveKinematics, SwerveModulePosition,
-    SwerveModuleState,
-};
+use super::prelude::*;
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]
