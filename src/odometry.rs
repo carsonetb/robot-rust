@@ -1,6 +1,9 @@
 use std::marker::PhantomData;
 
-use crate::kinematics::{DifferentialDriveWheelPositions, Kinematics};
+use crate::kinematics::{
+    DifferentialDriveWheelPositions, Kinematics, SwerveDriveKinematics, SwerveModulePosition,
+    SwerveModuleState,
+};
 use crate::prelude::*;
 
 #[derive(Debug, Clone)]
@@ -118,6 +121,33 @@ impl DifferentialDriveOdometry {
 }
 
 impl PoseProvider for DifferentialDriveOdometry {
+    fn get_pose(&mut self) -> Pose2D {
+        self.0.pose
+    }
+}
+
+#[derive(Debug, Clone, Deref, DerefMut)]
+pub struct SwerveDriveOdometry<const N: usize>(
+    Odometry<[SwerveModuleState; N], [SwerveModulePosition; N], SwerveDriveKinematics<N>>,
+);
+
+impl<const N: usize> SwerveDriveOdometry<N> {
+    pub fn new(
+        kinematics: SwerveDriveKinematics<N>,
+        gyro_angle: Rotation2D,
+        module_positions: [SwerveModulePosition; N],
+        initial_pose: Pose2D,
+    ) -> Self {
+        Self(Odometry::new(
+            kinematics,
+            gyro_angle,
+            module_positions,
+            initial_pose,
+        ))
+    }
+}
+
+impl<const N: usize> PoseProvider for SwerveDriveOdometry<N> {
     fn get_pose(&mut self) -> Pose2D {
         self.0.pose
     }

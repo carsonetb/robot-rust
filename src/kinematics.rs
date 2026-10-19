@@ -200,6 +200,25 @@ impl Kinematics<DifferentialDriveWheelSpeeds, DifferentialDriveWheelPositions>
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct SwerveModulePosition {
+    pub distance: Length,
+    pub angle: Rotation2D,
+}
+
+impl SwerveModulePosition {
+    pub fn new(distance: Length, angle: Rotation2D) -> Self {
+        Self { distance, angle }
+    }
+
+    pub fn interpolate(&self, end: SwerveModulePosition, t: f64) -> Self {
+        Self::new(
+            self.distance + t * (end.distance - self.distance),
+            self.angle + Rotation2D::new(t * (end.angle - self.angle).value),
+        )
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct SwerveModuleState {
     pub speed: Velocity,
     pub angle: Rotation2D,
@@ -277,7 +296,64 @@ impl<const N: usize> SwerveDriveKinematics<N> {
         states
     }
 
-    pub fn to_chassis_speeds(&self, module_states: &[SwerveModuleState; N]) -> ChassisSpeeds {
+    pub fn deltas_to_twist2d(&self, deltas: [SwerveModulePosition; N]) -> Twist2D {
+        let n = N as f64;
+        let mut sum_rx = 0.0;
+        let mut sum_ry = 0.0;
+        let mut sum_r2 = 0.0;
+
+        let mut sum_dx = 0.0;
+        let mut sum_dy = 0.0;
+        let mut sum_dtheta_moment = 0.0;
+
+        for i in 0..N {
+            let rx = self.modules[i].x.value;
+            let ry = self.modules[i].y.value;
+            let dx = deltas[i].distance.value * deltas[i].angle.cos();
+            let dy = deltas[i].distance.value * deltas[i].angle.sin();
+
+            sum_rx += rx;
+            sum_ry += ry;
+            sum_r2 += rx * rx + ry * ry;
+
+            sum_dx += dx;
+            sum_dy += dy;
+            sum_dtheta_moment += rx * dy - ry * dx;
+        }
+
+        let denom = n * sum_r2 - (sum_rx * sum_rx + sum_ry * sum_ry);
+        let dtheta = if denom.abs() > 1e-9 {
+            (n * sum_dtheta_moment + sum_ry * sum_dx - sum_rx * sum_dy) / denom
+        } else {
+            0.0
+        }
+        .radians();
+
+        let dx = ((sum_dx + dtheta.value * sum_ry) / n).meters();
+        let dy = ((sum_dy - dtheta.value * sum_rx) / n).meters();
+
+        Twist2D { dx, dy, dtheta }
+    }
+
+    pub fn desaturate_wheel_speeds(states: &mut [SwerveModuleState; N], max_speed: Velocity) {
+        let real_max = states
+            .iter()
+            .map(|s| s.speed.abs().value)
+            .fold(0.0_f64, f64::max);
+
+        if real_max > max_speed.value {
+            let scale = max_speed.value / real_max;
+            for state in states.iter_mut() {
+                state.speed *= scale;
+            }
+        }
+    }
+}
+
+impl<const N: usize> Kinematics<[SwerveModuleState; N], [SwerveModulePosition; N]>
+    for SwerveDriveKinematics<N>
+{
+    fn to_chassis_speeds(&mut self, module_states: &[SwerveModuleState; N]) -> ChassisSpeeds {
         let n = N as f64;
         let mut sum_rx = 0.0;
         let mut sum_ry = 0.0;
@@ -316,17 +392,33 @@ impl<const N: usize> SwerveDriveKinematics<N> {
         ChassisSpeeds { vx, vy, omega }
     }
 
-    pub fn desaturate_wheel_speeds(states: &mut [SwerveModuleState; N], max_speed: Velocity) {
-        let real_max = states
-            .iter()
-            .map(|s| s.speed.abs().value)
-            .fold(0.0_f64, f64::max);
+    fn to_wheel_speeds(&mut self, chassis_speeds: &ChassisSpeeds) -> [SwerveModuleState; N] {
+        self.to_swerve_module_states(*chassis_speeds, Vec2::default())
+    }
 
-        if real_max > max_speed.value {
-            let scale = max_speed.value / real_max;
-            for state in states.iter_mut() {
-                state.speed *= scale;
-            }
+    fn to_twist2d(
+        &mut self,
+        start: &[SwerveModulePosition; N],
+        end: &[SwerveModulePosition; N],
+    ) -> Twist2D {
+        let mut result = [SwerveModulePosition::default(); N];
+        for i in 0..N {
+            result[i] =
+                SwerveModulePosition::new(end[i].distance - start[i].distance, end[i].angle);
         }
+        self.deltas_to_twist2d(result)
+    }
+
+    fn interpolate(
+        &mut self,
+        start: &[SwerveModulePosition; N],
+        end: &[SwerveModulePosition; N],
+        t: f64,
+    ) -> [SwerveModulePosition; N] {
+        let mut result = [SwerveModulePosition::default(); N];
+        for i in 0..N {
+            result[i] = start[i].interpolate(end[i], t)
+        }
+        result
     }
 }
