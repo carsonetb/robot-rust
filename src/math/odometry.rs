@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use super::prelude::*;
-use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct Odometry<S, P, K: Kinematics<S, P>> {
@@ -78,7 +77,7 @@ impl<S, P, K: Kinematics<S, P>> Odometry<S, P, K> {
 
 #[derive(Debug, Clone, Deref, DerefMut)]
 pub struct DifferentialDriveOdometry(
-    Odometry<
+    pub  Odometry<
         DifferentialDriveWheelSpeeds,
         DifferentialDriveWheelPositions,
         DifferentialDriveKinematics,
@@ -125,7 +124,7 @@ impl PoseProvider for DifferentialDriveOdometry {
 
 #[derive(Debug, Clone, Deref, DerefMut)]
 pub struct SwerveDriveOdometry<const N: usize>(
-    Odometry<[SwerveModuleState; N], [SwerveModulePosition; N], SwerveDriveKinematics<N>>,
+    pub Odometry<[SwerveModuleState; N], [SwerveModulePosition; N], SwerveDriveKinematics<N>>,
 );
 
 impl<const N: usize> SwerveDriveOdometry<N> {

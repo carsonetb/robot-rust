@@ -3,7 +3,7 @@ use std::ops::{Div, Mul};
 
 use derive_more::{Add, AddAssign, Neg, Sub, SubAssign};
 
-use crate::prelude::*;
+use super::prelude::*;
 
 pub trait Kinematics<S, P> {
     fn to_chassis_speeds(&mut self, wheel_speeds: &S) -> ChassisSpeeds;

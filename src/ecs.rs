@@ -164,6 +164,8 @@ impl State {
         }
         hal::start();
 
+        let _ = *crate::math::START_TIME;
+
         let mut world = World::new();
 
         world.insert_non_send(Logger::new("log.wpilog"));

@@ -1,12 +1,25 @@
+use std::sync::LazyLock;
+use std::time::Instant;
+
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use crate::prelude::*;
 
 pub mod control;
 pub mod estimator;
+pub mod interpolation;
 pub mod kinematics;
 pub mod odometry;
 pub mod prelude;
+
+pub static START_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
+
+pub fn timestamp() -> Time {
+    Instant::now()
+        .duration_since(*START_TIME)
+        .as_secs_f64()
+        .seconds()
+}
 
 /// A rotation in a 2D coordinate frame represented by a point on the unit
 /// circle (cosine and sine).
@@ -36,19 +49,17 @@ impl Rotation2D {
     }
 
     pub fn to(x: f64, y: f64) -> Self {
-        let magnitude = f64::hypot(x, y);
-        let (cos, sin) = if magnitude > 1e-6 {
-            (x / magnitude, y / magnitude)
+        if x.abs() <= 1e-6 && y.abs() <= 1e-6 {
+            Self::new(0.0.radians())
         } else {
-            panic!("X,Y components of Rotation2D are zero.");
-        };
-        Self::new(f64::atan2(sin, cos).radians())
+            Self::new(f64::atan2(y, x).radians())
+        }
     }
 
     pub fn rotated(&self, other: &Self) -> Self {
         let (cos, sin) = (self.cos(), self.sin());
         let (ocos, osin) = (other.cos(), other.sin());
-        Self::to(cos * ocos - sin * osin, cos * ocos + sin * osin)
+        Self::to(cos * ocos - sin * osin, sin * ocos + cos * osin)
     }
 
     /// Current rotation relative to the given rotation.
@@ -222,6 +233,12 @@ impl Pose2D {
             * f64::hypot(htbtohdt, half_dtheta);
 
         Twist2D::new(translation.x, translation.y, dtheta.radians())
+    }
+
+    pub fn lerp(&self, other: Self, t: f64) -> Self {
+        let t = t.clamp(0.0, 1.0);
+        let twist = self.log(&other);
+        self.exp(&(twist * t))
     }
 }
 
