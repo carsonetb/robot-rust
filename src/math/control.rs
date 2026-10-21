@@ -127,15 +127,28 @@ impl PIDController {
     }
 }
 
+/// Whereas a PID is a feedback controller (it accounts for the physical
+/// mechanism's position), this type doesn't take feedback and so is called
+/// a feedforward. It's values are the coefficients that correspond to the
+/// voltage needed to set the motor to a velocity and the voltage needed to
+/// set the motor to an acceleration, and some other values.
 pub struct SimpleMotorFeedforward {
+    /// Ks, the static friction coefficient, which is the voltage required to
+    /// get the motor turning as slow as possible.
     pub s: f64,
+    /// Ks, the velocity coefficient, which converts velocity to voltage.
     pub v: f64,
+    /// Ka, the acceleration coefficient, which converts acceleration to
+    /// voltage.
     pub a: f64,
+    /// The timestep of the feedforward, typically 20ms.
     pub dt: Time,
     exponential: f64,
 }
 
 impl SimpleMotorFeedforward {
+    /// Create a new feedforward with Ks, Kv, and Ka. The timestep will be set
+    /// to 20ms.
     pub fn new(s: f64, v: f64, a: f64) -> Self {
         let dt = 20.0.milliseconds();
         let mut out = Self {
@@ -149,16 +162,21 @@ impl SimpleMotorFeedforward {
         out
     }
 
+    /// Set the timestep of the feedforward to a custom value.
     pub fn with_dt(mut self, dt: Time) -> Self {
         self.dt = dt;
         self.calculate_exponential();
         self
     }
 
+    /// Calculate the voltage required to meet a certain velocity and
+    /// acceleration.
     pub fn calculate(&self, velocity: f64, acceleration: f64) -> Voltage {
         (self.s * signum_zero(velocity) + self.v * velocity + self.a * acceleration).volts()
     }
 
+    /// Calculate the voltage required to get from the current setpoint to the
+    /// next setpoint.
     pub fn setpoints(&self, current: f64, next: f64) -> Voltage {
         if self.a < 1e-9 {
             self.s * signum_zero(next) + self.v * next
