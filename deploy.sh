@@ -7,7 +7,7 @@ PROJECT_NAME="robot-test"
 TEAM=3636
 ROBOT_IP="10.36.36.2"
 
-cargo build --target arm-unknown-linux-gnueabi
+cargo build --target arm-unknown-linux-gnueabi --release
 
 echo "If program stalls, roboRIO isn't connected."
 ssh lvuser@${ROBOT_IP} "/usr/local/frc/bin/frcKillRobot.sh -t -r"
