@@ -1,3 +1,5 @@
+use std::ops::{Add, Div, Mul, Neg, Sub};
+
 use std::sync::LazyLock;
 use std::time::Instant;
 
@@ -253,5 +255,89 @@ pub struct Twist2D {
 impl Twist2D {
     pub fn new(dx: Length, dy: Length, dtheta: Angle) -> Self {
         Self { dx, dy, dtheta }
+    }
+}
+
+pub type Quaternion = glam::DQuat;
+
+pub struct Rotation3D {
+    pub quat: Quaternion,
+}
+
+impl Rotation3D {
+    pub fn new(roll: Angle, pitch: Angle, yaw: Angle) -> Self {
+        let cr = (roll * 0.5).value.cos();
+        let sr = (roll * 0.5).value.sin();
+
+        let cp = (pitch * 0.5).value.cos();
+        let sp = (pitch * 0.5).value.sin();
+
+        let cy = (yaw * 0.5).value.cos();
+        let sy = (yaw * 0.5).value.sin();
+
+        let quat = Quaternion::from_array([
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+        ]);
+
+        Self { quat }
+    }
+
+    pub fn from_quaternion(quat: Quaternion) -> Self {
+        Self { quat }
+    }
+
+    pub fn from_rotation2d(rotation: Rotation2D) -> Self {
+        Self::new(0.0.radians(), 0.0.radians(), rotation.value)
+    }
+
+    pub fn rotate_by(&self, other: Self) -> Self {
+        Self::from_quaternion(other.quat * self.quat)
+    }
+
+    pub fn relative_to(&self, other: Self) -> Self {
+        Self::from_quaternion(other.quat.inverse() * self.quat)
+    }
+
+    pub fn x(&self) -> Angle {
+        self.quat.to_euler(glam::EulerRot::XYZ).0.radians()
+    }
+
+    pub fn y(&self) -> Angle {
+        self.quat.to_euler(glam::EulerRot::XYZ).1.radians()
+    }
+
+    pub fn z(&self) -> Angle {
+        self.quat.to_euler(glam::EulerRot::XYZ).2.radians()
+    }
+
+    pub fn to_rotation2d(&self) -> Rotation2D {
+        Rotation2D::new(self.z())
+    }
+}
+
+impl Add for Rotation3D {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.rotate_by(rhs)
+    }
+}
+
+impl Neg for Rotation3D {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Rotation3D::from_quaternion(self.quat.inverse())
+    }
+}
+
+impl Sub for Rotation3D {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + -rhs
     }
 }

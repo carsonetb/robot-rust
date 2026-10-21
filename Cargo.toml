@@ -28,6 +28,7 @@ derive_more = { version = "2.1.1", features = ["full"] }
 nalgebra = "0.35.0"
 ordered-float = "5.5.0"
 num_enum = "0.7.6"
+glam = "0.34.1"
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "allow"
