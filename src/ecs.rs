@@ -168,8 +168,24 @@ impl State {
 
         let mut world = World::new();
 
+        let mut schedules = world.get_resource_or_init::<Schedules>();
+        schedules.insert(Schedule::new(Init));
+        schedules.insert(Schedule::new(DisabledInit));
+        schedules.insert(Schedule::new(TeleopInit));
+        schedules.insert(Schedule::new(AutonomousInit));
+        schedules.insert(Schedule::new(TestInit));
+        schedules.insert(Schedule::new(DisabledExit));
+        schedules.insert(Schedule::new(TeleopExit));
+        schedules.insert(Schedule::new(AutonomousExit));
+        schedules.insert(Schedule::new(TestExit));
+        schedules.insert(Schedule::new(Periodic));
+        schedules.insert(Schedule::new(DisabledPeriodic));
+        schedules.insert(Schedule::new(TeleopPeriodic));
+        schedules.insert(Schedule::new(AutonomousPeriodic));
+        schedules.insert(Schedule::new(TestPeriodic));
+        schedules.insert(Schedule::new(CommandsPeriodic));
+
         world.insert_non_send(Logger::new("log.wpilog"));
-        world.insert_resource(Schedules::new());
 
         Some(Self { world })
     }

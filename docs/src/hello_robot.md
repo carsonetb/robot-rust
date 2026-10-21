@@ -21,7 +21,7 @@ use frc::prelude::*;
 
 Virtually every type and function you will ever need to use gets imported with the prelude. CTRE and REV each have their own preludes, though.
 
-Now, we need to create a new `State`. In the main function, you will configure this state and then run it.
+Now, we need to create a new `State`. In the main function, you will configure this state and then run it. The state is what holds all the resources and systems that you create for your project. 
 
 ```Rust
 let mut state = State::new().unwrap();
@@ -56,6 +56,7 @@ Provided is a `deploy.sh` script that will automatically build and deploy the pr
 ```Bash
 $ chmod +x deploy.sh
 ```
+Use your perferred text editor to open `deploy.sh`
 
 You will need to edit the variables set in the program:
 
@@ -63,7 +64,7 @@ You will need to edit the variables set in the program:
 - Update `TEAM` to be your team number
 - Update `ROBOT_IP` to be the IP address of the roboRIO when it is connected to your computer. If the script fails, it is most likely that this is wrong or the robot isn't connected properly. You can run `ping IP_HERE` to test if the address is working.
 
-Once these variables are set properly, you can run the deploy script, which will handle building, deploying, and running the robot program on the RIO.
+Once these variables are set properly, save `deploy.sh`. You can run the deploy script, which will handle building, deploying, and running the robot program on the RIO.
 
 ```Bash
 $ ./deploy.sh

@@ -11,6 +11,7 @@ pub mod interpolation;
 pub mod kinematics;
 pub mod odometry;
 pub mod prelude;
+pub mod trajectory;
 
 pub static START_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
 

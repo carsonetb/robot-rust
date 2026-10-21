@@ -3,11 +3,11 @@
 This project manages everything using an ECS, which stands for _Entity Component System_.
 We will learn more later about the purpose of Entities and Components, but for now we only need to know how Systems work.
 
-A system is an abstract concept. It is anything that takes some inputs, and modifies some of those inputs. In our case, this abstraction is realised in the form of _functions_. You saw an example of a system called `hello_world` in the previous chapter, although this one took no inputs. In reality, systems can (and usually do) take many inputs and many types of inputs. The most common input you will be using is called a Resource.
+A system is anything that takes some inputs, and modifies some of those inputs. You saw an example of a system called `hello_world` in the previous chapter, although this one took no inputs. In reality, systems can (and usually do) take many inputs and many types of inputs. The most common input you will be using is called a Resource.
 
 ## Resources
 
-Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one `Intake` resource), and they must be instantiated when the program starts. If you've done some FRC programming before, this might ring some bells. A singleton object instantiated at the start of the program? Why, that's the same as a Subsystem! And, indeed, we do use Resources for Subsystems.
+Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one `Intake` resource), and they must be instantiated when the program starts. If you've done some FRC programming before, you'll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things.
 
 ## Creating a resource
 
