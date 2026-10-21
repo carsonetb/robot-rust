@@ -4,6 +4,7 @@ use std::sync::LazyLock;
 use std::time::Instant;
 
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use uom::typenum::P2;
 
 use crate::prelude::*;
 
@@ -143,7 +144,7 @@ impl Vec2 {
         )
     }
 
-    pub fn transformed(&self, other: &Vec2) -> Self {
+    pub fn translated(&self, other: &Vec2) -> Self {
         Self::new(self.x + other.x, self.y + other.y)
     }
 
@@ -177,7 +178,7 @@ impl Pose2D {
 
     pub fn transformed(&self, other: &Self) -> Self {
         Self::new(
-            self.pos.transformed(&other.pos.rotated(&self.rotation)),
+            self.pos.translated(&other.pos.rotated(&self.rotation)),
             self.rotation.rotated(&other.rotation),
         )
     }
@@ -260,6 +261,21 @@ impl Twist2D {
 
 pub type Quaternion = glam::DQuat;
 
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Mul,
+    MulAssign,
+    Div,
+    DivAssign,
+    Neg,
+)]
 pub struct Rotation3D {
     pub quat: Quaternion,
 }
@@ -275,12 +291,12 @@ impl Rotation3D {
         let cy = (yaw * 0.5).value.cos();
         let sy = (yaw * 0.5).value.sin();
 
-        let quat = Quaternion::from_array([
+        let quat = Quaternion::from_xyzw(
             cr * cp * cy + sr * sp * sy,
             sr * cp * cy - cr * sp * sy,
             cr * sp * cy + sr * cp * sy,
             cr * cp * sy - sr * sp * cy,
-        ]);
+        );
 
         Self { quat }
     }
@@ -316,28 +332,254 @@ impl Rotation3D {
     pub fn to_rotation2d(&self) -> Rotation2D {
         Rotation2D::new(self.z())
     }
+
+    pub(crate) fn to_glam_vector(&self) -> glam::DVec3 {
+        let (axis, angle) = self.quat.to_axis_angle();
+        axis * angle
+    }
 }
 
-impl Add for Rotation3D {
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    MulAssign,
+    DivAssign,
+    Neg,
+)]
+pub struct Vec3 {
+    pub x: Length,
+    pub y: Length,
+    pub z: Length,
+}
+
+impl Vec3 {
+    pub fn new(x: Length, y: Length, z: Length) -> Self {
+        Self { x, y, z }
+    }
+
+    pub fn from_angle_distance(angle: Rotation3D, distance: Length) -> Self {
+        Self::new(distance, 0.0.meters(), 0.0.meters()).rotate_by(angle)
+    }
+
+    pub fn distance(&self, other: Self) -> Length {
+        ((other.x - self.x).powi(P2::new())
+            + (other.y - self.y).powi(P2::new())
+            + (other.z - self.z).powi(P2::new()))
+        .sqrt()
+    }
+
+    pub fn length(&self) -> Length {
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
+
+    pub fn length_squared(&self) -> LengthSquared {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn rotate_by(&self, other: Rotation3D) -> Self {
+        let p = Quaternion::from_xyzw(0.0, self.x.value, self.y.value, self.z.value);
+        let qprime = (other.quat * p * other.quat.inverse());
+        let vec = qprime.to_euler(glam::EulerRot::XYZ);
+        Self::new(vec.0.meters(), vec.1.meters(), vec.2.meters())
+    }
+
+    pub fn rotate_around(&self, other: Self, rot: Rotation3D) -> Self {
+        (*self - other).rotate_by(rot) + other
+    }
+
+    pub fn dot(&self, other: Self) -> LengthSquared {
+        self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    pub fn to_vec2(&self) -> Vec2 {
+        Vec2::new(self.x, self.y)
+    }
+}
+
+impl Mul<f64> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self::new(self.x * rhs, self.y * rhs, self.z * rhs)
+    }
+}
+
+impl Div<f64> for Vec3 {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self::new(self.x / rhs, self.y / rhs, self.z / rhs)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Pose3D {
+    pub pos: Vec3,
+    pub rot: Rotation3D,
+}
+
+impl Pose3D {
+    pub fn new(translation: Vec3, rotation: Rotation3D) -> Self {
+        Self {
+            pos: translation,
+            rot: rotation,
+        }
+    }
+
+    pub fn rotate_by(&self, other: Rotation3D) -> Self {
+        Self::new(self.pos.rotate_by(other), self.rot.rotate_by(other))
+    }
+
+    pub fn transform_by(&self, other: Self) -> Self {
+        Self::new(
+            self.pos + other.pos.rotate_by(self.rot),
+            other.rot.rotate_by(self.rot),
+        )
+    }
+
+    pub fn relative_to(&self, other: Self) -> Self {
+        Self::new(
+            (other.pos - self.pos).rotate_by(-self.rot),
+            other.rot.relative_to(self.rot),
+        )
+    }
+
+    pub fn rotate_around(&self, point: Vec3, rot: Rotation3D) -> Self {
+        Self::new(self.pos.rotate_around(point, rot), self.rot.rotate_by(rot))
+    }
+
+    pub fn exp(self, twist: Twist3D) -> Self {
+        let u = glam::DVec3::new(twist.dx.value, twist.dy.value, twist.dz.value);
+        let rvec = glam::DVec3::new(twist.rx.value, twist.ry.value, twist.rz.value);
+        let omega = glam::DMat3::from_euler(glam::EulerRot::XYZ, rvec.x, rvec.y, rvec.z);
+        let omega_sq = omega * omega;
+        let theta = rvec.length();
+        let theta_sq = theta * theta;
+
+        let a;
+        let b;
+        let c;
+
+        if theta.abs() < 1e-7 {
+            a = 1.0 - theta_sq / 6.0 + theta_sq * theta_sq / 120.0;
+            b = 1.0 / 2.0 - theta_sq / 24.0 + theta_sq * theta_sq / 720.0;
+            c = 1.0 / 6.0 - theta_sq / 120.0 + theta_sq * theta_sq / 5040.0;
+        } else {
+            a = theta.sin() / theta;
+            b = (1.0 - theta.cos()) / theta_sq;
+            c = (1.0 - a) / theta_sq;
+        }
+
+        let r = glam::DMat3::IDENTITY + a * omega + b * omega_sq;
+        let v = glam::DMat3::IDENTITY + b * omega + c * omega_sq;
+
+        let translation_component = v * u;
+
+        let euler = r.to_euler(glam::EulerRot::XYZ);
+        let transform = Self::new(
+            Vec3::new(
+                translation_component.x.meters(),
+                translation_component.y.meters(),
+                translation_component.z.meters(),
+            ),
+            Rotation3D::new(euler.0.radians(), euler.1.radians(), euler.2.radians()),
+        );
+
+        self + transform
+    }
+
+    pub fn log(self, end: Pose3D) -> Twist3D {
+        let transform = end.relative_to(self);
+
+        let u = glam::DVec3::new(
+            transform.pos.x.value,
+            transform.pos.y.value,
+            transform.pos.z.value,
+        );
+        let (raxis, rangle) = transform.rot.quat.to_axis_angle();
+        let rvec = raxis * rangle;
+        let omega = glam::DMat3::from_axis_angle(raxis, rangle);
+        let omega_sq = omega * omega;
+        let theta = rvec.length();
+        let theta_sq = theta * theta;
+
+        let c;
+        if theta.abs() < 1e-7 {
+            c = 1.0 / 12.0 + theta_sq / 720.0 + theta_sq * theta_sq / 30240.0;
+        } else {
+            let a = theta.sin() / theta;
+            let b = (1.0 - theta.cos()) / theta_sq;
+            c = (1.0 - a / (2.0 * b)) / theta_sq;
+        }
+
+        let v_inv = glam::DMat3::IDENTITY - 0.5 * omega + c * omega_sq;
+
+        let translation_component = v_inv * u;
+
+        Twist3D::new(
+            translation_component.x.meters(),
+            translation_component.y.meters(),
+            translation_component.z.meters(),
+            rvec.x.radians(),
+            rvec.y.radians(),
+            rvec.z.radians(),
+        )
+    }
+
+    pub fn to_pose2d(&self) -> Pose2D {
+        Pose2D::new(self.pos.to_vec2(), self.rot.to_rotation2d())
+    }
+}
+
+impl Add for Pose3D {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        self.rotate_by(rhs)
+        self.transform_by(rhs)
     }
 }
 
-impl Neg for Rotation3D {
-    type Output = Self;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Twist3D {
+    pub dx: Length,
+    pub dy: Length,
+    pub dz: Length,
+    pub rx: Angle,
+    pub ry: Angle,
+    pub rz: Angle,
+}
 
-    fn neg(self) -> Self::Output {
-        Rotation3D::from_quaternion(self.quat.inverse())
+impl Twist3D {
+    pub fn new(dx: Length, dy: Length, dz: Length, rx: Angle, ry: Angle, rz: Angle) -> Self {
+        Self {
+            dx,
+            dy,
+            dz,
+            rx,
+            ry,
+            rz,
+        }
     }
 }
 
-impl Sub for Rotation3D {
+impl Mul<f64> for Twist3D {
     type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        self + -rhs
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self::new(
+            self.dx * rhs,
+            self.dy * rhs,
+            self.dz * rhs,
+            self.rx * rhs,
+            self.ry * rhs,
+            self.rz * rhs,
+        )
     }
 }

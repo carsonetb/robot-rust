@@ -85,6 +85,7 @@ pub type Amps = ElectricCurrent;
 pub type Current = ElectricCurrent;
 /// Equivilant to [`ThermodynamicTemperature`].
 pub type Temperature = ThermodynamicTemperature;
+pub type LengthSquared = Area;
 
 define_unit_helpers! {
     pub trait UnitHelpers for f64 {

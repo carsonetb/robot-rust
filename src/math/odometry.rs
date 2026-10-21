@@ -253,17 +253,45 @@ impl<const N: usize> PoseProvider for SwerveDriveOdometry<N> {
     }
 }
 
-// #[derive(Debug, Clone)]
-// pub struct Odometry3D<S, P, K: Kinematics<S, P>> {
-//     kinematics: K,
-//     /// Estimated position of the robot.
-//     pub pose: Pose2D,
-//     previous_wheel_positions: P,
-//     previous_angle: Rotation2D,
-//     gyro_offset: Rotation2D,
-//     _speeds: PhantomData<S>,
-// }
-//
-// impl<S, P, K: Kinematics<S, P>> Odometry3D<S, P, K> {
-//     pub fn new(kinematics: K, gyro_angle)
-// }
+#[derive(Debug, Clone)]
+pub struct Odometry3D<S, P, K: Kinematics<S, P>> {
+    kinematics: K,
+    /// Estimated position of the robot.
+    pub pose: Pose3D,
+    previous_wheel_positions: P,
+    previous_angle: Rotation3D,
+    gyro_offset: Rotation3D,
+    _speeds: PhantomData<S>,
+}
+
+impl<S, P, K: Kinematics<S, P>> Odometry3D<S, P, K> {
+    pub fn new(
+        kinematics: K,
+        gyro_angle: Rotation3D,
+        wheel_positions: P,
+        initial_pose: Pose3D,
+    ) -> Self {
+        Self {
+            kinematics,
+            pose: initial_pose,
+            previous_wheel_positions: wheel_positions,
+            previous_angle: initial_pose.rot,
+            gyro_offset: (-gyro_angle).rotate_by(initial_pose.rot),
+            _speeds: PhantomData,
+        }
+    }
+
+    pub fn reset_position(&mut self, gyro_angle: Rotation3D, wheel_positions: P, pose: Pose3D) {
+        self.pose = pose;
+        self.previous_angle = pose.rot;
+        self.gyro_offset = (-gyro_angle).rotate_by(pose.rot);
+        self.previous_wheel_positions = wheel_positions;
+    }
+
+    pub fn reset_pose(&mut self, pose: Pose3D) {
+        self.gyro_offset = self
+            .gyro_offset
+            .rotate_by(-self.pose.rot)
+            .rotate_by(pose.rot);
+    }
+}
