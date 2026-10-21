@@ -1,102 +1,149 @@
-use crate::{ffi, logging::str_to_wpi};
+use crate::ffi;
+use crate::logging::nt::NetworkTablesType;
+use crate::logging::str_to_wpi;
 
+/// Trait for basic types that WPILib provides logging functions for. This
+/// trait is already implemented for all those types.
 pub trait Loggable {
-    fn typ() -> &'static str;
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self);
+    /// The type the WPILib logging system provides for this type.
+    const WPI_TYPE: &'static str;
+    /// The NetworkTablesType of this type.
+    const NT_TYPE: NetworkTablesType;
+
+    /// Append this type at the entry and timestamp, to the logger.
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self);
+    /// Publish this value at the timestamp.
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self);
 }
 
 impl Loggable for bool {
-    fn typ() -> &'static str {
-        "boolean"
+    const WPI_TYPE: &'static str = "boolean";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::Boolean;
+
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
+        unsafe {
+            ffi::WPI_DataLog_AppendBoolean(datalog, entry, *value as i32, timestamp);
+        }
     }
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
         unsafe {
-            ffi::WPI_DataLog_AppendBoolean(datalog, entry, value as i32, timestamp);
+            ffi::NT_SetBoolean(publisher, timestamp, *value as ffi::NT_Bool);
         }
     }
 }
 
 impl Loggable for f64 {
-    fn typ() -> &'static str {
-        "double"
+    const WPI_TYPE: &'static str = "double";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::Double;
+
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
+        unsafe {
+            ffi::WPI_DataLog_AppendDouble(datalog, entry, *value, timestamp);
+        }
     }
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
         unsafe {
-            ffi::WPI_DataLog_AppendDouble(datalog, entry, value, timestamp);
+            ffi::NT_SetDouble(publisher, timestamp, *value);
         }
     }
 }
 
 impl Loggable for f32 {
-    fn typ() -> &'static str {
-        "float"
+    const WPI_TYPE: &'static str = "float";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::Float;
+
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
+        unsafe {
+            ffi::WPI_DataLog_AppendFloat(datalog, entry, *value, timestamp);
+        }
     }
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
         unsafe {
-            ffi::WPI_DataLog_AppendFloat(datalog, entry, value, timestamp);
+            ffi::NT_SetFloat(publisher, timestamp, *value);
         }
     }
 }
 
 impl Loggable for i64 {
-    fn typ() -> &'static str {
-        "int"
+    const WPI_TYPE: &'static str = "int";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::Integer;
+
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
+        unsafe {
+            ffi::WPI_DataLog_AppendInteger(datalog, entry, *value, timestamp);
+        }
     }
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
         unsafe {
-            ffi::WPI_DataLog_AppendInteger(datalog, entry, value, timestamp);
+            ffi::NT_SetInteger(publisher, timestamp, *value);
         }
     }
 }
 
 impl Loggable for i32 {
-    fn typ() -> &'static str {
-        "int"
+    const WPI_TYPE: &'static str = "int";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::Integer;
+
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
+        unsafe {
+            ffi::WPI_DataLog_AppendInteger(datalog, entry, *value as i64, timestamp);
+        }
     }
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
         unsafe {
-            ffi::WPI_DataLog_AppendInteger(datalog, entry, value as i64, timestamp);
+            ffi::NT_SetInteger(publisher, timestamp, *value as i64);
         }
     }
 }
 
 impl Loggable for &str {
-    fn typ() -> &'static str {
-        "string"
-    }
+    const WPI_TYPE: &'static str = "string";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::String;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         let value = str_to_wpi(&value);
         unsafe {
             ffi::WPI_DataLog_AppendString(datalog, entry, &value, timestamp);
+        }
+    }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value = str_to_wpi(&value);
+        unsafe {
+            ffi::NT_SetString(publisher, timestamp, &value);
         }
     }
 }
 
 impl Loggable for String {
-    fn typ() -> &'static str {
-        "string"
-    }
+    const WPI_TYPE: &'static str = "string";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::String;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         let value = str_to_wpi(&value);
         unsafe {
             ffi::WPI_DataLog_AppendString(datalog, entry, &value, timestamp);
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value = str_to_wpi(&value);
+        unsafe {
+            ffi::NT_SetString(publisher, timestamp, &value);
+        }
+    }
 }
 
 impl Loggable for &[bool] {
-    fn typ() -> &'static str {
-        "boolean[]"
-    }
+    const WPI_TYPE: &'static str = "boolean[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::BooleanArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         let value: Vec<i32> = value.iter().map(|&b| b as i32).collect();
         unsafe {
             ffi::WPI_DataLog_AppendBooleanArray(
@@ -108,14 +155,20 @@ impl Loggable for &[bool] {
             );
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<i32> = value.iter().map(|&b| b as i32).collect();
+        unsafe {
+            ffi::NT_SetBooleanArray(publisher, timestamp, value.as_ptr(), value.len());
+        }
+    }
 }
 
 impl Loggable for &[f64] {
-    fn typ() -> &'static str {
-        "double[]"
-    }
+    const WPI_TYPE: &'static str = "double[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::DoubleArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         unsafe {
             ffi::WPI_DataLog_AppendDoubleArray(
                 datalog,
@@ -126,14 +179,20 @@ impl Loggable for &[f64] {
             );
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<f64> = value.iter().map(|&b| b as f64).collect();
+        unsafe {
+            ffi::NT_SetDoubleArray(publisher, timestamp, value.as_ptr(), value.len());
+        }
+    }
 }
 
 impl Loggable for &[f32] {
-    fn typ() -> &'static str {
-        "float[]"
-    }
+    const WPI_TYPE: &'static str = "float[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::FloatArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         unsafe {
             ffi::WPI_DataLog_AppendFloatArray(
                 datalog,
@@ -144,14 +203,20 @@ impl Loggable for &[f32] {
             );
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<f32> = value.iter().map(|&b| b as f32).collect();
+        unsafe {
+            ffi::NT_SetFloatArray(publisher, timestamp, value.as_ptr(), value.len());
+        }
+    }
 }
 
 impl Loggable for &[i64] {
-    fn typ() -> &'static str {
-        "int[]"
-    }
+    const WPI_TYPE: &'static str = "int[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::IntegerArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         unsafe {
             ffi::WPI_DataLog_AppendIntegerArray(
                 datalog,
@@ -162,14 +227,20 @@ impl Loggable for &[i64] {
             );
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<f64> = value.iter().map(|&b| b as f64).collect();
+        unsafe {
+            ffi::NT_SetDoubleArray(publisher, timestamp, value.as_ptr(), value.len());
+        }
+    }
 }
 
 impl Loggable for &[&str] {
-    fn typ() -> &'static str {
-        "string[]"
-    }
+    const WPI_TYPE: &'static str = "string[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::StringArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         let value: Vec<ffi::WPI_String> = value.iter().map(|s| str_to_wpi(s)).collect();
         unsafe {
             ffi::WPI_DataLog_AppendStringArray(
@@ -181,14 +252,20 @@ impl Loggable for &[&str] {
             );
         }
     }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<ffi::WPI_String> = value.iter().map(|s| str_to_wpi(s)).collect();
+        unsafe {
+            ffi::NT_SetStringArray(publisher, timestamp, value.as_ptr(), value.len());
+        }
+    }
 }
 
 impl Loggable for &[String] {
-    fn typ() -> &'static str {
-        "string[]"
-    }
+    const WPI_TYPE: &'static str = "string[]";
+    const NT_TYPE: NetworkTablesType = NetworkTablesType::StringArray;
 
-    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: Self) {
+    fn append(datalog: *mut ffi::WPI_DataLog, entry: i32, timestamp: i64, value: &Self) {
         let value: Vec<ffi::WPI_String> = value.iter().map(|s| str_to_wpi(s)).collect();
         unsafe {
             ffi::WPI_DataLog_AppendStringArray(
@@ -198,6 +275,13 @@ impl Loggable for &[String] {
                 value.len(),
                 timestamp,
             );
+        }
+    }
+
+    fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        let value: Vec<ffi::WPI_String> = value.iter().map(|s| str_to_wpi(s)).collect();
+        unsafe {
+            ffi::NT_SetStringArray(publisher, timestamp, value.as_ptr(), value.len());
         }
     }
 }

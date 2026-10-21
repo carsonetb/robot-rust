@@ -8,7 +8,6 @@ pub use crate::ecs::{
     TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic,
 };
 pub use crate::hid::XboxController;
-pub use crate::initialize::*;
 pub use crate::logging::{AutoLog, Loggable, Logger};
 pub use crate::math::control::*;
 pub use crate::math::{Pose2D, Rotation2D, Vec2, timestamp};

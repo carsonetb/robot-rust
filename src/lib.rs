@@ -9,7 +9,6 @@ pub mod ecs;
 pub mod ffi;
 pub mod hal;
 pub mod hid;
-pub mod initialize;
 pub mod logging;
 pub mod math;
 pub mod prelude;

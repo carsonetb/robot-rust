@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::ffi;
 
+/// Send a selection of options to the dashboard.
 pub struct SendableChooser<T> {
     handle: *mut ffi::ChooserHandle,
     options: HashMap<String, T>,

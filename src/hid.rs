@@ -4,6 +4,8 @@ use autocxx::c_int;
 use crate::ffi;
 use crate::prelude::*;
 
+/// An XBox controller connected to the driver station. `*_trigger` functions
+/// can be used with systems if this is present as a resource.
 pub struct XboxController {
     cont: cxx::UniquePtr<ffi::XboxController>,
 }
@@ -31,10 +33,12 @@ impl XboxController {
         self.cont.GetRightY()
     }
 
+    /// WARNING: Not a trigger, the physical trigger on the controller.
     pub fn left_trigger(&self) -> f64 {
         self.cont.GetLeftTriggerAxis()
     }
 
+    /// WARNING: Not a trigger, the physical trigger on the controller.
     pub fn right_trigger(&self) -> f64 {
         self.cont.GetRightTriggerAxis()
     }

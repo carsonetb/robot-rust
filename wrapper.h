@@ -1,6 +1,8 @@
 #include <hal/HAL.h>
 #include <wpi/DataLog_c.h>
 #include <wpi/timestamp.h>
+#include <ntcore_c.h>
+#include <ntcore_c_types.h>
 
 // #include <hal/AnalogInput.h>
 // #include <hal/DIO.h>

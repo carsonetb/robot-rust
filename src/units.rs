@@ -77,9 +77,13 @@ macro_rules! define_unit_helpers {
     };
 }
 
+/// Equivilant to [`ElectricPotential`].
 pub type Voltage = ElectricPotential;
+/// Equivilant to [`ElectricCurrent`].
 pub type Amps = ElectricCurrent;
+/// Equivilant to [`ElectricCurrent`].
 pub type Current = ElectricCurrent;
+/// Equivilant to [`ThermodynamicTemperature`].
 pub type Temperature = ThermodynamicTemperature;
 
 define_unit_helpers! {

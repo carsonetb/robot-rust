@@ -157,6 +157,9 @@ pub struct State {
 
 impl State {
     /// Create a new state. Can fail if the HAL fails to initialize.
+    ///
+    /// This method initializes the [`Logger`] resource, configuring it to use
+    /// networktables. If you want to change this functionality, insert it again.
     pub fn new() -> Option<Self> {
         if !hal::init() {
             println!("HAL failed to initialize.");
@@ -185,7 +188,7 @@ impl State {
         schedules.insert(Schedule::new(TestPeriodic));
         schedules.insert(Schedule::new(CommandsPeriodic));
 
-        world.insert_non_send(Logger::new("log.wpilog"));
+        world.insert_non_send(Logger::new("log.wpilog", true));
 
         Some(Self { world })
     }
