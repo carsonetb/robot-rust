@@ -161,6 +161,8 @@ impl State {
     /// This method initializes the [`Logger`] resource, configuring it to use
     /// networktables. If you want to change this functionality, insert it again.
     pub fn new() -> Option<Self> {
+        crate::recovery::install_signal_handler();
+
         if !hal::init() {
             println!("HAL failed to initialize.");
             return None;

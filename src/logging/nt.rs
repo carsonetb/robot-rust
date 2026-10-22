@@ -77,14 +77,12 @@ impl NetworkTablesTopic {
 
     pub fn publisher<T: Loggable>(&'_ self) -> NetworkTablesPublisher {
         NetworkTablesPublisher::new(unsafe {
-            let out = NT_Publish(
+            NT_Publish(
                 self.topic,
                 T::NT_TYPE as u32,
                 &str_to_wpi(T::NT_TYPE.to_str()),
-                std::ptr::null(),
-            );
-            println!("created publisher");
-            out
+                std::mem::zeroed(),
+            )
         })
     }
 }
