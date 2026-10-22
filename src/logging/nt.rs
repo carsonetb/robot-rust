@@ -24,10 +24,11 @@ impl NetworkTablesInstance {
     }
 
     pub fn get_topic(&self, name: &str) -> NetworkTablesTopic {
-        NetworkTablesTopic::new(
+        let out = NetworkTablesTopic::new(
             unsafe { NT_GetTopic(self.inst, &str_to_wpi(name)) },
             name.to_string(),
-        )
+        );
+        out
     }
 
     // pub fn get_entry(&'_ self, name: &str) -> NetworkTablesEntry<'_> {
@@ -66,7 +67,7 @@ impl NetworkTablesTopic {
             crate::ds::alert(
                 crate::ds::AlertType::Error,
                 &format!(
-                    "Failed to derive NetworkTables type for topic {}",
+                    "Failed to derive NetworkTables type for topic {}, type was {typ}",
                     self.name
                 ),
             );
@@ -76,12 +77,14 @@ impl NetworkTablesTopic {
 
     pub fn publisher<T: Loggable>(&'_ self) -> NetworkTablesPublisher {
         NetworkTablesPublisher::new(unsafe {
-            NT_Publish(
+            let out = NT_Publish(
                 self.topic,
-                self.get_type() as u32,
+                T::NT_TYPE as u32,
                 &str_to_wpi(T::NT_TYPE.to_str()),
                 std::ptr::null(),
-            )
+            );
+            println!("created publisher");
+            out
         })
     }
 }

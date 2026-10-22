@@ -44,9 +44,11 @@ impl Loggable for f64 {
     }
 
     fn set_nt(publisher: ffi::NT_Publisher, timestamp: i64, value: &Self) {
+        println!("3");
         unsafe {
             ffi::NT_SetDouble(publisher, timestamp, *value);
         }
+        println!("4");
     }
 }
 
