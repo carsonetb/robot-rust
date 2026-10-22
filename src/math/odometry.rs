@@ -253,6 +253,7 @@ impl<const N: usize> PoseProvider for SwerveDriveOdometry<N> {
     }
 }
 
+/// See documentation for [`Odometry`].
 #[derive(Debug, Clone)]
 pub struct Odometry3D<S, P, K: Kinematics<S, P>> {
     kinematics: K,
@@ -293,5 +294,102 @@ impl<S, P, K: Kinematics<S, P>> Odometry3D<S, P, K> {
             .gyro_offset
             .rotate_by(-self.pose.rot)
             .rotate_by(pose.rot);
+    }
+
+    pub fn reset_translation(&mut self, pos: Vec3) {
+        self.pose = Pose3D::new(pos, self.pose.rot);
+    }
+
+    pub fn reset_rotation(&mut self, rot: Rotation3D) {
+        self.gyro_offset = self.gyro_offset.rotate_by(-self.pose.rot).rotate_by(rot);
+        self.pose = Pose3D::new(self.pose.pos, rot);
+        self.previous_angle = rot;
+    }
+
+    pub fn update(&mut self, gyro_angle: Rotation3D, wheel_positions: P) -> Pose3D {
+        let angle = gyro_angle.rotate_by(self.gyro_offset);
+        let angle_difference = (angle - self.previous_angle).to_glam_vector();
+
+        let twist2d = self
+            .kinematics
+            .to_twist2d(&self.previous_wheel_positions, &wheel_positions);
+        let twist = Twist3D::new(
+            twist2d.dx,
+            twist2d.dy,
+            0.0.meters(),
+            angle_difference.x.radians(),
+            angle_difference.y.radians(),
+            angle_difference.z.radians(),
+        );
+
+        let new_pose = self.pose.exp(twist);
+
+        self.previous_wheel_positions = wheel_positions;
+        self.previous_angle = angle;
+        self.pose = Pose3D::new(new_pose.pos, angle);
+
+        self.pose
+    }
+}
+
+#[derive(Debug, Clone, Deref, DerefMut)]
+pub struct DifferentialDriveOdometry3D(
+    pub  Odometry3D<
+        DifferentialDriveWheelSpeeds,
+        DifferentialDriveWheelPositions,
+        DifferentialDriveKinematics,
+    >,
+);
+
+impl DifferentialDriveOdometry3D {
+    pub fn new(gyro_angle: Rotation3D, left: Length, right: Length, start_pose: Pose3D) -> Self {
+        Self(Odometry3D::new(
+            DifferentialDriveKinematics::new(1.0.meters()),
+            gyro_angle,
+            DifferentialDriveWheelPositions::new(left, right),
+            start_pose,
+        ))
+    }
+
+    pub fn reset_position(
+        &mut self,
+        gyro_angle: Rotation3D,
+        left: Length,
+        right: Length,
+        pose: Pose3D,
+    ) {
+        self.0.reset_position(
+            gyro_angle,
+            DifferentialDriveWheelPositions::new(left, right),
+            pose,
+        );
+    }
+
+    pub fn update(&mut self, gyro_angle: Rotation3D, left: Length, right: Length) -> Pose3D {
+        self.0.update(
+            gyro_angle,
+            DifferentialDriveWheelPositions::new(left, right),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Deref, DerefMut)]
+pub struct SwerveDriveOdometry3D<const N: usize>(
+    pub Odometry3D<[SwerveModuleState; N], [SwerveModulePosition; N], SwerveDriveKinematics<N>>,
+);
+
+impl<const N: usize> SwerveDriveOdometry3D<N> {
+    pub fn new(
+        kinematics: SwerveDriveKinematics<N>,
+        gyro_angle: Rotation3D,
+        module_positions: [SwerveModulePosition; N],
+        initial_pose: Pose3D,
+    ) -> Self {
+        Self(Odometry3D::new(
+            kinematics,
+            gyro_angle,
+            module_positions,
+            initial_pose,
+        ))
     }
 }
