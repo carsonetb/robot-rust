@@ -74,7 +74,7 @@ class DCMotorSim : public LinearSystemSim<2, 1, 2> {
   units::radians_per_second_t GetAngularVelocity() const;
 
   /**
-   * Returns the DC motor acceleration.
+   * Returns the DC motor acceleratnion.
    *
    * @return The DC motor acceleration
    */

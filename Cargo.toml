@@ -30,6 +30,8 @@ ordered-float = "5.5.0"
 num_enum = "0.7.6"
 glam = "0.34.1"
 libc = "0.2.191"
+rand = "0.10.3"
+rand_distr = "0.6.0"
 
 [profile.dev]
 debug = true

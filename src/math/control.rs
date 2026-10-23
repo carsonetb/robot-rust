@@ -40,6 +40,10 @@ impl PIDGains {
 ///
 /// This type isn't unit-ed because a PID controller can run on many different
 /// types of units.
+///
+/// ## Warning
+///
+/// Ported manually from WPILib, this type may not work as intended.
 #[derive(Debug, Clone)]
 pub struct PIDController {
     /// The gains used by the controller.
@@ -132,6 +136,10 @@ impl PIDController {
 /// a feedforward. It's values are the coefficients that correspond to the
 /// voltage needed to set the motor to a velocity and the voltage needed to
 /// set the motor to an acceleration, and some other values.
+///
+/// ## Warning
+///
+/// Ported manually from WPILib, this type may not work as intended.
 pub struct SimpleMotorFeedforward {
     /// Ks, the static friction coefficient, which is the voltage required to
     /// get the motor turning as slow as possible.

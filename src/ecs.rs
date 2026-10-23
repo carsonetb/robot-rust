@@ -7,6 +7,12 @@ use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use crate::prelude::*;
 use crate::{ds, hal};
 
+#[derive(Resource, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Environment {
+    Competition,
+    Simulation,
+}
+
 /// The current mode of the robot program.
 #[derive(Resource, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mode {

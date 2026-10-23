@@ -17,6 +17,7 @@ pub use bindings::*;
 
 autocxx::include_cpp! {
     #include "chooser_helpers.hpp"
+    #include "sim_helpers.hpp"
 
     #include "frc/XboxController.h"
     #include "frc/event/BooleanEvent.h"
@@ -215,6 +216,10 @@ autocxx::include_cpp! {
     generate!("rev_helpers::spark::absolute_get_position")
     generate!("rev_helpers::spark::absolute_get_velocity")
 
+    generate!("sim_helpers::ctre_feed_enable")
+    generate!("sim_helpers::talonfx_get_voltage")
+    generate!("sim_helpers::talonfx_set_physics")
+
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
     block!("wpi::SendableRegistry")
@@ -289,6 +294,12 @@ pub mod rev {
         get_applied_output, get_bus_voltage, get_encoder, get_motor_temperature,
         get_output_current, get_position, get_velocity, set, set_position, set_voltage, stop,
     };
+}
+
+pub mod sim {
+    use super::ffi;
+
+    pub use ffi::sim_helpers::*;
 }
 
 pub use ffi::chooser::{

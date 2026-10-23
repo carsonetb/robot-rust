@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul};
 
 use std::sync::LazyLock;
 use std::time::Instant;
@@ -13,7 +13,9 @@ pub mod estimator;
 pub mod interpolation;
 pub mod kinematics;
 pub mod odometry;
+pub mod plant;
 pub mod prelude;
+pub mod system;
 pub mod trajectory;
 
 pub static START_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
@@ -385,7 +387,7 @@ impl Vec3 {
 
     pub fn rotate_by(&self, other: Rotation3D) -> Self {
         let p = Quaternion::from_xyzw(0.0, self.x.value, self.y.value, self.z.value);
-        let qprime = (other.quat * p * other.quat.inverse());
+        let qprime = other.quat * p * other.quat.inverse();
         let vec = qprime.to_euler(glam::EulerRot::XYZ);
         Self::new(vec.0.meters(), vec.1.meters(), vec.2.meters())
     }

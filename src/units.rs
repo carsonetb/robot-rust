@@ -1,6 +1,7 @@
 use revolution_per_second_cubed::revolution_per_second_cubed as revolution_per_second_cubed_;
 use revolution_per_second_squared::revolution_per_second_squared as revolution_per_second_squared_;
 use rpm::rpm as rpm_;
+use std::marker::PhantomData;
 pub use uom::si::acceleration::{
     foot_per_second_squared, meter_per_second_squared, standard_gravity,
 };
@@ -11,18 +12,24 @@ pub use uom::si::angular_velocity::{degree_per_second, radian_per_second, revolu
 pub use uom::si::area::square_meter;
 pub use uom::si::electric_current::{ampere, milliampere};
 pub use uom::si::electric_potential::{millivolt, volt};
+pub use uom::si::electrical_resistance::ohm;
+pub use uom::si::energy::joule;
 pub use uom::si::f64::{
     Acceleration, Angle, AngularAcceleration, AngularJerk, AngularVelocity, Area, ElectricCurrent,
-    ElectricPotential, Force, Frequency, Length, Mass, ThermodynamicTemperature, Time, Velocity,
+    ElectricPotential, ElectricalResistance, Energy, Force, Frequency, Length, Mass,
+    MomentOfInertia, ThermodynamicTemperature, Time, Torque, Velocity,
 };
 pub use uom::si::force::newton;
 pub use uom::si::frequency::{hertz, millihertz};
 pub use uom::si::length::{centimeter, foot, inch, meter, millimeter};
 pub use uom::si::mass::{gram, kilogram, ounce, pound};
+pub use uom::si::moment_of_inertia::kilogram_square_meter;
 pub use uom::si::thermodynamic_temperature::{degree_celsius, degree_fahrenheit, kelvin};
 pub use uom::si::time::{microsecond, millisecond, minute, second};
+pub use uom::si::torque::newton_meter;
 pub use uom::si::velocity::{foot_per_second, inch_per_second, meter_per_second};
 use uom::si::{Dimension, Quantity, Units};
+use uom::typenum::*;
 
 use crate::prelude::*;
 
@@ -59,12 +66,24 @@ macro_rules! define_unit_helpers {
             $(
                 fn $method:ident -> $RetType:ident<$Unit:ident>;
             )+
+
+            $(
+                custom: {
+                    $(
+                        fn $custom_method:ident -> $CustomUnit:ident;
+                    )+
+                }
+            )?
         }
     ) => {
         pub trait $TraitName {
             $(
                 fn $method(self) -> $RetType;
             )+
+
+            $($(
+                fn $custom_method(self) -> $CustomUnit;
+            )+)?
         }
 
         impl $TraitName for $Type {
@@ -73,6 +92,16 @@ macro_rules! define_unit_helpers {
                     $RetType::new::<$Unit>(self)
                 }
             )+
+
+            $($(
+                fn $custom_method(self) -> $CustomUnit {
+                    $CustomUnit {
+                        dimension: PhantomData,
+                        units: PhantomData,
+                        value: self,
+                    }
+                }
+            )+)?
         }
     };
 }
@@ -86,6 +115,13 @@ pub type Current = ElectricCurrent;
 /// Equivilant to [`ThermodynamicTemperature`].
 pub type Temperature = ThermodynamicTemperature;
 pub type LengthSquared = Area;
+pub type Ohms = ElectricalResistance;
+
+pub type MotorVelocityConstant =
+    Quantity<uom::si::ISQ<N2, N1, P2, P1, Z0, Z0, Z0>, uom::si::SI<f64>, f64>;
+
+pub type MotorTorqueConstant =
+    Quantity<uom::si::ISQ<P2, P1, N2, N1, Z0, Z0, Z0>, uom::si::SI<f64>, f64>;
 
 define_unit_helpers! {
     pub trait UnitHelpers for f64 {
@@ -143,9 +179,23 @@ define_unit_helpers! {
         fn amps -> ElectricCurrent<ampere>;
         fn milliamps -> ElectricCurrent<milliampere>;
 
+        fn ohms -> ElectricalResistance<ohm>;
+
         fn kelvin -> ThermodynamicTemperature<kelvin>;
         fn celsius -> ThermodynamicTemperature<degree_celsius>;
         fn fahrenheit -> ThermodynamicTemperature<degree_fahrenheit>;
+
+        fn kilogram_square_meters -> MomentOfInertia<kilogram_square_meter>;
+        fn moment_of_inertia -> MomentOfInertia<kilogram_square_meter>;
+
+        fn newton_meters -> Torque<newton_meter>;
+
+        fn joules -> Energy<joule>;
+
+        custom: {
+            fn newton_meters_per_amp -> MotorTorqueConstant;
+            fn radians_per_second_per_volt -> MotorVelocityConstant;
+        }
     }
 }
 

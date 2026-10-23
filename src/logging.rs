@@ -11,7 +11,7 @@ pub mod nt;
 
 pub(super) fn str_to_wpi(s: &str) -> ffi::WPI_String {
     ffi::WPI_String {
-        str_: s.as_ptr(),
+        str_: s.as_ptr() as *const std::ffi::c_char,
         len: s.len(),
     }
 }
@@ -19,7 +19,7 @@ pub(super) fn str_to_wpi(s: &str) -> ffi::WPI_String {
 #[allow(unused)]
 pub(super) fn wpi_to_str(s: &ffi::WPI_String) -> &str {
     unsafe {
-        let bytes = std::slice::from_raw_parts(s.str_, s.len);
+        let bytes = std::slice::from_raw_parts(s.str_ as *const u8, s.len);
         str::from_utf8_unchecked(bytes)
     }
 }
