@@ -2,8 +2,8 @@ use std::marker::PhantomData;
 
 use super::prelude::*;
 
-/// Class for odometry. Robot code should not use this directly---Instead, use the
-/// particular type for your drivetrain (e.g., DifferentialDriveOdometry).
+/// Class for odometry. Robot code should not use this directly---Instead, use
+/// the particular type for your drivetrain (e.g., DifferentialDriveOdometry).
 /// Odometry allows you to track the robot's position on the field over a course
 /// of a match using readings from your wheel encoders.
 ///
@@ -96,9 +96,10 @@ impl<S, P, K: Kinematics<S, P>> Odometry<S, P, K> {
     }
 
     /// Updates the robot's position on the field using forward kinematics and
-    /// integration of the pose over time. This method takes in an angle parameter
-    /// which is used instead of the angular rate that is calculated from forward
-    /// kinematics, in addition to the current distance measurement at each wheel.
+    /// integration of the pose over time. This method takes in an angle
+    /// parameter which is used instead of the angular rate that is
+    /// calculated from forward kinematics, in addition to the current
+    /// distance measurement at each wheel.
     ///
     /// Returns the new pose of the robot.
     ///
@@ -132,8 +133,9 @@ impl<S, P, K: Kinematics<S, P>> Odometry<S, P, K> {
 /// path following. Furthermore, odometry can be used for latency compensation
 /// when using computer-vision systems.
 ///
-/// It is important that you reset your encoders to zero before using this class.
-/// Any subsequent pose resets also require the encoders to be reset to zero.
+/// It is important that you reset your encoders to zero before using this
+/// class. Any subsequent pose resets also require the encoders to be reset to
+/// zero.
 #[derive(Debug, Clone, Deref, DerefMut)]
 pub struct DifferentialDriveOdometry(
     pub  Odometry<
@@ -182,9 +184,9 @@ impl DifferentialDriveOdometry {
     }
 
     /// Updates the robot position on the field using distance measurements from
-    /// encoders. This method is more numerically accurate than using velocities to
-    /// integrate the pose and is also advantageous for teams that are using lower
-    /// CPR encoders.
+    /// encoders. This method is more numerically accurate than using velocities
+    /// to integrate the pose and is also advantageous for teams that are
+    /// using lower CPR encoders.
     ///
     /// Returns the new pose of the robot.
     ///

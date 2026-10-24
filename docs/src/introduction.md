@@ -1,6 +1,8 @@
 # Introduction
 
-Welcome to the Robot in Rust project for FRC! This is a safe, all-in-one solution for writing robot code in Rust. If you are tired of using Java or C++, or simply want to be special, maybe this project is for you.
+Welcome to the Robot in Rust project for FRC! This is a safe, all-in-one solution for writing robot code in Rust. If you are tired of using Java or C++, maybe this project is for you.
+
+This exact thing, of course, has been tried many times before. See [FIRST Rust Competition](https://github.com/first-rust-competition/first-rust-competition), [frcrs](https://github.com/Team-2502/frcrs), and a few others you might find online. This project is different, because it's more than just bindings to WPILib. We have a custom ECS-based scheduler (instead of Commands & Subsystems), logging system, autonomous system, simulation system, as well as the traditional WPILib, CTRE, REV, and (subset of) NetworkTables bindings.
 
 ## Features
 
@@ -9,21 +11,24 @@ Normally, different functionality is separated into different modules created by
 - HAL bindings: A State type that sets everything up and runs your robot for you.
 - CTRE bindings: TalonFX, CANCoder, Pigeon2, a subset of configs.
 - REV bindings: SparkMax, Spark Relative & Absolute Encoders, a subset of configs.
-- Logging system: Similar to the [AdvantageKit](https://docs.advantagekit.org/) system, supports logging basic Rust types, Units, and automatically making your own types loggable via the `AutoLog` derive-macro.
+- Logging system: Similar to the [AdvantageKit](https://docs.advantagekit.org/) system, supports logging basic Rust types, Units, and automatically making your own types loggable via the `AutoLog` derive-macro. NetworkTables is supported.
 - Units: Everything, when possible, is unit-ed using [`uom`](https://docs.rs/uom/latest/uom/). Helper functions are provided to make using these easier.
-- Math: PID controller support, (planned) drivetrain kinematics support.
-- (planned) Autonomous System
+- Math: Feedback and feedforward controllers, simple math types, kinematics, odometry, ported manually from WPILib. If a math type exists, it should work the same as it does in WPILib.
+- Autonomous System: Support for tank drive autonomous point-to-point path following, and (planned) support for swerve drive path following.
+- Simulation: Many of the WPILib simulation types are manually ported, and future support for integrating [MuJoCo](https://mujoco.org/) is planned.
 
 ## Commands and Subsystems
 
-Originally I tried to create a 1-1 replica of Commands and Subsystems. But it turns out mapping complex OOP concepts to Rust quickly becomes a mess. So I scrapped it all and moved to an ECS!
-
-Don't worry, I created this book precisely so that people could learn to use this foreign system.
+The main difference between this and WPILib is the absence of the Commands and Subsystems framework. Instead we use the [ECS](https://docs.rs/bevy_ecs/latest/bevy_ecs/) from the [Bevy Game Engine](https://bevy.org/), which is lightweight and much more suited for Rust than Commands.
 
 ## Who this is for
 
-To use this project for serious robot code (meaning you are bringing it to a competition or there will be time-pressure to fix bugs should they occur) you should be _experienced_ in Rust. You should have built one or two projects in Rust before. If you've used the [Bevy Game Engine](https://bevy.org/) before, all the better! If you aren't so experienced, continue at your own risk, but you may find yourself staring at a foreign wall of errors while your robot is queueing.
+To use this project for serious robot code (meaning you are bringing it to a competition or there will be time-pressure to fix bugs should they occur) you should be experienced in Rust and low-level programming, and have a backup robot program written in Java or C++.
 
-To use this for side-projects or offseason events, you sohuld still know Rust, but you don't need any serious experience. In fact, this will be your experience!
+If you're using this for other less serious projects, regardless of your experience you should give this a try and see if you can figure it out.
 
 Regardless, you should still read through this book, and use it as a reference in the future. Good luck!
+
+## Installation
+
+All you need installed is WPILib. If it's already installed it should appear in your home directory. You can follow the official guide [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html). This library officially supports Linux and MacOS, and Windows support is planned.

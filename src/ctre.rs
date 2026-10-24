@@ -1,5 +1,20 @@
-///! Wrappers for Cross The Road Electronics (CTRE) devices.
+//! Wrappers for Cross The Road Electronics (CTRE) devices.
+//!
+//! This module has a seperate prelude that you can import with:
+//!
+//! ```
+//! use robot_rust::ctre::prelude::*;
+//! ```
+//!
+//! ## Currently supported devices
+//!
+//! * [KrakenX60], [KrakenX44], and [Falcon500] via the [TalonFX] motor
+//!   controller (configs incomplete).
+//! * [CANCoder] motor encoder.
+//! * [Pigeon2] gyro.
+
 use autocxx::WithinUniquePtr;
+use std::ffi::CStr;
 use uom::si::angle::{degree, revolution};
 use uom::si::electric_potential::volt;
 use uom::si::f64::{
@@ -17,12 +32,18 @@ pub mod control;
 pub mod enums;
 pub mod prelude;
 
+/// A KrakenX60 motor controller, equivilant to [TalonFX].
 pub type KrakenX60 = TalonFX;
+/// A KrakenX44 motor controller, equivilant to [TalonFX].
 pub type KrakenX44 = TalonFX;
+/// A Falcon500 motor controller, equivilant to [TalonFX].
 pub type Falcon500 = TalonFX;
 
-use std::ffi::CStr;
-
+/// The status returned by some functions.
+///
+/// ## Bound code
+///
+/// This type contains bound code, safety of some functions is not guaranteed.
 pub struct StatusCode {
     status: cxx::UniquePtr<ffi::StatusCode>,
 }
@@ -62,6 +83,8 @@ impl StatusCode {
         if self.is_error() { Err(self) } else { Ok(()) }
     }
 
+    /// Returns Ok(T) if the status is a warning or ok, and an Err if the status
+    /// is an error.
     pub fn result_with<T>(mut self, with: T) -> Result<T, StatusCode> {
         if self.is_error() { Err(self) } else { Ok(with) }
     }
@@ -98,10 +121,12 @@ impl TalonFX {
         ffi::talon::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
     }
 
+    /// Set this motor to use a MotionMagic controller.
     pub fn set_motionmagic_voltage(&mut self, control: &MotionMagicVoltage) {
         ffi::talon::set_motionmagic_voltage(self.motor.pin_mut(), control.to_ffi().pin_mut());
     }
 
+    /// Resets the position of the encoder on this motor.
     pub fn set_position(&mut self, position: Angle) -> StatusCode {
         StatusCode::new(
             ffi::talon::set_position(self.motor.pin_mut(), position.get::<revolution>())
@@ -127,15 +152,23 @@ impl TalonFX {
         ffi::talon::get_acceleration(self.motor.pin_mut()).rotations_per_second_squared()
     }
 
+    /// Stops applying voltage to the motor, but leaves it free-spinning.
     pub fn coast(&mut self) {
         ffi::talon::coast(self.motor.pin_mut())
     }
 
+    /// Brake mode.
     pub fn neutral(&mut self) {
         ffi::talon::neutral(self.motor.pin_mut())
     }
 }
 
+/// A CAN based magnetic encoder that provides absolute and relative position
+/// along with filtered velocity.
+///
+/// ## Bound code
+///
+/// This type contains bound code, safety of some functions is not guaranteed.
 pub struct CANCoder {
     coder: cxx::UniquePtr<ffi::cancoder::CANcoder>,
 }

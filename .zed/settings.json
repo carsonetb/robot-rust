@@ -7,6 +7,9 @@
   "lsp": {
     "rust-analyzer": {
       "initialization_options": {
+        "rustfmt": {
+          "extraArgs": ["+nightly"],
+        },
         "cargo": {
           "target": "arm-unknown-linux-gnueabi",
           "buildScripts": {

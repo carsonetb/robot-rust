@@ -32,8 +32,8 @@ impl PIDGains {
 }
 
 /// A simple feedback controller. After setting the parameters, every update
-/// you should call `with_current` and `with_setpoint` to update those parameters,
-/// if necessary.
+/// you should call `with_current` and `with_setpoint` to update those
+/// parameters, if necessary.
 ///
 /// Want information on how these work and how to tune them effectively? Read
 /// chapter 2 of https://file.tavsys.net/control/controls-engineering-in-frc.pdf.

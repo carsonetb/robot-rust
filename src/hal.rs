@@ -103,12 +103,12 @@ impl Drop for PWMPort {
 ///  Call this to start up HAL. This is required for robot programs.
 ///
 ///  This must be called before any other HAL functions. Failure to do so will
-///  result in undefined behavior, and likely segmentation faults. This means that
-///  any statically initialized variables in a program MUST call this function in
-///  their constructors if they want to use other HAL calls.
+///  result in undefined behavior, and likely segmentation faults. This means
+/// that  any statically initialized variables in a program MUST call this
+/// function in  their constructors if they want to use other HAL calls.
 ///
-///  This function is safe to call from any thread, and as many times as you wish.
-///  It internally guards from any reentrancy.
+///  This function is safe to call from any thread, and as many times as you
+/// wish.  It internally guards from any reentrancy.
 pub fn init() -> bool {
     unsafe { HAL_Initialize(500, 0) != 0 }
 }

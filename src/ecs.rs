@@ -86,16 +86,17 @@ struct CommandsPeriodic;
 /// with [`State::insert_resource`].
 pub type Resource<'a, T> = NonSend<'a, T>;
 
-/// Used as an input to a system, gets a mutable reference to any resource registered
-/// with [`State::insert_resource`].
+/// Used as an input to a system, gets a mutable reference to any resource
+/// registered with [`State::insert_resource`].
 pub type ResourceMut<'a, T> = NonSendMut<'a, T>;
 
 /// Used as an input to a system, gets a reference to any command registered
 /// with [`State::register_command`]. Commands also have some extra functions.
 pub type Command<'a, T> = Resource<'a, CommandInternal<T>>;
 
-/// Used as an input to a system, gets a mutable reference to any command registered
-/// with [`State::register_command`]. Commands also have some extra functions.
+/// Used as an input to a system, gets a mutable reference to any command
+/// registered with [`State::register_command`]. Commands also have some extra
+/// functions.
 pub type CommandMut<'a, T> = ResourceMut<'a, CommandInternal<T>>;
 
 /// Internal data for a command wrapper. [`Command`] and [`CommandMut`] are
@@ -165,7 +166,8 @@ impl State {
     /// Create a new state. Can fail if the HAL fails to initialize.
     ///
     /// This method initializes the [`Logger`] resource, configuring it to use
-    /// networktables. If you want to change this functionality, insert it again.
+    /// networktables. If you want to change this functionality, insert it
+    /// again.
     pub fn new() -> Option<Self> {
         crate::recovery::install_signal_handler();
 

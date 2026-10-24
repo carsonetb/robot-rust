@@ -32,8 +32,8 @@ impl NetworkTablesInstance {
     }
 
     // pub fn get_entry(&'_ self, name: &str) -> NetworkTablesEntry<'_> {
-    //     NetworkTablesEntry::new(unsafe { NT_GetEntry(self.inst, &str_to_wpi(name)) })
-    // }
+    //     NetworkTablesEntry::new(unsafe { NT_GetEntry(self.inst,
+    // &str_to_wpi(name)) }) }
 }
 
 impl Default for NetworkTablesInstance {
@@ -276,8 +276,8 @@ impl NetworkTablesType {
 //             None
 //         } else {
 //             let data = unsafe { value.value.data.arr_boolean };
-//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const bool, data.size) })
-//         }
+//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const bool,
+// data.size) })         }
 //     }
 // }
 //
@@ -287,8 +287,8 @@ impl NetworkTablesType {
 //             None
 //         } else {
 //             let data = unsafe { value.value.data.arr_double };
-//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const f64, data.size) })
-//         }
+//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const f64,
+// data.size) })         }
 //     }
 // }
 //
@@ -298,8 +298,8 @@ impl NetworkTablesType {
 //             None
 //         } else {
 //             let data = unsafe { value.value.data.arr_float };
-//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const f32, data.size) })
-//         }
+//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const f32,
+// data.size) })         }
 //     }
 // }
 //
@@ -309,8 +309,8 @@ impl NetworkTablesType {
 //             None
 //         } else {
 //             let data = unsafe { value.value.data.arr_int };
-//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const i64, data.size) })
-//         }
+//             Some(unsafe { std::slice::from_raw_parts(data.arr as *const i64,
+// data.size) })         }
 //     }
 // }
 //
@@ -321,8 +321,8 @@ impl NetworkTablesType {
 //         } else {
 //             let data = unsafe { value.value.data.arr_string };
 //             let wpi_strings =
-//                 unsafe { std::slice::from_raw_parts(data.arr as *const WPI_String, data.size) };
-//             let output = wpi_strings
+//                 unsafe { std::slice::from_raw_parts(data.arr as *const
+// WPI_String, data.size) };             let output = wpi_strings
 //                 .iter()
 //                 .map(|string| wpi_to_str(&string))
 //                 .collect::<Vec<_>>();

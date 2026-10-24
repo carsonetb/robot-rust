@@ -5,7 +5,8 @@ use crate::logging::nt::*;
 use crate::logging::{now, str_to_wpi};
 use crate::prelude::*;
 
-/// A logging system that logs to the log file and to (optionally) NetworkTables.
+/// A logging system that logs to the log file and to (optionally)
+/// NetworkTables.
 pub struct Logger {
     datalog: *mut ffi::WPI_DataLog,
     nt: NetworkTablesInstance,

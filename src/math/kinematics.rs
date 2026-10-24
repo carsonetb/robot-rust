@@ -24,8 +24,8 @@ pub trait Kinematics<S, P> {
     fn interpolate(&mut self, start: &P, end: &P, t: f64) -> P;
 }
 
-/// Represents the speed of any robot, in either robot-relative or field-relative
-/// coordiantes.
+/// Represents the speed of any robot, in either robot-relative or
+/// field-relative coordiantes.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign, Neg)]
 pub struct ChassisSpeeds {
     /// Forward-backward movement relative to the robot.
@@ -54,18 +54,20 @@ impl ChassisSpeeds {
 
     /// Discretizes a continuous-time chassis speed.
     ///
-    /// This function converts a continuous-time chassis speed into a discrete-time
-    /// one such that when the discrete-time chassis speed is applied for one
-    /// timestep, the robot moves as if the velocity components are independent
-    /// (i.e., the robot moves v_x * dt along the x-axis, v_y * dt along the
-    /// y-axis, and omega * dt around the z-axis).
+    /// This function converts a continuous-time chassis speed into a
+    /// discrete-time one such that when the discrete-time chassis speed is
+    /// applied for one timestep, the robot moves as if the velocity
+    /// components are independent (i.e., the robot moves v_x * dt along the
+    /// x-axis, v_y * dt along the y-axis, and omega * dt around the
+    /// z-axis).
     ///
-    /// This is useful for compensating for translational skew when translating and
-    /// rotating a holonomic (swerve or mecanum) drivetrain. However, scaling down
-    /// the ChassisSpeeds after discretizing (e.g., when desaturating swerve module
-    /// speeds) rotates the direction of net motion in the opposite direction of
-    /// rotational velocity, introducing a different translational skew which is
-    /// not accounted for by discretization.
+    /// This is useful for compensating for translational skew when translating
+    /// and rotating a holonomic (swerve or mecanum) drivetrain. However,
+    /// scaling down the ChassisSpeeds after discretizing (e.g., when
+    /// desaturating swerve module speeds) rotates the direction of net
+    /// motion in the opposite direction of rotational velocity, introducing
+    /// a different translational skew which is not accounted for by
+    /// discretization.
     pub fn discretize(vx: Velocity, vy: Velocity, omega: AngularVelocity, dt: Time) -> Self {
         let desired_offset = Pose2D::new(
             Vec2::new(vx * dt, vy * dt),
@@ -175,11 +177,12 @@ impl DifferentialDriveWheelSpeeds {
     /// Renormalizes the wheel speeds if either side is above the specified
     /// maximum.
     ///
-    /// Sometimes, after inverse kinematics, the requested speed from one or more
-    /// wheels may be above the max attainable speed for the driving motor on that
-    /// wheel. To fix this issue, one can reduce all the wheel speeds to make sure
-    /// that all requested module speeds are at-or-below the absolute threshold,
-    /// while maintaining the ratio of speeds between wheels.
+    /// Sometimes, after inverse kinematics, the requested speed from one or
+    /// more wheels may be above the max attainable speed for the driving
+    /// motor on that wheel. To fix this issue, one can reduce all the wheel
+    /// speeds to make sure that all requested module speeds are at-or-below
+    /// the absolute threshold, while maintaining the ratio of speeds
+    /// between wheels.
     pub fn desaturate(&mut self, attainable_max_speed: Velocity) {
         let real_max_speed =
             f64::max(self.left.abs().value, self.right.abs().value).meters_per_second();
@@ -190,8 +193,8 @@ impl DifferentialDriveWheelSpeeds {
     }
 }
 
-/// Kinematics implementation for the differential (tank) drive. See documentation
-/// for [`Kinematics`] for more information.
+/// Kinematics implementation for the differential (tank) drive. See
+/// documentation for [`Kinematics`] for more information.
 #[derive(Debug, Clone, Copy)]
 pub struct DifferentialDriveKinematics {
     width: Length,
@@ -249,8 +252,8 @@ impl Kinematics<DifferentialDriveWheelSpeeds, DifferentialDriveWheelPositions>
     }
 }
 
-/// Represents the position of a swerve module. Often these are used to represent
-/// change in position instead of position itself.
+/// Represents the position of a swerve module. Often these are used to
+/// represent change in position instead of position itself.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct SwerveModulePosition {
     pub distance: Length,
@@ -273,8 +276,8 @@ impl SwerveModulePosition {
 }
 
 /// Represents the velocity and rotation of the wheel, this is used in place of
-/// a speeds type because knowing the angular velocity of the swerve module rotation
-/// would be pretty useless.
+/// a speeds type because knowing the angular velocity of the swerve module
+/// rotation would be pretty useless.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct SwerveModuleState {
     pub speed: Velocity,
@@ -283,9 +286,9 @@ pub struct SwerveModuleState {
 
 impl SwerveModuleState {
     /// Minimize the change in the heading this swerve module state would
-    /// require by potentially reversing the direction the wheel spins. If this is
-    /// used with the PIDController class's continuous input functionality, the
-    /// furthest a wheel will ever rotate is 90 degrees.
+    /// require by potentially reversing the direction the wheel spins. If this
+    /// is used with the PIDController class's continuous input
+    /// functionality, the furthest a wheel will ever rotate is 90 degrees.
     pub fn optimize(desired_state: Self, current_angle: Rotation2D) -> Self {
         let desired = desired_state.angle.value.get::<radian>();
         let delta = (desired - current_angle.value.get::<radian>() + PI).rem_euclid(2.0 * PI) - PI;
@@ -316,8 +319,8 @@ pub struct SwerveDriveKinematics<const N: usize> {
 }
 
 impl<const N: usize> SwerveDriveKinematics<N> {
-    /// Create a new kinematics object with the positions of each module relative
-    /// to the center of the drivetrain.
+    /// Create a new kinematics object with the positions of each module
+    /// relative to the center of the drivetrain.
     pub fn new(modules: [Vec2; N]) -> Self {
         Self {
             modules,

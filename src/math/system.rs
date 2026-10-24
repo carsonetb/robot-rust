@@ -30,7 +30,8 @@ pub struct LinearSystem<const STATES: usize, const INPUTS: usize, const OUTPUTS:
 impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
     LinearSystem<STATES, INPUTS, OUTPUTS>
 {
-    /// Constructs a descrete plant with the given continuous system coefficients.
+    /// Constructs a descrete plant with the given continuous system
+    /// coefficients.
     ///
     /// ## Panics
     ///
@@ -71,9 +72,9 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
     /**
      * Create a state-space model of a DC motor system from its kV
      * (volts/(unit/sec)) and kA (volts/(unit/sec²)). These constants can be
-     * found using SysId. the states of the system are [angular position, angular
-     * velocity]ᵀ, inputs are [voltage], and outputs are [angular position,
-     * angular velocity]ᵀ.
+     * found using SysId. the states of the system are [angular position,
+     * angular velocity]ᵀ, inputs are [voltage], and outputs are
+     * [angular position, angular velocity]ᵀ.
      *
      * The parameters provided by the user are from this feedforward model:
      *
