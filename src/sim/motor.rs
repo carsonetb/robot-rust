@@ -42,8 +42,7 @@ impl DCMotorSim {
     }
 
     pub fn neo(gearing: f64, kv: f64, ka: f64) -> Self {
-        let gearbox = DCMotor::neo(gearing);
-        Self::new(LinearSystem::dc_motor_system(&gearbox, kv, ka), gearbox)
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo(gearing))
     }
 
     pub fn with_std_devs(mut self, measurement_std_devs: [f64; 2]) -> Self {

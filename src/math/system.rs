@@ -89,12 +89,35 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
      *
      * If kV < 0 or Ka <= 0
      */
-    pub fn dc_motor_system(motor: &DCMotor, kv: f64, ka: f64) -> Self {
+    pub fn dc_motor_system(kv: f64, ka: f64) -> Self {
         assert!(kv >= 0.0, "Kv must be greater than or equal to zero.");
         assert!(ka > 0.0, "Ka must be greater than zero.");
 
         let a = SMatrix::from_column_slice(&[0.0, 1.0, 0.0, -kv / ka]);
         let b = SMatrix::from_column_slice(&[0.0, 1.0 / ka]);
+        let c = SMatrix::from_column_slice(&[1.0, 0.0, 0.0, 1.0]);
+        let d = SMatrix::from_column_slice(&[0.0, 0.0]);
+
+        Self::new(a, b, c, d)
+    }
+
+    pub fn from_dc_motor(motor: DCMotor, moi: MomentOfInertia, gearing: f64) -> Self {
+        assert!(
+            moi > 0.0.kilogram_square_meters(),
+            "MOI (J) must be greater than zero."
+        );
+        assert!(gearing > 0.0, "Gearing must be greater than zero.");
+
+        let a = SMatrix::from_column_slice(&[
+            0.0,
+            1.0,
+            0.0,
+            (-gearing.powi(2) * motor.kt / (motor.kv * motor.resistance)).value,
+        ]);
+        let b = SMatrix::from_column_slice(&[
+            0.0,
+            (gearing * motor.kt / (motor.resistance * moi)).value,
+        ]);
         let c = SMatrix::from_column_slice(&[1.0, 0.0, 0.0, 1.0]);
         let d = SMatrix::from_column_slice(&[0.0, 0.0]);
 
