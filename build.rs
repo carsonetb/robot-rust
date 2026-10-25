@@ -75,18 +75,93 @@ fn main() -> miette::Result<()> {
         ),
         "libCTRE_Phoenix6.so",
     );
-    download(
-        &format!(
-            "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/wpiapi-cpp/26.3.0/wpiapi-cpp-26.3.0-{classifier}.zip"
-        ),
-        "libCTRE_Phoenix6_WPI.so",
-    );
-    download(
-        &format!(
-            "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/tools/26.3.0/tools-26.3.0-{classifier}.zip"
-        ),
-        "libCTRE_PhoenixTools.so",
-    );
+    if is_roborio {
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/wpiapi-cpp/26.3.0/wpiapi-cpp-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_Phoenix6_WPI.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/tools/26.3.0/tools-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_PhoenixTools.so",
+        );
+    } else {
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/wpiapi-cpp-sim/26.3.0/wpiapi-cpp-sim-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_Phoenix6_WPISim.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/tools-sim/26.3.0/tools-sim-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_PhoenixTools_Sim.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simTalonSRX/26.3.0/simTalonSRX-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimTalonSRX.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simVictorSPX/26.3.0/simVictorSPX-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimVictorSPX.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simPigeonIMU/26.3.0/simPigeonIMU-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimPigeonIMU.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProTalonFX/26.3.0/simProTalonFX-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProTalonFX.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProTalonFXS/26.3.0/simProTalonFXS-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProTalonFXS.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANcoder/26.3.0/simProCANcoder-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProCANcoder.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProPigeon2/26.3.0/simProPigeon2-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProPigeon2.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANrange/26.3.0/simProCANrange-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProCANrange.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANdi/26.3.0/simProCANdi-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProCANdi.so",
+        );
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANdle/26.3.0/simProCANdle-26.3.0-{classifier}.zip"
+            ),
+            "libCTRE_SimProCANdle.so",
+        );
+    }
 
     download(
         &format!(
@@ -267,16 +342,25 @@ fn main() -> miette::Result<()> {
 
     let out_dir = env::var("OUT_DIR").unwrap();
     println!("cargo:rustc-link-search=native={out_dir}/{SO_TARGET_DIR}");
-    println!(
-        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib"
-    );
-    println!(
-        "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
-    );
-
-    println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPI");
+    if is_roborio {
+        println!(
+            "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/usr/lib"
+        );
+        println!(
+            "cargo:rustc-link-search=native={home}/wpilib/2026/roborio/arm-nilrt-linux-gnueabi/sysroot/lib"
+        );
+    }
+    if is_roborio {
+        println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPI");
+    } else {
+        println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPISim");
+    }
     println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6");
-    println!("cargo:rustc-link-lib=dylib=CTRE_PhoenixTools");
+    if is_roborio {
+        println!("cargo:rustc-link-lib=dylib=CTRE_PhoenixTools");
+    } else {
+        println!("cargo:rustc-link-lib=dylib=CTRE_PhoenixTools_Sim");
+    }
     println!("cargo:rustc-link-lib=dylib=REVLib");
     println!("cargo:rustc-link-lib=dylib=REVLibWpi");
     println!("cargo:rustc-link-lib=dylib=REVLibDriver");

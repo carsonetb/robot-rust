@@ -17,6 +17,8 @@ pub use bindings::*;
 
 autocxx::include_cpp! {
     #include "chooser_helpers.hpp"
+
+    #include "ctre/phoenix6/sim/TalonFXSimState.hpp"
     #include "sim_helpers.hpp"
 
     #include "frc/XboxController.h"
@@ -217,8 +219,14 @@ autocxx::include_cpp! {
     generate!("rev_helpers::spark::absolute_get_velocity")
 
     generate!("sim_helpers::ctre_feed_enable")
+    generate!("sim_helpers::talonfx_sim_state")
     generate!("sim_helpers::talonfx_get_voltage")
+    generate!("sim_helpers::talonfx_get_torque_current")
     generate!("sim_helpers::talonfx_set_physics")
+
+    block!("ctre::phoenix6::hardware::core::CoreTalonFX")
+    generate!("ctre::phoenix6::sim::TalonFXSimState")
+    block_constructors!("ctre::phoenix6::sim::TalonFXSimState")
 
     block!("wpi::SendableBuilder")
     block!("wpi::Sendable")
@@ -300,6 +308,8 @@ pub mod sim {
     use super::ffi;
 
     pub use ffi::sim_helpers::*;
+
+    pub use ffi::ctre::phoenix6::sim::{TalonFXSimState, TalonFXSimState_MotorType};
 }
 
 pub use ffi::chooser::{

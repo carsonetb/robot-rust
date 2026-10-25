@@ -24,7 +24,7 @@ Virtually every type and function you will ever need to use gets imported with t
 Now, we need to create a new `State`. In the main function, you will configure this state and then run it. The state is what holds all the resources and systems that you create for your project.
 
 ```Rust
-let mut state = State::new().unwrap();
+let mut state: State = State::new().unwrap();
 ```
 
 Now, we have to create a _system_ that will run when the robot program starts. Later we'll learn exactly what a system is, but for now just think of it as a function. Outside of `main`, add:

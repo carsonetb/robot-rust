@@ -15,15 +15,11 @@
 
 use autocxx::WithinUniquePtr;
 use std::ffi::CStr;
-use uom::si::angle::{degree, revolution};
-use uom::si::electric_potential::volt;
-use uom::si::f64::{
-    Acceleration, Angle, AngularAcceleration, AngularVelocity, ElectricPotential,
-    ThermodynamicTemperature,
-};
+use std::pin::Pin;
 
 use crate::ffi;
 use crate::prelude::*;
+use crate::sim::prelude::*;
 
 use prelude::*;
 
@@ -90,19 +86,84 @@ impl StatusCode {
     }
 }
 
+#[derive(Debug, Default, Clone, Copy)]
+pub enum TalonFXMotorType {
+    #[default]
+    KrakenX60,
+    KrakenX60FOC,
+    KrakenX44,
+    KrakenX44FOC,
+}
+
 /// Wrapper for any motor powered by the TalonFX system.
 pub struct TalonFX {
+    bus: &'static str,
+    can: i32,
+    motor_type: MotorType,
+    gearing: f64,
+    moi: MomentOfInertia,
     motor: cxx::UniquePtr<ffi::talon::TalonFX>,
 }
 
 impl TalonFX {
     /// Create a new motor object. Specify the CAN ID and the CAN bus of the
     /// motor.
-    pub fn new(can: i32, bus: &str) -> Self {
+    pub fn new(can: i32, bus: &'static str) -> Self {
         // TODO: Deprecated CANBus string intialization.
         let motor = ffi::talon::TalonFX::new3(autocxx::c_int(can), bus).within_unique_ptr();
 
-        Self { motor }
+        Self {
+            can,
+            bus,
+            motor,
+            motor_type: MotorType::KrakenX60,
+            gearing: 1.0,
+            moi: 1.0.moment_of_inertia(),
+        }
+    }
+
+    pub fn with_simulation_params(
+        mut self,
+        motor_type: TalonFXMotorType,
+        gearing: f64,
+        moi: MomentOfInertia,
+    ) -> Self {
+        #[cfg(not(target_arch = "arm"))]
+        let _ = self.simulator().SetMotorType(match motor_type {
+            TalonFXMotorType::KrakenX44 => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
+            TalonFXMotorType::KrakenX44FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
+            TalonFXMotorType::KrakenX60 => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
+            TalonFXMotorType::KrakenX60FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
+        });
+        self.motor_type = match motor_type {
+            TalonFXMotorType::KrakenX44 => MotorType::KrakenX44,
+            TalonFXMotorType::KrakenX44FOC => MotorType::KrakenX44,
+            TalonFXMotorType::KrakenX60 => MotorType::KrakenX60,
+            TalonFXMotorType::KrakenX60FOC => MotorType::KrakenX60,
+        };
+        self.gearing = gearing;
+        self.moi = moi;
+        self
+    }
+
+    #[cfg(target_arch = "arm")]
+    pub fn process(&mut self, state: &mut StateRes) {}
+
+    #[cfg(not(target_arch = "arm"))]
+    pub fn process(&mut self, state: &mut StateRes) {
+        let mut outputs = state.get_resource_mut::<SimulatorOutputs>().unwrap();
+        let outputs = outputs.motor(self.bus, self.can);
+        ffi::sim::talonfx_set_physics(
+            self.motor.pin_mut(),
+            outputs.supply_voltage.value,
+            outputs.position.get::<revolution>(),
+            outputs.velocity.get::<revolution_per_second>(),
+        );
+
+        let mut inputs = state.get_resource_mut::<SimulatorInputs>().unwrap();
+        let inputs = inputs.motor(self.bus, self.can);
+        inputs.applied_voltage = ffi::sim::talonfx_get_voltage(self.motor.pin_mut()).volts();
+        inputs.torque_current = ffi::sim::talonfx_get_torque_current(self.motor.pin_mut()).amps();
     }
 
     pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {
@@ -160,6 +221,10 @@ impl TalonFX {
     /// Brake mode.
     pub fn neutral(&mut self) {
         ffi::talon::neutral(self.motor.pin_mut())
+    }
+
+    fn simulator(&mut self) -> Pin<&mut ffi::sim::TalonFXSimState> {
+        ffi::sim::talonfx_sim_state(self.motor.pin_mut())
     }
 }
 

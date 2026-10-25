@@ -117,7 +117,7 @@ namespace sim {
 		 * \brief Gets the simulated output torque current of the motor.
 		 *
 		 * \details Phoenix 6 simulation automatically calculates current.
-		 * 
+		 *
 		 * \returns Torque current applied to the motor in Amperes
 		 */
 		units::current::ampere_t GetTorqueCurrent() const;

@@ -4,3 +4,5 @@
 /wpilib
 /libraries
 compile_flags.txt
+*.wpilog
+*.json

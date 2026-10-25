@@ -20,7 +20,7 @@ fn spin(mut robot: ResourceMut<Robot>) {
 }
 
 fn main() {
-    let mut state = State::new().unwrap();
+    let mut state: State = State::new().unwrap();
 
     state.insert_resource(Robot::new());
 

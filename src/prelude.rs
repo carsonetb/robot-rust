@@ -17,7 +17,7 @@ pub use crate::ds::{AlertType, alert};
 pub use crate::ecs::{
     AutonomousExit, AutonomousInit, AutonomousPeriodic, Command, CommandInternal, DisabledExit,
     DisabledInit, DisabledPeriodic, Init, Mode, Periodic, Resource, ResourceMut, State, StateRes,
-    TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic,
+    TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic, Timer,
 };
 pub use crate::hid::XboxController;
 pub use crate::logging::{AutoLog, Loggable, Logger, now};
@@ -31,3 +31,6 @@ pub use crate::units::*;
 pub use bevy_ecs::prelude::{Component, Query};
 pub use derive_more::{Deref, DerefMut};
 pub use frc_autolog_macro::AutoLog;
+#[allow(unused)]
+pub(crate) use tracing::{Level, debug_span, error_span, info_span, trace_span, warn_span};
+pub use tracing::{debug, error, event, info, span, trace, warn};

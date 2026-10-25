@@ -9,7 +9,7 @@ fn spin(mut motor: ResourceMut<MyMotor>) {
 }
 
 fn main() {
-    let mut state = State::new().unwrap();
+    let mut state: State = State::new().unwrap();
 
     state.insert_resource(MyMotor(SparkMax::new(1, MotorType::Brushless)));
 

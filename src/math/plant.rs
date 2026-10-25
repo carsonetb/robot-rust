@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{prelude::*, sim::io::MotorType};
 
 #[derive(Debug, Clone)]
 pub struct DCMotor {
@@ -133,6 +133,21 @@ impl DCMotor {
             7368.0.rpm(),
             gearing,
         )
+    }
+
+    pub fn from_motor_type(motor: MotorType, gearing: f64) -> Self {
+        match motor {
+            MotorType::Neo => Self::neo(gearing),
+            MotorType::Neo550 => Self::neo_550(gearing),
+            MotorType::NeoVortex => Self::neo_vortex(gearing),
+            MotorType::Falcon500 => Self::falcon_500(gearing),
+            MotorType::Falcon500FOC => Self::falcon_500_foc(gearing),
+            MotorType::KrakenX60 => Self::kraken_x60(gearing),
+            MotorType::KrakenX60FOC => Self::kraken_x60_foc(gearing),
+            MotorType::KrakenX44 => Self::kraken_x44(gearing),
+            MotorType::KrakenX44FOC => Self::kraken_x44_foc(gearing),
+            MotorType::None => panic!("Library issue, cannot have None motor type."),
+        }
     }
 
     pub fn current(&self, speed: AngularVelocity, input_voltage: Voltage) -> Current {

@@ -95,4 +95,8 @@ impl DCMotorSim {
         self.plant.u = nalgebra::vector![voltage.value];
         self.plant.clamp_input(battery_voltage.value);
     }
+
+    pub fn update(&mut self, dt: Time) {
+        self.plant.update(dt);
+    }
 }

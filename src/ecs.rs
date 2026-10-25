@@ -1,21 +1,26 @@
 use std::marker::PhantomData;
+use std::time::{Duration, Instant};
 
 use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
+use derive_more::Display;
 
 use crate::prelude::*;
+use crate::sim::prelude::*;
+use crate::sim::runtime::{BasicRuntime, SimRuntime};
 use crate::{ds, hal};
 
-#[derive(Resource, Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Environment {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
+pub enum Model {
     Competition,
     Simulation,
 }
 
 /// The current mode of the robot program.
-#[derive(Resource, Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Display, Default)]
 pub enum Mode {
+    #[default]
     None,
     Disabled,
     Autonomous,
@@ -78,6 +83,10 @@ pub struct TeleopPeriodic;
 /// Ran every ~20ms when the robot is in the test mode.
 #[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TestPeriodic;
+
+/// Ran every ~20ms after user code to update the simulator state.
+#[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SimulatorPeriodic;
 
 #[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
 struct CommandsPeriodic;
@@ -158,11 +167,12 @@ fn disable_command<C: 'static>(world: &mut World) {
 }
 
 /// The owned state, used to setup a robot program.
-pub struct State {
+pub struct State<R: SimRuntime = BasicRuntime> {
     world: World,
+    runtime: Option<R>,
 }
 
-impl State {
+impl<R: SimRuntime> State<R> {
     /// Create a new state. Can fail if the HAL fails to initialize.
     ///
     /// This method initializes the [`Logger`] resource, configuring it to use
@@ -197,10 +207,33 @@ impl State {
         schedules.insert(Schedule::new(AutonomousPeriodic));
         schedules.insert(Schedule::new(TestPeriodic));
         schedules.insert(Schedule::new(CommandsPeriodic));
+        schedules.insert(Schedule::new(SimulatorPeriodic));
 
         world.insert_non_send(Logger::new("log.wpilog", true));
 
-        Some(Self { world })
+        #[cfg(target_arch = "arm")]
+        let model = Model::Competition;
+        #[cfg(not(target_arch = "arm"))]
+        let model = Model::Simulation;
+        world.insert_non_send(model);
+        world.insert_non_send(Mode::None);
+
+        if model == Model::Simulation {
+            world.insert_non_send(DriverStationSim::new());
+            world.insert_non_send(SimulatorInputs::new());
+            world.insert_non_send(SimulatorOutputs::new());
+        }
+
+        Some(Self {
+            world,
+            runtime: None,
+        })
+    }
+
+    /// Subscribe to [tracing] logs, printing them out.
+    pub fn subscribe(&self) {
+        let subscriber = tracing_subscriber::FmtSubscriber::new();
+        tracing::subscriber::set_global_default(subscriber).unwrap();
     }
 
     /// Run the main loop, starting by running the Init schedule. The loop
@@ -213,74 +246,117 @@ impl State {
     /// - Run *Periodic schedules.
     /// - Run Periodic schedule.
     pub fn run(&mut self) {
-        self.world.insert_resource(Mode::None);
+        let model = *self.world.non_send::<Model>();
+        info!("Running in {model} mode.");
 
+        debug!("Run user init code.");
         self.world.run_schedule(Init);
 
+        let mainloop = debug_span!("mainloop");
+        let commands_update = trace_span!("update commands");
+        let user_code = trace_span!("user code");
+        let refresh = trace_span!("driver station refresh");
+
         loop {
-            if !ds::refresh() {
-                ds::alert(ds::AlertType::Error, "DS failed to refresh data.");
-                continue;
+            let _mainloop = mainloop.enter();
+
+            if model == Model::Competition {
+                let _refresh = refresh.enter();
+                if !ds::refresh() {
+                    warn!("DS failed to refresh data.");
+                    continue;
+                }
             }
 
-            let word = hal::ControlWord::new().unwrap();
+            let mode = if model == Model::Competition {
+                let word = hal::ControlWord::new().unwrap();
 
-            let mode = if word.disabled() {
-                Mode::Disabled
-            } else if word.autonomous() {
-                Mode::Autonomous
-            } else if word.teleop() {
-                Mode::Teleop
-            } else if word.test() {
-                Mode::Test
+                if word.disabled() {
+                    Mode::Disabled
+                } else if word.autonomous() {
+                    Mode::Autonomous
+                } else if word.teleop() {
+                    Mode::Teleop
+                } else if word.test() {
+                    Mode::Test
+                } else {
+                    Mode::None
+                }
             } else {
-                Mode::None
+                let mut ds = self.world.non_send_mut::<DriverStationSim>();
+                ds.process();
+                ds.mode
             };
 
-            self.world.run_schedule(CommandsPeriodic);
+            {
+                let _commands = commands_update.enter();
+                self.world.run_schedule(CommandsPeriodic);
+            }
 
-            let last_mode = *self.world.resource::<Mode>();
-            if mode != last_mode {
-                match last_mode {
-                    Mode::Disabled => self.world.run_schedule(DisabledExit),
-                    Mode::Autonomous => self.world.run_schedule(AutonomousExit),
-                    Mode::Teleop => self.world.run_schedule(TeleopExit),
-                    Mode::Test => self.world.run_schedule(TestExit),
-                    _ => {}
+            {
+                let _user = user_code.enter();
+                let last_mode = *self.world.non_send::<Mode>();
+                if mode != last_mode {
+                    debug!("Exit mode {last_mode} into {mode}");
+                    match last_mode {
+                        Mode::Disabled => self.world.run_schedule(DisabledExit),
+                        Mode::Autonomous => self.world.run_schedule(AutonomousExit),
+                        Mode::Teleop => self.world.run_schedule(TeleopExit),
+                        Mode::Test => self.world.run_schedule(TestExit),
+                        _ => {}
+                    }
+
+                    match mode {
+                        Mode::Disabled => self.world.run_schedule(DisabledInit),
+                        Mode::Autonomous => self.world.run_schedule(AutonomousInit),
+                        Mode::Teleop => self.world.run_schedule(TeleopInit),
+                        Mode::Test => self.world.run_schedule(TestInit),
+                        _ => {}
+                    }
+
+                    *self.world.non_send_mut::<Mode>() = mode;
                 }
 
+                trace!("Periodic for {mode}.");
                 match mode {
-                    Mode::Disabled => self.world.run_schedule(DisabledInit),
-                    Mode::Autonomous => self.world.run_schedule(AutonomousInit),
-                    Mode::Teleop => self.world.run_schedule(TeleopInit),
-                    Mode::Test => self.world.run_schedule(TestInit),
+                    Mode::Disabled => {
+                        hal::observe_disabled();
+                        self.world.run_schedule(DisabledPeriodic)
+                    }
+                    Mode::Autonomous => {
+                        hal::observe_autonomous();
+                        self.world.run_schedule(AutonomousPeriodic)
+                    }
+                    Mode::Teleop => {
+                        hal::observe_teleop();
+                        self.world.run_schedule(TeleopPeriodic)
+                    }
+                    Mode::Test => {
+                        hal::observe_test();
+                        self.world.run_schedule(TestPeriodic)
+                    }
                     _ => {}
                 }
 
-                *self.world.resource_mut::<Mode>() = mode;
-            }
+                trace!("General periodic function.");
+                self.world.run_schedule(Periodic);
 
-            match mode {
-                Mode::Disabled => {
-                    hal::observe_disabled();
-                    self.world.run_schedule(DisabledPeriodic)
+                if model == Model::Simulation {
+                    trace!("Simulator update.");
+                    self.world.run_schedule(SimulatorPeriodic);
                 }
-                Mode::Autonomous => {
-                    hal::observe_autonomous();
-                    self.world.run_schedule(AutonomousPeriodic)
-                }
-                Mode::Teleop => {
-                    hal::observe_teleop();
-                    self.world.run_schedule(TeleopPeriodic)
-                }
-                Mode::Test => {
-                    hal::observe_test();
-                    self.world.run_schedule(TestPeriodic)
-                }
-                _ => {}
             }
+        }
+    }
 
-            self.world.run_schedule(Periodic);
+    pub fn set_runtime(&mut self, mut runtime: R) {
+        #[cfg(not(target_arch = "arm"))]
+        {
+            if let Some(_) = &self.runtime {
+                panic!("Simulation runtime set when it already was set!")
+            }
+            runtime.init(self);
+            self.runtime = Some(runtime);
         }
     }
 
@@ -297,7 +373,7 @@ impl State {
     /// Insert a resource that can be used by systems using `Resource<R>` or
     /// `ResourceMut<R>`. See the book chapter called `3. Systems, Resources,
     /// and Schedules` if you don't know what this is.
-    pub fn insert_resource<R: 'static>(&mut self, resource: R) {
+    pub fn insert_resource<T: 'static>(&mut self, resource: T) {
         StateRes::new(&mut self.world).insert_resource(resource);
     }
 
@@ -360,6 +436,14 @@ impl<'w> StateRes<'w> {
     /// and Schedules` if you don't know what this is.
     pub fn insert_resource<R: 'static>(&mut self, resource: R) {
         self.world.insert_non_send(resource);
+    }
+
+    pub fn get_resource<R: 'static>(&self) -> Option<&R> {
+        self.world.get_non_send()
+    }
+
+    pub fn get_resource_mut<R: 'static>(&'_ mut self) -> Option<Mut<'_, R>> {
+        self.world.get_non_send_mut()
     }
 }
 
@@ -464,4 +548,67 @@ fn command_system<C: 'static>(mut command: CommandMut<C>, mut data: Local<Comman
     }
 
     data.was_enabled = command.enabled;
+}
+
+#[derive(Debug, Clone)]
+pub struct Timer {
+    pub start: Instant,
+    pub length: Duration,
+    ended: bool,
+    just_ended: bool,
+    started: bool,
+}
+
+impl Timer {
+    pub fn new(duration: Time) -> Self {
+        Self {
+            start: Instant::now(),
+            length: Duration::from_secs_f64(duration.value),
+            ended: false,
+            just_ended: false,
+            started: false,
+        }
+    }
+
+    pub fn update(&mut self) {
+        if !self.started {
+            self.start = Instant::now();
+        }
+
+        let ended = (Instant::now() - self.start) > self.length;
+        if self.just_ended {
+            self.just_ended = false;
+        }
+        if !self.ended && ended {
+            self.ended = true;
+            self.just_ended = true;
+        }
+    }
+
+    pub fn set_duration(&mut self, duration: Time) {
+        self.length = Duration::from_secs_f64(duration.value)
+    }
+
+    pub fn start(&mut self) {
+        self.reset();
+        self.started = true;
+    }
+
+    pub fn reset(&mut self) {
+        self.ended = false;
+        self.just_ended = false;
+        self.start = Instant::now();
+    }
+
+    pub fn is_ended(&self) -> bool {
+        if !self.started { false } else { self.ended }
+    }
+
+    pub fn just_ended(&self) -> bool {
+        if !self.started {
+            false
+        } else {
+            self.just_ended
+        }
+    }
 }

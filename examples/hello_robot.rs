@@ -5,7 +5,7 @@ fn hello_robot() {
 }
 
 fn main() {
-    let mut state = State::new().unwrap();
+    let mut state: State = State::new().unwrap();
 
     state.add_systems(Init, hello_robot);
 

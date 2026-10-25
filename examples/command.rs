@@ -16,7 +16,7 @@ fn spin(spin: Command<SpinMotorCommand>, mut spinner: ResourceMut<Spinner>) {
 }
 
 fn main() {
-    let mut state = State::new().unwrap();
+    let mut state: State = State::new().unwrap();
 
     state.insert_resource(Spinner(TalonFX::new(1, "*")));
     state.insert_resource(XboxController::new(0));

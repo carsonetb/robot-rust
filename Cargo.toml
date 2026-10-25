@@ -21,7 +21,7 @@ autocxx = "0.30.0"
 cxx = "1.0.202"
 frc_autolog_macro = "0.1"
 uom = "0.38.0"
-bevy_ecs = { version = "0.20.0", features = ["debug"] }
+bevy_ecs = { version = "0.20.0", features = ["debug", "trace"] }
 num-traits = "0.2.19"
 num-derive = "0.5.1"
 derive_more = { version = "2.1.1", features = ["full"] }
@@ -32,6 +32,8 @@ glam = "0.34.1"
 libc = "0.2.191"
 rand = "0.10.3"
 rand_distr = "0.6.0"
+tracing = "0.1.44"
+tracing-subscriber = "0.3.23"
 
 [profile.dev]
 debug = true
