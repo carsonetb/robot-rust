@@ -24,6 +24,7 @@ pub use crate::logging::{AutoLog, Loggable, Logger, now};
 pub use crate::math::control::*;
 pub use crate::math::{Pose2D, Rotation2D, Vec2, timestamp};
 pub use crate::rev::SparkMax;
+pub use crate::sim::runtime::BasicRuntime;
 pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;
 pub use crate::units::revolution_per_second_squared::revolution_per_second_squared;
 pub use crate::units::rpm::rpm;

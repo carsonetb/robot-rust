@@ -1,6 +1,12 @@
 use std::collections::HashMap;
+use std::sync::{LazyLock, Mutex, MutexGuard};
 
 use crate::prelude::*;
+
+static SIMULATOR_INPUTS: LazyLock<Mutex<SimulatorInputs>> =
+    LazyLock::new(|| Mutex::new(SimulatorInputs::new()));
+static SIMULATOR_OUTPUTS: LazyLock<Mutex<SimulatorOutputs>> =
+    LazyLock::new(|| Mutex::new(SimulatorOutputs::new()));
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum MotorType {
@@ -57,6 +63,10 @@ impl SimulatorInputs {
         }
     }
 
+    pub fn get() -> MutexGuard<'static, Self> {
+        SIMULATOR_INPUTS.lock().unwrap()
+    }
+
     pub fn motor(&mut self, bus: &'static str, id: i32) -> &mut MotorInputs {
         self.motors.entry((bus, id)).or_default()
     }
@@ -74,6 +84,10 @@ impl SimulatorOutputs {
             battery_voltage: 12.0.volts(),
             motors: HashMap::new(),
         }
+    }
+
+    pub fn get() -> MutexGuard<'static, Self> {
+        SIMULATOR_OUTPUTS.lock().unwrap()
     }
 
     pub fn motor(&mut self, bus: &'static str, id: i32) -> &mut MotorOutputs {

@@ -93,10 +93,10 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
         assert!(kv >= 0.0, "Kv must be greater than or equal to zero.");
         assert!(ka > 0.0, "Ka must be greater than zero.");
 
-        let a = SMatrix::from_column_slice(&[0.0, 1.0, 0.0, -kv / ka]);
-        let b = SMatrix::from_column_slice(&[0.0, 1.0 / ka]);
-        let c = SMatrix::from_column_slice(&[1.0, 0.0, 0.0, 1.0]);
-        let d = SMatrix::from_column_slice(&[0.0, 0.0]);
+        let a = SMatrix::from_row_slice(&[0.0, 1.0, 0.0, -kv / ka]);
+        let b = SMatrix::from_row_slice(&[0.0, 1.0 / ka]);
+        let c = SMatrix::from_row_slice(&[1.0, 0.0, 0.0, 1.0]);
+        let d = SMatrix::from_row_slice(&[0.0, 0.0]);
 
         Self::new(a, b, c, d)
     }
@@ -108,18 +108,16 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
         );
         assert!(gearing > 0.0, "Gearing must be greater than zero.");
 
-        let a = SMatrix::from_column_slice(&[
+        let a = SMatrix::from_row_slice(&[
             0.0,
             1.0,
             0.0,
-            (-gearing.powi(2) * motor.kt / (motor.kv * motor.resistance)).value,
+            (-gearing.powi(2) * motor.kt / (motor.kv * motor.resistance * moi)).value,
         ]);
-        let b = SMatrix::from_column_slice(&[
-            0.0,
-            (gearing * motor.kt / (motor.resistance * moi)).value,
-        ]);
-        let c = SMatrix::from_column_slice(&[1.0, 0.0, 0.0, 1.0]);
-        let d = SMatrix::from_column_slice(&[0.0, 0.0]);
+        let b =
+            SMatrix::from_row_slice(&[0.0, (gearing * motor.kt / (motor.resistance * moi)).value]);
+        let c = SMatrix::from_row_slice(&[1.0, 0.0, 0.0, 1.0]);
+        let d = SMatrix::from_row_slice(&[0.0, 0.0]);
 
         Self::new(a, b, c, d)
     }

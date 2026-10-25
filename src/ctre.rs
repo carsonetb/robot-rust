@@ -122,6 +122,8 @@ impl TalonFX {
         }
     }
 
+    /// Provide simulation parameters. This is necessary to call for simulation.
+    /// Does nothing when running on the roboRIO.
     pub fn with_simulation_params(
         mut self,
         motor_type: TalonFXMotorType,
@@ -129,41 +131,50 @@ impl TalonFX {
         moi: MomentOfInertia,
     ) -> Self {
         #[cfg(not(target_arch = "arm"))]
-        let _ = self.simulator().SetMotorType(match motor_type {
-            TalonFXMotorType::KrakenX44 => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
-            TalonFXMotorType::KrakenX44FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
-            TalonFXMotorType::KrakenX60 => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
-            TalonFXMotorType::KrakenX60FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
-        });
-        self.motor_type = match motor_type {
-            TalonFXMotorType::KrakenX44 => MotorType::KrakenX44,
-            TalonFXMotorType::KrakenX44FOC => MotorType::KrakenX44,
-            TalonFXMotorType::KrakenX60 => MotorType::KrakenX60,
-            TalonFXMotorType::KrakenX60FOC => MotorType::KrakenX60,
-        };
-        self.gearing = gearing;
-        self.moi = moi;
+        {
+            let _ = self.simulator().SetMotorType(match motor_type {
+                TalonFXMotorType::KrakenX44 => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
+                TalonFXMotorType::KrakenX44FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
+                TalonFXMotorType::KrakenX60 => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
+                TalonFXMotorType::KrakenX60FOC => ffi::sim::TalonFXSimState_MotorType::KrakenX60,
+            });
+            self.motor_type = match motor_type {
+                TalonFXMotorType::KrakenX44 => MotorType::KrakenX44,
+                TalonFXMotorType::KrakenX44FOC => MotorType::KrakenX44,
+                TalonFXMotorType::KrakenX60 => MotorType::KrakenX60,
+                TalonFXMotorType::KrakenX60FOC => MotorType::KrakenX60,
+            };
+            self.gearing = gearing;
+            self.moi = moi;
+        }
         self
     }
 
-    #[cfg(target_arch = "arm")]
-    pub fn process(&mut self, state: &mut StateRes) {}
+    /// Allows the motor to simulate when running in simulation mode. This
+    /// function does nothing when running on the roboRIO and can be called at
+    /// now performance cost.
+    pub fn simulate(&mut self) {
+        #[cfg(not(target_arch = "arm"))]
+        {
+            let mut inputs = SimulatorInputs::get();
+            let mut outputs = SimulatorOutputs::get();
 
-    #[cfg(not(target_arch = "arm"))]
-    pub fn process(&mut self, state: &mut StateRes) {
-        let mut outputs = state.get_resource_mut::<SimulatorOutputs>().unwrap();
-        let outputs = outputs.motor(self.bus, self.can);
-        ffi::sim::talonfx_set_physics(
-            self.motor.pin_mut(),
-            outputs.supply_voltage.value,
-            outputs.position.get::<revolution>(),
-            outputs.velocity.get::<revolution_per_second>(),
-        );
+            let outputs = outputs.motor(self.bus, self.can);
+            ffi::sim::talonfx_set_physics(
+                self.motor.pin_mut(),
+                outputs.supply_voltage.value,
+                outputs.position.get::<revolution>(),
+                outputs.velocity.get::<revolution_per_second>(),
+            );
 
-        let mut inputs = state.get_resource_mut::<SimulatorInputs>().unwrap();
-        let inputs = inputs.motor(self.bus, self.can);
-        inputs.applied_voltage = ffi::sim::talonfx_get_voltage(self.motor.pin_mut()).volts();
-        inputs.torque_current = ffi::sim::talonfx_get_torque_current(self.motor.pin_mut()).amps();
+            let inputs = inputs.motor(self.bus, self.can);
+            inputs.motor_type = self.motor_type;
+            inputs.gearing = self.gearing;
+            inputs.moi = self.moi;
+            inputs.applied_voltage = ffi::sim::talonfx_get_voltage(self.motor.pin_mut()).volts();
+            inputs.torque_current =
+                ffi::sim::talonfx_get_torque_current(self.motor.pin_mut()).amps();
+        }
     }
 
     pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {

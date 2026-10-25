@@ -27,11 +27,9 @@ impl SimRuntime for BasicRuntime {
 #[derive(Default, Deref, DerefMut, Debug, Clone)]
 struct MotorPhysics(HashMap<(&'static str, i32), DCMotorSim>);
 
-fn motor_update(
-    inputs: Resource<SimulatorInputs>,
-    mut outputs: ResourceMut<SimulatorOutputs>,
-    mut physics: ResourceMut<MotorPhysics>,
-) {
+fn motor_update(mut physics: ResourceMut<MotorPhysics>) {
+    let inputs = SimulatorInputs::get();
+    let mut outputs = SimulatorOutputs::get();
     let inputs = &inputs.motors;
 
     for ((bus, id), input) in inputs {
@@ -40,11 +38,11 @@ fn motor_update(
         let physics = physics.entry((bus, *id)).or_insert_with(|| {
             DCMotorSim::new(
                 LinearSystem::from_dc_motor(
-                    DCMotor::from_motor_type(input.motor_type, input.gearing),
+                    DCMotor::from_motor_type(input.motor_type),
                     input.moi,
                     input.gearing,
                 ),
-                DCMotor::from_motor_type(input.motor_type, input.gearing),
+                DCMotor::from_motor_type(input.motor_type),
             )
         });
         physics.set_input_voltage(input.applied_voltage, 12.0.volts());

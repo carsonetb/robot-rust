@@ -143,3 +143,11 @@ pub fn observe_test() {
         HAL_ObserveUserProgramTest();
     }
 }
+
+pub fn sim_pause_timing() {
+    sim::HALSIM_PauseTiming();
+}
+
+pub fn sim_step_20ms() {
+    sim::HALSIM_StepTiming(20_000);
+}

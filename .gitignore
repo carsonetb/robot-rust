@@ -3,6 +3,7 @@
 *.zip
 /wpilib
 /libraries
+/ctre_sim
 compile_flags.txt
 *.wpilog
 *.json

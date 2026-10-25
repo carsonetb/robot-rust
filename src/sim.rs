@@ -1,5 +1,6 @@
 use crate::prelude::*;
 
+pub mod gui;
 pub mod io;
 pub mod motor;
 pub mod prelude;

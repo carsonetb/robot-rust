@@ -21,6 +21,8 @@ autocxx::include_cpp! {
     #include "ctre/phoenix6/sim/TalonFXSimState.hpp"
     #include "sim_helpers.hpp"
 
+    #include "hal/simulation/MockHooks.h"
+
     #include "frc/XboxController.h"
     #include "frc/event/BooleanEvent.h"
     #include "frc/kinematics/ChassisSpeeds.h"
@@ -224,6 +226,9 @@ autocxx::include_cpp! {
     generate!("sim_helpers::talonfx_get_torque_current")
     generate!("sim_helpers::talonfx_set_physics")
 
+    generate!("HALSIM_PauseTiming")
+    generate!("HALSIM_StepTiming")
+
     block!("ctre::phoenix6::hardware::core::CoreTalonFX")
     generate!("ctre::phoenix6::sim::TalonFXSimState")
     block_constructors!("ctre::phoenix6::sim::TalonFXSimState")
@@ -307,9 +312,9 @@ pub mod rev {
 pub mod sim {
     use super::ffi;
 
-    pub use ffi::sim_helpers::*;
-
     pub use ffi::ctre::phoenix6::sim::{TalonFXSimState, TalonFXSimState_MotorType};
+    pub use ffi::sim_helpers::*;
+    pub use ffi::{HALSIM_PauseTiming, HALSIM_StepTiming};
 }
 
 pub use ffi::chooser::{

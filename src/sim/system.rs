@@ -62,8 +62,8 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
 
     pub fn update(&mut self, dt: Time) {
         self.x = self.update_x(self.x, self.u, dt);
-        self.y = self.plant.calculate_y(self.x, self.u);
-        self.y = make_white_noise_vector(self.measurement_std_devs)
+        self.y = self.plant.calculate_y(self.x, self.u)
+            + make_white_noise_vector(self.measurement_std_devs);
     }
 
     pub fn set_state(&mut self, state: nalgebra::SVector<f64, STATES>) {

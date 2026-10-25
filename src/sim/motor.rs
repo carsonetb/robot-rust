@@ -41,8 +41,8 @@ impl DCMotorSim {
         }
     }
 
-    pub fn neo(gearing: f64, kv: f64, ka: f64) -> Self {
-        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo(gearing))
+    pub fn neo(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo())
     }
 
     pub fn with_std_devs(mut self, measurement_std_devs: [f64; 2]) -> Self {
@@ -56,11 +56,11 @@ impl DCMotorSim {
     }
 
     pub fn set_angle(&mut self, position: Angle) {
-        self.set_state(position, self.get_velocity());
+        self.set_state(position, self.plant.x[1].radians_per_second());
     }
 
     pub fn set_velocity(&mut self, velocity: AngularVelocity) {
-        self.set_state(self.get_position(), velocity);
+        self.set_state(self.plant.x[1].radians(), velocity);
     }
 
     pub fn get_position(&self) -> Angle {
@@ -83,8 +83,8 @@ impl DCMotorSim {
     pub fn get_current_draw(&self) -> Current {
         self.gearbox.current(
             self.plant.x[1].radians_per_second() * self.gearing,
-            self.plant.u[0].volts() * self.plant.u[0].signum(),
-        )
+            self.plant.u[0].volts(),
+        ) * self.plant.u[0].signum()
     }
 
     pub fn get_input_voltage(&self) -> Voltage {

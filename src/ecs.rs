@@ -1,15 +1,20 @@
 use std::marker::PhantomData;
+#[cfg(not(target_arch = "arm"))]
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+use autocxx::c_int;
 use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use derive_more::Display;
 
-use crate::prelude::*;
+#[cfg(not(target_arch = "arm"))]
+use crate::sim::gui::{GUICommunicator, spawn_simgui};
 use crate::sim::prelude::*;
 use crate::sim::runtime::{BasicRuntime, SimRuntime};
 use crate::{ds, hal};
+use crate::{ffi, prelude::*};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Display)]
 pub enum Model {
@@ -179,13 +184,14 @@ impl<R: SimRuntime> State<R> {
     /// networktables. If you want to change this functionality, insert it
     /// again.
     pub fn new() -> Option<Self> {
-        crate::recovery::install_signal_handler();
-
         if !hal::init() {
             println!("HAL failed to initialize.");
             return None;
         }
         hal::start();
+
+        #[cfg(not(target_arch = "arm"))]
+        hal::sim_pause_timing();
 
         let _ = *crate::math::START_TIME;
 
@@ -220,8 +226,6 @@ impl<R: SimRuntime> State<R> {
 
         if model == Model::Simulation {
             world.insert_non_send(DriverStationSim::new());
-            world.insert_non_send(SimulatorInputs::new());
-            world.insert_non_send(SimulatorOutputs::new());
         }
 
         Some(Self {
@@ -246,8 +250,19 @@ impl<R: SimRuntime> State<R> {
     /// - Run *Periodic schedules.
     /// - Run Periodic schedule.
     pub fn run(&mut self) {
+        let comms = Arc::new(Mutex::new(GUICommunicator::default()));
+        #[cfg(not(target_arch = "arm"))]
+        {
+            spawn_simgui(comms.clone());
+        }
+
         let model = *self.world.non_send::<Model>();
         info!("Running in {model} mode.");
+
+        if model == Model::Simulation && self.runtime.is_none() {
+            warn!("Robot code is in simulation but no simulation runtime has been applied.");
+            warn!("Use state.set_runtime(BasicRuntime) for a basic simulation runtime.")
+        }
 
         debug!("Run user init code.");
         self.world.run_schedule(Init);
@@ -284,9 +299,32 @@ impl<R: SimRuntime> State<R> {
                 }
             } else {
                 let mut ds = self.world.non_send_mut::<DriverStationSim>();
+
+                let mut comms = comms.lock().unwrap();
+                let request = comms.selected;
+                if comms.enable {
+                    comms.enable = false;
+                    info!("Enabling!");
+                    match request {
+                        Mode::Autonomous => ds.autonomous(),
+                        Mode::Teleop => ds.teleop(),
+                        _ => warn!("Selected mode {request} is not supported yet."),
+                    }
+                }
+                if comms.disable {
+                    comms.disable = false;
+                    info!("Disable");
+                    ds.disable();
+                }
+
                 ds.process();
+                if ds.mode != Mode::Disabled {
+                    ffi::sim::ctre_feed_enable(c_int(100));
+                }
                 ds.mode
             };
+
+            *self.world.non_send_mut::<Mode>() = mode;
 
             {
                 let _commands = commands_update.enter();
@@ -313,8 +351,6 @@ impl<R: SimRuntime> State<R> {
                         Mode::Test => self.world.run_schedule(TestInit),
                         _ => {}
                     }
-
-                    *self.world.non_send_mut::<Mode>() = mode;
                 }
 
                 trace!("Periodic for {mode}.");
@@ -344,6 +380,8 @@ impl<R: SimRuntime> State<R> {
                 if model == Model::Simulation {
                     trace!("Simulator update.");
                     self.world.run_schedule(SimulatorPeriodic);
+                    std::thread::sleep(Duration::from_millis(20));
+                    hal::sim_step_20ms();
                 }
             }
         }
@@ -355,6 +393,7 @@ impl<R: SimRuntime> State<R> {
             if let Some(_) = &self.runtime {
                 panic!("Simulation runtime set when it already was set!")
             }
+            info!("Initializing simulation runtime {}", R::NAME);
             runtime.init(self);
             self.runtime = Some(runtime);
         }

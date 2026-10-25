@@ -1,5 +1,3 @@
-use std::backtrace::Backtrace;
-
 extern "C" fn signal_handler(sig: libc::c_int) {
     let sig_name = match sig {
         libc::SIGSEGV => "SIGSEGV (Segmentation Fault)",
@@ -17,11 +15,6 @@ extern "C" fn signal_handler(sig: libc::c_int) {
         "If you're at a competition, try to run the program once more, and if it fails, switch to a backup."
     );
     eprintln!("====================================\n\n");
-
-    let bt = Backtrace::force_capture();
-    eprintln!("{bt}");
-
-    std::process::exit(128 + sig);
 }
 
 #[allow(function_casts_as_integer)]
