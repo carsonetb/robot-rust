@@ -41,7 +41,6 @@ pub mod hid;
 pub mod logging;
 pub mod math;
 pub mod prelude;
-pub mod recovery;
 pub mod rev;
 pub mod sim;
 pub mod units;

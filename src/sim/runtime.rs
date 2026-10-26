@@ -28,9 +28,8 @@ impl SimRuntime for BasicRuntime {
 struct MotorPhysics(HashMap<(&'static str, i32), DCMotorSim>);
 
 fn motor_update(mut physics: ResourceMut<MotorPhysics>) {
-    let inputs = SimulatorInputs::get();
+    let inputs = &SimulatorInputs::get().motors;
     let mut outputs = SimulatorOutputs::get();
-    let inputs = &inputs.motors;
 
     for ((bus, id), input) in inputs {
         let output = outputs.motor(bus, *id);
