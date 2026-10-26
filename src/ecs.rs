@@ -1,5 +1,4 @@
 use std::marker::PhantomData;
-#[cfg(not(target_arch = "arm"))]
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -9,8 +8,9 @@ use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use derive_more::Display;
 
+use crate::sim::gui::GUICommunicator;
 #[cfg(not(target_arch = "arm"))]
-use crate::sim::gui::{GUICommunicator, spawn_simgui};
+use crate::sim::gui::spawn_simgui;
 use crate::sim::prelude::*;
 use crate::sim::runtime::{BasicRuntime, SimRuntime};
 use crate::{ds, hal};
@@ -387,7 +387,7 @@ impl<R: SimRuntime> State<R> {
         }
     }
 
-    pub fn set_runtime(&mut self, mut runtime: R) {
+    pub fn set_runtime(&mut self, #[allow(unused)] mut runtime: R) {
         #[cfg(not(target_arch = "arm"))]
         {
             if let Some(_) = &self.runtime {

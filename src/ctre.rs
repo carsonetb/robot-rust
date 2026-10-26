@@ -96,6 +96,7 @@ pub enum TalonFXMotorType {
 }
 
 /// Wrapper for any motor powered by the TalonFX system.
+#[allow(unused)]
 pub struct TalonFX {
     bus: &'static str,
     id: i32,
@@ -125,10 +126,10 @@ impl TalonFX {
     /// Provide simulation parameters. This is necessary to call for simulation.
     /// Does nothing when running on the roboRIO.
     pub fn with_simulation_params(
-        mut self,
-        motor_type: TalonFXMotorType,
-        gearing: f64,
-        moi: MomentOfInertia,
+        #[allow(unused)] mut self,
+        #[allow(unused)] motor_type: TalonFXMotorType,
+        #[allow(unused)] gearing: f64,
+        #[allow(unused)] moi: MomentOfInertia,
     ) -> Self {
         #[cfg(not(target_arch = "arm"))]
         {
@@ -234,6 +235,7 @@ impl TalonFX {
         ffi::talon::neutral(self.motor.pin_mut())
     }
 
+    #[allow(unused)]
     fn simulator(&mut self) -> Pin<&mut ffi::sim::TalonFXSimState> {
         ffi::sim::talonfx_sim_state(self.motor.pin_mut())
     }
@@ -294,7 +296,9 @@ impl CANCoder {
 }
 
 pub struct Pigeon2 {
+    #[allow(unused)]
     bus: &'static str,
+    #[allow(unused)]
     id: i32,
     gyro: cxx::UniquePtr<ffi::pigeon2::Pigeon2>,
 }
@@ -322,9 +326,9 @@ impl Pigeon2 {
             ffi::sim::pigeon2_set_physics(
                 self.gyro.pin_mut(),
                 outputs.supply_voltage.value,
-                outputs.yaw.get::<degree>(),
-                outputs.pitch.get::<degree>(),
-                outputs.roll.get::<degree>(),
+                outputs.xvel.get::<degree_per_second>(),
+                outputs.yvel.get::<degree_per_second>(),
+                outputs.zvel.get::<degree_per_second>(),
             );
 
             let inputs = inputs.gyro(self.bus, self.id);

@@ -122,18 +122,18 @@ pub struct GyroInputs {
 #[derive(Debug, Clone)]
 pub struct GyroOutputs {
     pub supply_voltage: Voltage,
-    pub yaw: Angle,
-    pub pitch: Angle,
-    pub roll: Angle,
+    pub xvel: AngularVelocity,
+    pub yvel: AngularVelocity,
+    pub zvel: AngularVelocity,
 }
 
 impl Default for GyroOutputs {
     fn default() -> Self {
         Self {
             supply_voltage: 12.0.volts(),
-            yaw: 0.0.degrees(),
-            pitch: 0.0.degrees(),
-            roll: 0.0.degrees(),
+            xvel: 0.0.degrees_per_second(),
+            yvel: 0.0.degrees_per_second(),
+            zvel: 0.0.degrees_per_second(),
         }
     }
 }

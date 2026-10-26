@@ -33,12 +33,12 @@ inline void talonfx_set_physics(ctre::phoenix6::hardware::TalonFX& motor, double
     sim.SetRotorVelocity(units::angular_velocity::turns_per_second_t{mechanism_rps});
 }
 
-inline void pigeon2_set_physics(ctre::phoenix6::hardware::Pigeon2& gyro, double supply_volts, double yaw_degrees, double pitch_degrees, double roll_degrees) {
+inline void pigeon2_set_physics(ctre::phoenix6::hardware::Pigeon2& gyro, double supply_volts, double xdps, double ydps, double zdps) {
     auto& sim = gyro.GetSimState();
     sim.SetSupplyVoltage(units::voltage::volt_t{supply_volts});
-    sim.SetRawYaw(units::angle::degree_t{yaw_degrees});
-    sim.SetPitch(units::angle::degree_t{pitch_degrees});
-    sim.SetRoll(units::angle::degree_t{roll_degrees});
+    sim.SetAngularVelocityX(units::angular_velocity::degrees_per_second_t{xdps});
+    sim.SetAngularVelocityY(units::angular_velocity::degrees_per_second_t{ydps});
+    sim.SetAngularVelocityZ(units::angular_velocity::degrees_per_second_t{zdps});
 }
 
 }

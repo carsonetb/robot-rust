@@ -1,4 +1,6 @@
+#[cfg(not(target_arch = "arm"))]
 use std::sync::{Arc, Mutex};
+#[cfg(not(target_arch = "arm"))]
 use std::time::Duration;
 
 use crate::prelude::*;
