@@ -225,6 +225,7 @@ autocxx::include_cpp! {
     generate!("sim_helpers::talonfx_get_voltage")
     generate!("sim_helpers::talonfx_get_torque_current")
     generate!("sim_helpers::talonfx_set_physics")
+    generate!("sim_helpers::pigeon2_set_physics")
 
     generate!("HALSIM_PauseTiming")
     generate!("HALSIM_StepTiming")

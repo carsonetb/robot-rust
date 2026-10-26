@@ -98,7 +98,7 @@ pub enum TalonFXMotorType {
 /// Wrapper for any motor powered by the TalonFX system.
 pub struct TalonFX {
     bus: &'static str,
-    can: i32,
+    id: i32,
     motor_type: MotorType,
     gearing: f64,
     moi: MomentOfInertia,
@@ -108,12 +108,12 @@ pub struct TalonFX {
 impl TalonFX {
     /// Create a new motor object. Specify the CAN ID and the CAN bus of the
     /// motor.
-    pub fn new(can: i32, bus: &'static str) -> Self {
+    pub fn new(id: i32, bus: &'static str) -> Self {
         // TODO: Deprecated CANBus string intialization.
-        let motor = ffi::talon::TalonFX::new3(autocxx::c_int(can), bus).within_unique_ptr();
+        let motor = ffi::talon::TalonFX::new3(autocxx::c_int(id), bus).within_unique_ptr();
 
         Self {
-            can,
+            id,
             bus,
             motor,
             motor_type: MotorType::KrakenX60,
@@ -152,14 +152,14 @@ impl TalonFX {
 
     /// Allows the motor to simulate when running in simulation mode. This
     /// function does nothing when running on the roboRIO and can be called at
-    /// now performance cost.
+    /// no performance cost.
     pub fn simulate(&mut self) {
         #[cfg(not(target_arch = "arm"))]
         {
             let mut inputs = SimulatorInputs::get();
             let mut outputs = SimulatorOutputs::get();
 
-            let outputs = outputs.motor(self.bus, self.can);
+            let outputs = outputs.motor(self.bus, self.id);
             ffi::sim::talonfx_set_physics(
                 self.motor.pin_mut(),
                 outputs.supply_voltage.value,
@@ -167,7 +167,7 @@ impl TalonFX {
                 outputs.velocity.get::<revolution_per_second>(),
             );
 
-            let inputs = inputs.motor(self.bus, self.can);
+            let inputs = inputs.motor(self.bus, self.id);
             inputs.motor_type = self.motor_type;
             inputs.gearing = self.gearing;
             inputs.moi = self.moi;
@@ -294,14 +294,41 @@ impl CANCoder {
 }
 
 pub struct Pigeon2 {
+    bus: &'static str,
+    id: i32,
     gyro: cxx::UniquePtr<ffi::pigeon2::Pigeon2>,
 }
 
 impl Pigeon2 {
-    pub fn new(id: i32, bus: &str) -> Self {
+    pub fn new(bus: &'static str, id: i32) -> Self {
         Self {
+            bus,
+            id,
             // TODO: Deprecated CANBus string intialization.
             gyro: ffi::pigeon2::Pigeon2::new3(autocxx::c_int(id), bus).within_unique_ptr(),
+        }
+    }
+
+    /// Allows the gyro to simulate when running in simulation mode. This
+    /// function does nothing when running on the roboRIO and can be called at
+    /// no performance cost.
+    pub fn simulate(&mut self) {
+        #[cfg(not(target_arch = "arm"))]
+        {
+            let mut inputs = SimulatorInputs::get();
+            let mut outputs = SimulatorOutputs::get();
+
+            let outputs = outputs.gyro(self.bus, self.id);
+            ffi::sim::pigeon2_set_physics(
+                self.gyro.pin_mut(),
+                outputs.supply_voltage.value,
+                outputs.yaw.get::<degree>(),
+                outputs.pitch.get::<degree>(),
+                outputs.roll.get::<degree>(),
+            );
+
+            let inputs = inputs.gyro(self.bus, self.id);
+            inputs.gyro_type = GyroType::Pigeon2;
         }
     }
 

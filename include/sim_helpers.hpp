@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ctre/phoenix6/TalonFX.hpp"
+#include "ctre/phoenix6/Pigeon2.hpp"
 #include "ctre/phoenix6/sim/TalonFXSimState.hpp"
 #include "units/angle.h"
 #include "units/angular_velocity.h"
@@ -30,6 +31,14 @@ inline void talonfx_set_physics(ctre::phoenix6::hardware::TalonFX& motor, double
     sim.SetSupplyVoltage(units::voltage::volt_t{supply_volts});
     sim.SetRawRotorPosition(units::angle::turn_t{mechanism_rotations});
     sim.SetRotorVelocity(units::angular_velocity::turns_per_second_t{mechanism_rps});
+}
+
+inline void pigeon2_set_physics(ctre::phoenix6::hardware::Pigeon2& gyro, double supply_volts, double yaw_degrees, double pitch_degrees, double roll_degrees) {
+    auto& sim = gyro.GetSimState();
+    sim.SetSupplyVoltage(units::voltage::volt_t{supply_volts});
+    sim.SetRawYaw(units::angle::degree_t{yaw_degrees});
+    sim.SetPitch(units::angle::degree_t{pitch_degrees});
+    sim.SetRoll(units::angle::degree_t{roll_degrees});
 }
 
 }
