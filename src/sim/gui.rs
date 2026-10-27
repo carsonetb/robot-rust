@@ -1,6 +1,6 @@
-#[cfg(not(target_arch = "arm"))]
+#[cfg(simulation)]
 use std::sync::{Arc, Mutex};
-#[cfg(not(target_arch = "arm"))]
+#[cfg(simulation)]
 use std::time::Duration;
 
 use crate::prelude::*;
@@ -15,7 +15,8 @@ pub struct GUICommunicator {
     pub mode: Mode,
 }
 
-#[cfg(not(target_arch = "arm"))]
+#[cfg(simulation)]
+#[allow(unused)]
 pub fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
     use eframe::egui;
 
@@ -40,6 +41,10 @@ pub fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
                 {
                     use winit::platform::windows::EventLoopBuilderExtWindows;
                     builder.with_any_thread(true);
+                }
+                #[cfg(target_os = "macos")]
+                {
+                    panic!("Simulation GUI doesn't work on MacOS currently, this is being worked on.")
                 }
             })),
             ..Default::default()

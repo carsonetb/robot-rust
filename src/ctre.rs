@@ -131,7 +131,7 @@ impl TalonFX {
         #[allow(unused)] gearing: f64,
         #[allow(unused)] moi: MomentOfInertia,
     ) -> Self {
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         {
             let _ = self.simulator().SetMotorType(match motor_type {
                 TalonFXMotorType::KrakenX44 => ffi::sim::TalonFXSimState_MotorType::KrakenX44,
@@ -155,7 +155,7 @@ impl TalonFX {
     /// function does nothing when running on the roboRIO and can be called at
     /// no performance cost.
     pub fn simulate(&mut self) {
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         {
             let mut inputs = SimulatorInputs::get();
             let mut outputs = SimulatorOutputs::get();
@@ -317,7 +317,7 @@ impl Pigeon2 {
     /// function does nothing when running on the roboRIO and can be called at
     /// no performance cost.
     pub fn simulate(&mut self) {
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         {
             let mut inputs = SimulatorInputs::get();
             let mut outputs = SimulatorOutputs::get();

@@ -9,7 +9,7 @@ use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use derive_more::Display;
 
 use crate::sim::gui::GUICommunicator;
-#[cfg(not(target_arch = "arm"))]
+#[cfg(simulation)]
 use crate::sim::gui::spawn_simgui;
 use crate::sim::prelude::*;
 use crate::sim::runtime::{BasicRuntime, SimRuntime};
@@ -190,7 +190,7 @@ impl<R: SimRuntime> State<R> {
         }
         hal::start();
 
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         hal::sim_pause_timing();
 
         let _ = *crate::math::START_TIME;
@@ -217,12 +217,23 @@ impl<R: SimRuntime> State<R> {
 
         world.insert_non_send(Logger::new("log.wpilog", true));
 
-        #[cfg(target_arch = "arm")]
+        #[cfg(not(simulation))]
         let model = Model::Competition;
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         let model = Model::Simulation;
         world.insert_non_send(model);
         world.insert_non_send(Mode::None);
+
+        match hal::get_alliance() {
+            Ok(alliance) => {
+                world.insert_non_send(alliance);
+                world.insert_non_send(alliance.to_alliance());
+            },
+            Err(err) => {
+                error!("Failed to get alliance side: {err:?}");
+                ds::alert(AlertType::Error, &format!("Failed to get alliance side: {err:?}"));
+            },
+        };
 
         if model == Model::Simulation {
             world.insert_non_send(DriverStationSim::new());
@@ -251,7 +262,7 @@ impl<R: SimRuntime> State<R> {
     /// - Run Periodic schedule.
     pub fn run(&mut self) {
         let comms = Arc::new(Mutex::new(GUICommunicator::default()));
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         {
             spawn_simgui(comms.clone());
         }
@@ -388,7 +399,7 @@ impl<R: SimRuntime> State<R> {
     }
 
     pub fn set_runtime(&mut self, #[allow(unused)] mut runtime: R) {
-        #[cfg(not(target_arch = "arm"))]
+        #[cfg(simulation)]
         {
             if let Some(_) = &self.runtime {
                 panic!("Simulation runtime set when it already was set!")

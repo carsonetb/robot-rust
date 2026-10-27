@@ -1,6 +1,8 @@
 ///! Wrappers for Hardware Abstraction Layer (HAL) functionality.
 use std::{ffi::CStr, mem, ptr::null_mut};
 
+use num_enum::TryFromPrimitive;
+
 use crate::ffi::*;
 
 /// Wrapper for errors reported by the HAL.
@@ -26,6 +28,10 @@ impl HALError {
         };
 
         Result::Err(Self { code, message })
+    }
+
+    pub(crate) fn new_with<T>(code: i32, with: T) -> Result<T, Self> {
+        Self::new(code).map(|_| with)
     }
 }
 
@@ -118,6 +124,45 @@ pub fn start() {
     unsafe {
         HAL_ObserveUserProgramStarting();
     }
+}
+
+#[derive(TryFromPrimitive, Debug, Clone, Copy)]
+#[repr(i32)]
+pub enum AllianceStation {
+    Unknown = 0,
+    Red1 = 1,
+    Red2 = 2,
+    Red3 = 3,
+    Blue1 = 4,
+    Blue2 = 5,
+    Blue3 = 6,
+}
+
+impl AllianceStation {
+    pub fn to_alliance(&self) -> Alliance {
+        match *self {
+            AllianceStation::Unknown => Alliance::Unknown,
+            AllianceStation::Red1 => Alliance::Red,
+            AllianceStation::Red2 => Alliance::Red,
+            AllianceStation::Red3 => Alliance::Red,
+            AllianceStation::Blue1 => Alliance::Blue,
+            AllianceStation::Blue2 => Alliance::Blue,
+            AllianceStation::Blue3 => Alliance::Blue,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Alliance {
+    Unknown,
+    Red,
+    Blue,
+}
+
+pub fn get_alliance() -> Result<AllianceStation, HALError> {
+    let mut status = 0;
+    let out = unsafe { HAL_GetAllianceStation(&mut status) };
+    HALError::new_with(status, AllianceStation::try_from_primitive(out).unwrap())
 }
 
 pub fn observe_disabled() {

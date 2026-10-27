@@ -5,7 +5,7 @@ use std::{env, fs};
 
 const SO_TARGET_DIR: &str = "libraries/linux/athena/shared";
 
-fn download(url: &str, so: &str) {
+fn download(url: &str, so: &str, extension: &str) {
     let dir = &Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
     if !dir.exists() {
         fs::create_dir_all(dir).unwrap();
@@ -23,16 +23,16 @@ fn download(url: &str, so: &str) {
     let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        if file.name().ends_with(".so") {
+        if file.name().ends_with(&format!(".{extension}")) {
             let mut out = File::create(&dest).unwrap();
             copy(&mut file, &mut out).unwrap();
             return;
         }
     }
-    panic!("Could not find .so file.");
+    panic!("Could not find .{extension} file.");
 }
 
-fn local(path: &str, so: &str) {
+fn local(path: &str, so: &str, extension: &str) {
     let dir = Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
     let dest_str = format!("{}/{so}", dir.to_str().unwrap());
     let dest = Path::new(&dest_str);
@@ -51,115 +51,149 @@ fn local(path: &str, so: &str) {
     let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        if file.name().contains(".so") && !file.name().contains(".so.debug") {
+        if file.name().contains(&format!(".{extension}")) && !file.name().contains(&format!(".{extension}.debug")) {
             let mut out = File::create(&dest).unwrap();
             copy(&mut file, &mut out).unwrap();
             return;
         }
     }
-    panic!("Could not find .so file.");
+    panic!("Could not find .{extension} file.");
 }
 
 fn main() -> miette::Result<()> {
-    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
-    let is_roborio = target_arch == "arm";
+    let target = env::var("TARGET").unwrap();
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    let is_roborio = target == "arm-unknown-linux-gnueabi";
     let classifier = if is_roborio {
         "linuxathena"
     } else {
-        "linuxx86-64"
+        if target_os == "linux" {
+            "linuxx86-64"
+        } else if target_os == "macos" {
+            "osxuniversal"
+        } else {
+            "linuxx86-64"
+        }
+    };
+    let extension = if target_os == "linux" {
+        "so"
+    } else if target_os == "macos" {
+        "dylib"
+    } else {
+        "so"
     };
 
-    download(
-        &format!(
-            "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/api-cpp/26.3.0/api-cpp-26.3.0-{classifier}.zip"
-        ),
-        "libCTRE_Phoenix6.so",
-    );
+    println!("cargo::rustc-check-cfg=cfg(simulation)");
+    if !is_roborio {
+        println!("cargo:rustc-cfg=simulation");
+    }
+
     if is_roborio {
+        download(
+            &format!(
+                "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/api-cpp/26.3.0/api-cpp-26.3.0-{classifier}.zip"
+            ),
+            &format!("libCTRE_Phoenix6.{extension}"),
+            extension,
+        );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/wpiapi-cpp/26.3.0/wpiapi-cpp-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_Phoenix6_WPI.so",
+            &format!("libCTRE_Phoenix6_WPI.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/tools/26.3.0/tools-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_PhoenixTools.so",
+            &format!("libCTRE_PhoenixTools.{extension}"),
+            extension,
         );
     } else {
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/wpiapi-cpp-sim/26.3.0/wpiapi-cpp-sim-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_Phoenix6_WPISim.so",
+            &format!("libCTRE_Phoenix6_WPISim.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/tools-sim/26.3.0/tools-sim-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_PhoenixTools_Sim.so",
+            &format!("libCTRE_PhoenixTools_Sim.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simTalonSRX/26.3.0/simTalonSRX-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimTalonSRX.so",
+            &format!("libCTRE_SimTalonSRX.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simVictorSPX/26.3.0/simVictorSPX-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimVictorSPX.so",
+            &format!("libCTRE_SimVictorSPX.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simPigeonIMU/26.3.0/simPigeonIMU-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimPigeonIMU.so",
+            &format!("libCTRE_SimPigeonIMU.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProTalonFX/26.3.0/simProTalonFX-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProTalonFX.so",
+            &format!("libCTRE_SimProTalonFX.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProTalonFXS/26.3.0/simProTalonFXS-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProTalonFXS.so",
+            &format!("libCTRE_SimProTalonFXS.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANcoder/26.3.0/simProCANcoder-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProCANcoder.so",
+            &format!("libCTRE_SimProCANcoder.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProPigeon2/26.3.0/simProPigeon2-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProPigeon2.so",
+            &format!("libCTRE_SimProPigeon2.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANrange/26.3.0/simProCANrange-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProCANrange.so",
+            &format!("libCTRE_SimProCANrange.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANdi/26.3.0/simProCANdi-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProCANdi.so",
+            &format!("libCTRE_SimProCANdi.{extension}"),
+            extension,
         );
         download(
             &format!(
                 "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/sim/simProCANdle/26.3.0/simProCANdle-26.3.0-{classifier}.zip"
             ),
-            "libCTRE_SimProCANdle.so",
+            &format!("libCTRE_SimProCANdle.{extension}"),
+            extension,
         );
     }
 
@@ -167,81 +201,94 @@ fn main() -> miette::Result<()> {
         &format!(
             "https://maven.revrobotics.com/com/revrobotics/frc/RevLibWpiBackendDriver/2026.0.5/RevLibWpiBackendDriver-2026.0.5-{classifier}.zip"
         ),
-        "libREVLibWpi.so",
+        &format!("libREVLibWpi.{extension}"),
+        extension,
     );
     download(
         &format!(
             "https://maven.revrobotics.com/com/revrobotics/frc/RevLibBackendDriver/2026.0.5/RevLibBackendDriver-2026.0.5-{classifier}.zip"
         ),
-        "libBackendDriver.so",
+        &format!("libBackendDriver.{extension}"),
+        extension,
     );
     download(
         &format!(
             "https://maven.revrobotics.com/com/revrobotics/frc/REVLib-driver/2026.0.5/REVLib-driver-2026.0.5-{classifier}.zip"
         ),
-        "libREVLibDriver.so",
+        &format!("libREVLibDriver.{extension}"),
+        extension,
     );
     download(
         &format!(
             "https://maven.revrobotics.com/com/revrobotics/frc/REVLib-cpp/2026.0.5/REVLib-cpp-2026.0.5-{classifier}.zip"
         ),
-        "libREVLib.so",
+        &format!("libREVLib.{extension}"),
+        extension,
     );
 
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/hal/hal-cpp/2026.2.1/hal-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libwpiHal.so",
+        &format!("libwpiHal.{extension}"),
+        extension,
     );
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/wpilibc/wpilibc-cpp/2026.2.1/wpilibc-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libwpilibc.so",
+        &format!("libwpilibc.{extension}"),
+        extension,
     );
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/wpimath/wpimath-cpp/2026.2.1/wpimath-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libwpimath.so",
+        &format!("libwpimath.{extension}"),
+        extension,
     );
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/wpinet/wpinet-cpp/2026.2.1/wpinet-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libwpinet.so",
+        &format!("libwpinet.{extension}"),
+        extension,
     );
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/wpiutil/wpiutil-cpp/2026.2.1/wpiutil-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libwpiutil.so",
+        &format!("libwpiutil.{extension}"),
+        extension,
     );
     local(
         &format!(
             "wpilib/2026/maven/edu/wpi/first/ntcore/ntcore-cpp/2026.2.1/ntcore-cpp-2026.2.1-{classifier}.zip"
         ),
-        "libntcore.so",
+        &format!("libntcore.{extension}"),
+        extension,
     );
     if is_roborio {
         local(
             &format!(
                 "wpilib/2026/maven/edu/wpi/first/ni-libraries/visa/2026.1.2/visa-2026.1.2-{classifier}.zip"
             ),
-            "libvisa.so",
+            &format!("libvisa.{extension}"),
+            extension,
         );
         local(
             &format!(
                 "wpilib/2026/maven/edu/wpi/first/ni-libraries/chipobject/2026.1.2/chipobject-2026.1.2-{classifier}.zip"
             ),
-            "libRoboRIO_FRC_ChipObject.so",
+            &format!("libRoboRIO_FRC_ChipObject.{extension}"),
+            extension,
         );
         local(
             &format!(
                 "wpilib/2026/maven/edu/wpi/first/ni-libraries/netcomm/2026.1.2/netcomm-2026.1.2-{classifier}.zip"
             ),
-            "libFRC_NetworkCommunication.so",
+            &format!("libFRC_NetworkCommunication.{extension}"),
+            extension,
         );
 
         let dir = Path::new(&env::var("OUT_DIR").unwrap()).join(SO_TARGET_DIR);
@@ -352,10 +399,10 @@ fn main() -> miette::Result<()> {
     }
     if is_roborio {
         println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPI");
+        println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6");
     } else {
         println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6_WPISim");
     }
-    println!("cargo:rustc-link-lib=dylib=CTRE_Phoenix6");
     if is_roborio {
         println!("cargo:rustc-link-lib=dylib=CTRE_PhoenixTools");
     } else {
