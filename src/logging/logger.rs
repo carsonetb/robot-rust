@@ -52,7 +52,6 @@ impl Logger {
         T::append(self.datalog, entry, now(), &value);
 
         if self.networktables {
-            println!("1");
             let publisher = self
                 .nt_publishers
                 .entry(path.to_string())
@@ -62,9 +61,10 @@ impl Logger {
                     } else {
                         format!("/{path}")
                     };
-                    self.nt.get_topic(&path).publisher::<T>()
+                    let out = self.nt.get_topic(&path).publisher::<T>();
+
+                    out
                 });
-            println!("2");
             T::set_nt(publisher.publisher, now(), &value);
         }
     }

@@ -11,9 +11,9 @@
           "extraArgs": ["+nightly"],
         },
         "cargo": {
-          // "target": "arm-unknown-linux-gnueabi",
+          "target": "arm-unknown-linux-gnueabi",
           // "target": "x86_64-unknown-linux-gnu",
-          "target": "aarch64-apple-darwin",
+          // "target": "aarch64-apple-darwin",
           "buildScripts": {
             "enable": true,
           },

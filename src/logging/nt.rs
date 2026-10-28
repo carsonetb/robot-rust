@@ -76,14 +76,28 @@ impl NetworkTablesTopic {
     }
 
     pub fn publisher<T: Loggable>(&'_ self) -> NetworkTablesPublisher {
-        NetworkTablesPublisher::new(unsafe {
+        let out = NetworkTablesPublisher::new(unsafe {
             NT_Publish(
                 self.topic,
                 T::NT_TYPE as u32,
                 &str_to_wpi(T::NT_TYPE.to_str()),
-                std::mem::zeroed(),
+                &NT_PubSubOptions {
+                    structSize: std::mem::size_of::<NT_PubSubOptions>() as u32,
+                    periodic: 20.0,
+                    sendAll: 1,
+                    pollStorage: 0,
+                    excludePublisher: 0,
+                    topicsOnly: 0,
+                    prefixMatch: 0,
+                    keepDuplicates: 0,
+                    disableRemote: 0,
+                    disableLocal: 0,
+                    excludeSelf: 0,
+                    hidden: 0,
+                },
             )
-        })
+        });
+        out
     }
 }
 
