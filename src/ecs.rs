@@ -190,9 +190,6 @@ impl<R: SimRuntime> State<R> {
         }
         hal::start();
 
-        #[cfg(simulation)]
-        hal::sim_pause_timing();
-
         let _ = *crate::math::START_TIME;
 
         let mut world = World::new();
@@ -228,11 +225,14 @@ impl<R: SimRuntime> State<R> {
             Ok(alliance) => {
                 world.insert_non_send(alliance);
                 world.insert_non_send(alliance.to_alliance());
-            },
+            }
             Err(err) => {
                 error!("Failed to get alliance side: {err:?}");
-                ds::alert(AlertType::Error, &format!("Failed to get alliance side: {err:?}"));
-            },
+                ds::alert(
+                    AlertType::Error,
+                    &format!("Failed to get alliance side: {err:?}"),
+                );
+            }
         };
 
         if model == Model::Simulation {
@@ -332,6 +332,7 @@ impl<R: SimRuntime> State<R> {
                 if ds.mode != Mode::Disabled {
                     ffi::sim::ctre_feed_enable(c_int(100));
                 }
+                comms.mode = ds.mode;
                 ds.mode
             };
 
@@ -392,7 +393,6 @@ impl<R: SimRuntime> State<R> {
                     trace!("Simulator update.");
                     self.world.run_schedule(SimulatorPeriodic);
                     std::thread::sleep(Duration::from_millis(20));
-                    hal::sim_step_20ms();
                 }
             }
         }

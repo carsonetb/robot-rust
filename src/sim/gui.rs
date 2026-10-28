@@ -44,7 +44,9 @@ pub fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
                 }
                 #[cfg(target_os = "macos")]
                 {
-                    panic!("Simulation GUI doesn't work on MacOS currently, this is being worked on.")
+                    panic!(
+                        "Simulation GUI doesn't work on MacOS currently, this is being worked on."
+                    )
                 }
             })),
             ..Default::default()
@@ -60,7 +62,7 @@ pub fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
                     ui.selectable_value(&mut comms.selected, Mode::Test, "Test");
                 });
 
-                let enabled = comms.mode == Mode::Disabled;
+                let enabled = comms.mode != Mode::Disabled && comms.mode != Mode::None;
                 let text = if enabled { "Enabled" } else { "Enable" };
                 if !comms.enable {
                     comms.enable = ui.button(text).clicked();

@@ -39,6 +39,15 @@ impl NetworkTablesInstance {
 impl Default for NetworkTablesInstance {
     fn default() -> Self {
         let inst = unsafe { NT_GetDefaultInstance() };
+        unsafe {
+            NT_StartServer(
+                inst,
+                &str_to_wpi("networktables.json"),
+                &str_to_wpi(""),
+                1735,
+                5810,
+            );
+        }
         Self { inst }
     }
 }
