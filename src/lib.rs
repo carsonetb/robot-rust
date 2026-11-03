@@ -33,6 +33,7 @@ extern crate uom;
 pub mod auto;
 pub mod chooser;
 pub mod ctre;
+pub mod drivetrain;
 pub mod ds;
 pub mod ecs;
 pub mod ffi;

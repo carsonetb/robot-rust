@@ -8,6 +8,8 @@
 #include "ctre/phoenix6/controls/DutyCycleOut.hpp"
 #include "ctre/phoenix6/controls/MotionMagicVoltage.hpp"
 #include "ctre/phoenix6/controls/NeutralOut.hpp"
+#include "ctre/phoenix6/controls/PositionVoltage.hpp"
+#include "ctre/phoenix6/controls/VelocityVoltage.hpp"
 #include "ctre/phoenix6/controls/VoltageOut.hpp"
 #include "ctre/phoenix6/core/CoreCANcoder.hpp"
 #include "ctre/phoenix6/core/CorePigeon2.hpp"
@@ -44,6 +46,14 @@ inline void coast(ctre::phoenix6::hardware::TalonFX& motor) {
 }
 
 inline void set_motionmagic_voltage(ctre::phoenix6::hardware::TalonFX& motor, ctre::phoenix6::controls::MotionMagicVoltage& voltage) {
+    motor.SetControl(voltage);
+}
+
+inline void set_velocity_voltage(ctre::phoenix6::hardware::TalonFX& motor, ctre::phoenix6::controls::VelocityVoltage& voltage) {
+    motor.SetControl(voltage);
+}
+
+inline void set_position_voltage(ctre::phoenix6::hardware::TalonFX& motor, ctre::phoenix6::controls::PositionVoltage& voltage) {
     motor.SetControl(voltage);
 }
 
@@ -158,6 +168,26 @@ inline void set_expo_ka(ctre::phoenix6::configs::MotionMagicConfigs& conf, doubl
 }
 
 } // namespace motionmagic
+
+inline ctre::phoenix6::controls::VelocityVoltage velocityvoltage_create(double velocity_rps) {
+    return ctre::phoenix6::controls::VelocityVoltage(units::angular_velocity::turns_per_second_t{velocity_rps});
+}
+
+inline void velocityvoltage_update(ctre::phoenix6::controls::VelocityVoltage& voltage, double velocity_rps, double acceleration_rps, bool enable_foc, double feedforward_volts, int slot, double update_freq_hz) {
+    voltage.WithVelocity(units::angular_velocity::turns_per_second_t{velocity_rps})
+        .WithAcceleration(units::angular_acceleration::turns_per_second_squared_t{acceleration_rps})
+        .WithEnableFOC(enable_foc)
+        .WithFeedForward(units::voltage::volt_t{feedforward_volts})
+        .WithSlot(slot);
+}
+
+inline ctre::phoenix6::controls::PositionVoltage positionvoltage_create(double position_rotations) {
+    return ctre::phoenix6::controls::PositionVoltage(units::angle::turn_t{position_rotations});
+}
+
+inline void positionvoltage_update(ctre::phoenix6::controls::PositionVoltage& voltage, double position_rotations, double velocity_rps, bool enable_foc, double feedforward_volts, int slot, double update_freq_hz) {
+    voltage.WithPosition(units::angle::turn_t{position_rotations}).WithVelocity(units::angular_velocity::turns_per_second_t{velocity_rps}).WithEnableFOC(enable_foc).WithFeedForward(units::voltage::volt_t{feedforward_volts}).WithSlot(slot).WithUpdateFreqHz(units::frequency::hertz_t{update_freq_hz});
+}
 
 namespace feedback {
 
@@ -278,6 +308,14 @@ inline double get_acceleration_y(ctre::phoenix6::hardware::Pigeon2& gyro) {
 /** meters per second squared */
 inline double get_acceleration_z(ctre::phoenix6::hardware::Pigeon2& gyro) {
     return gyro.GetAccelerationZ().GetValueAsDouble();
+}
+
+inline double get_velocity_z_world(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetAngularVelocityZWorld().GetValueAsDouble();
+}
+
+inline double get_velocity_z_device(ctre::phoenix6::hardware::Pigeon2& gyro) {
+    return gyro.GetAngularVelocityZDevice().GetValueAsDouble();
 }
 
 /** volts */

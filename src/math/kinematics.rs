@@ -285,22 +285,26 @@ pub struct SwerveModuleState {
 }
 
 impl SwerveModuleState {
+    pub fn new(speed: Velocity, angle: Rotation2D) -> Self {
+        Self { speed, angle }
+    }
+
     /// Minimize the change in the heading this swerve module state would
     /// require by potentially reversing the direction the wheel spins. If this
     /// is used with the PIDController class's continuous input
     /// functionality, the furthest a wheel will ever rotate is 90 degrees.
-    pub fn optimize(desired_state: Self, current_angle: Rotation2D) -> Self {
-        let desired = desired_state.angle.value.get::<radian>();
+    pub fn optimize(&mut self, current_angle: Rotation2D) {
+        let desired = self.angle.value.get::<radian>();
         let delta = (desired - current_angle.value.get::<radian>() + PI).rem_euclid(2.0 * PI) - PI;
 
         if delta.abs() > PI / 2.0 {
-            Self {
-                speed: -desired_state.speed,
-                angle: Rotation2D::new((desired + PI).radians()),
-            }
-        } else {
-            desired_state
+            self.speed = -self.speed;
+            self.angle = Rotation2D::new((desired + PI).radians());
         }
+    }
+
+    pub fn cosine_scale(&mut self, current_angle: Rotation2D) {
+        self.speed *= (self.angle - current_angle).cos()
     }
 }
 

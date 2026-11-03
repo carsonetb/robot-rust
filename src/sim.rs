@@ -1,3 +1,4 @@
+use crate::ffi;
 use crate::prelude::*;
 
 pub mod gui;
@@ -15,6 +16,7 @@ pub struct DriverStationSim {
 impl DriverStationSim {
     pub fn new() -> Self {
         info!("Simulated driver station initializing ...");
+        ffi::sim::HALSIM_SetDriverStationDsAttached(1);
         Self {
             mode: Mode::None,
             auto_timer: Timer::new(20.0.seconds()),

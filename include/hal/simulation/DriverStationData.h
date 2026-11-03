@@ -8,6 +8,7 @@
 
 #include <wpi/string.h>
 
+#include "hal/DriverStation.h"
 #include "hal/DriverStationTypes.h"
 #include "hal/Types.h"
 #include "hal/simulation/NotifyListener.h"

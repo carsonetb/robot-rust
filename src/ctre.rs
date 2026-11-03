@@ -188,8 +188,8 @@ impl TalonFX {
         ffi::talon::set(self.motor.pin_mut(), speed);
     }
 
-    /// Supply a voltage to the motor. This should generally be somewhere from
-    /// -12.0 volts to 12.0 volts.
+    /// Supply a voltage to the motor. This should generally be somewheremewhere
+    /// from -12.0 volts to 12.0 volts.
     pub fn set_voltage(&mut self, voltage: ElectricPotential) {
         ffi::talon::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
     }
@@ -197,6 +197,14 @@ impl TalonFX {
     /// Set this motor to use a MotionMagic controller.
     pub fn set_motionmagic_voltage(&mut self, control: &MotionMagicVoltage) {
         ffi::talon::set_motionmagic_voltage(self.motor.pin_mut(), control.to_ffi().pin_mut());
+    }
+
+    pub fn set_velocity_voltage(&mut self, control: &mut VelocityVoltage) {
+        ffi::talon::set_velocity_voltage(self.motor.pin_mut(), control.get_ffi().pin_mut())
+    }
+
+    pub fn set_position_voltage(&mut self, control: &mut PositionVoltage) {
+        ffi::talon::set_position_voltage(self.motor.pin_mut(), control.get_ffi().pin_mut());
     }
 
     /// Resets the position of the encoder on this motor.
@@ -366,6 +374,14 @@ impl Pigeon2 {
 
     pub fn get_acceleration_z(&mut self) -> Acceleration {
         ffi::pigeon2::get_acceleration_z(self.gyro.pin_mut()).meters_per_second_squared()
+    }
+
+    pub fn get_velocity_z_world(&mut self) -> AngularVelocity {
+        ffi::pigeon2::get_velocity_z_world(self.gyro.pin_mut()).degrees_per_second()
+    }
+
+    pub fn get_velocity_z_device(&mut self) -> AngularVelocity {
+        ffi::pigeon2::get_velocity_z_device(self.gyro.pin_mut()).degrees_per_second()
     }
 
     pub fn get_supply_voltage(&mut self) -> ElectricPotential {

@@ -204,3 +204,63 @@ impl<D: ?Sized + Dimension, U: ?Sized + Units<f64>> AutoLog for Quantity<D, U, f
         self.value.append_to(logger, path);
     }
 }
+
+pub trait LinearizeHelpers: Sized {
+    type Output;
+
+    fn to_linear(&self, radius: Length) -> Self::Output;
+}
+
+impl LinearizeHelpers for Angle {
+    type Output = Length;
+
+    fn to_linear(&self, radius: Length) -> Self::Output {
+        (self.value * radius.value).meters()
+    }
+}
+
+impl LinearizeHelpers for AngularVelocity {
+    type Output = Velocity;
+
+    fn to_linear(&self, radius: Length) -> Self::Output {
+        (self.value * radius.value).meters_per_second()
+    }
+}
+
+impl LinearizeHelpers for AngularAcceleration {
+    type Output = Acceleration;
+
+    fn to_linear(&self, radius: Length) -> Self::Output {
+        (self.value * radius.value).meters_per_second_squared()
+    }
+}
+
+pub trait AngularizeHelpers: Sized {
+    type Output;
+
+    fn to_angular(&self, radius: Length) -> Self::Output;
+}
+
+impl AngularizeHelpers for Length {
+    type Output = Angle;
+
+    fn to_angular(&self, radius: Length) -> Self::Output {
+        (self.value / radius.value).radians()
+    }
+}
+
+impl AngularizeHelpers for Velocity {
+    type Output = AngularVelocity;
+
+    fn to_angular(&self, radius: Length) -> Self::Output {
+        (self.value / radius.value).radians_per_second()
+    }
+}
+
+impl AngularizeHelpers for Acceleration {
+    type Output = AngularAcceleration;
+
+    fn to_angular(&self, radius: Length) -> Self::Output {
+        (self.value / radius.value).radians_per_second_squared()
+    }
+}

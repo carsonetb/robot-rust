@@ -22,10 +22,13 @@ autocxx::include_cpp! {
     #include "sim_helpers.hpp"
 
     #include "hal/simulation/MockHooks.h"
+    #include "hal/simulation/DriverStationData.h"
+    #include "hal/DriverStation.h"
 
     #include "frc/XboxController.h"
     #include "frc/event/BooleanEvent.h"
     #include "frc/kinematics/ChassisSpeeds.h"
+    #include "frc/DriverStation.h"
 
     #include "ctre/phoenix6/TalonFX.hpp"
     #include "ctre/phoenix6/CANcoder.hpp"
@@ -96,6 +99,8 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::talonfx::neutral")
     generate!("ctre_helpers::talonfx::coast")
     generate!("ctre_helpers::talonfx::set_motionmagic_voltage")
+    generate!("ctre_helpers::talonfx::set_velocity_voltage")
+    generate!("ctre_helpers::talonfx::set_position_voltage")
     generate!("ctre_helpers::talonfx::get_duty_cycle")
     generate!("ctre_helpers::talonfx::get_output_voltage")
     generate!("ctre_helpers::talonfx::get_supply_voltage")
@@ -126,6 +131,11 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::talonfx::motionmagic::set_expo_kv")
     generate!("ctre_helpers::talonfx::motionmagic::set_expo_ka")
 
+    generate!("ctre_helpers::talonfx::velocityvoltage_create")
+    generate!("ctre_helpers::talonfx::velocityvoltage_update")
+    generate!("ctre_helpers::talonfx::positionvoltage_create")
+    generate!("ctre_helpers::talonfx::positionvoltage_update")
+
     generate!("ctre_helpers::talonfx::feedback::set_rotor_offset")
     generate!("ctre_helpers::talonfx::feedback::set_sensor_to_mechanism_ratio")
     generate!("ctre_helpers::talonfx::feedback::set_rotor_to_sensor_ratio")
@@ -153,6 +163,8 @@ autocxx::include_cpp! {
     generate!("ctre_helpers::pigeon2::get_acceleration_y")
     generate!("ctre_helpers::pigeon2::get_acceleration_z")
     generate!("ctre_helpers::pigeon2::get_supply_voltage")
+    generate!("ctre_helpers::pigeon2::get_velocity_z_world")
+    generate!("ctre_helpers::pigeon2::get_velocity_z_device")
     generate!("ctre_helpers::pigeon2::set_yaw")
 
     generate!("ctre_helpers::mountpose::set_yaw")
@@ -227,8 +239,21 @@ autocxx::include_cpp! {
     generate!("sim_helpers::talonfx_set_physics")
     generate!("sim_helpers::pigeon2_set_physics")
 
+    generate_pod!("HAL_JoystickAxes")
+    generate_pod!("HAL_JoystickButtons")
+    generate_pod!("HAL_JoystickPOVs")
     generate!("HALSIM_PauseTiming")
     generate!("HALSIM_StepTiming")
+    generate!("HALSIM_SetJoystickAxes")
+    generate!("HALSIM_SetJoystickButtons")
+    generate!("HALSIM_SetJoystickPOVs")
+    generate!("HALSIM_SetJoystickIsXbox")
+    generate!("HALSIM_SetJoystickType")
+    generate!("HALSIM_NotifyDriverStationNewData")
+    generate!("HALSIM_SetDriverStationDsAttached")
+    generate!("HAL_RefreshDSData")
+    generate!("frc::DriverStation")
+    generate!("HAL_GetJoystickAxes")
 
     block!("ctre::phoenix6::hardware::core::CoreTalonFX")
     generate!("ctre::phoenix6::sim::TalonFXSimState")
@@ -242,7 +267,7 @@ autocxx::include_cpp! {
 pub mod talon {
     use super::ffi;
 
-    pub use ffi::ctre::phoenix6::controls::MotionMagicVoltage;
+    pub use ffi::ctre::phoenix6::controls::{MotionMagicVoltage, PositionVoltage, VelocityVoltage};
     pub use ffi::ctre::phoenix6::hardware::TalonFX;
     pub use ffi::ctre_helpers::talonfx::feedback::{
         set_remote_sensor_id, set_rotor_offset, set_rotor_to_sensor_ratio,
@@ -258,8 +283,10 @@ pub mod talon {
     pub use ffi::ctre_helpers::talonfx::{
         coast, get_acceleration, get_configurator, get_device_temp, get_duty_cycle, get_kt, get_kv,
         get_output_voltage, get_position, get_stall_current, get_stator_current,
-        get_supply_current, get_supply_voltage, get_torque_current, get_velocity, neutral, set,
-        set_motionmagic_voltage, set_position, set_voltage,
+        get_supply_current, get_supply_voltage, get_torque_current, get_velocity, neutral,
+        positionvoltage_create, positionvoltage_update, set, set_motionmagic_voltage, set_position,
+        set_position_voltage, set_velocity_voltage, set_voltage, velocityvoltage_create,
+        velocityvoltage_update,
     };
 }
 
@@ -281,7 +308,8 @@ pub mod pigeon2 {
     pub use ffi::ctre_helpers::gyrotrim::{set_scalar_x, set_scalar_y, set_scalar_z};
     pub use ffi::ctre_helpers::pigeon2::{
         get_acceleration_x, get_acceleration_y, get_acceleration_z, get_configurator, get_pitch,
-        get_roll, get_supply_voltage, get_temperature, get_yaw, set_yaw,
+        get_roll, get_supply_voltage, get_temperature, get_velocity_z_device, get_velocity_z_world,
+        get_yaw, set_yaw,
     };
 
     pub mod mountpose {
@@ -315,7 +343,13 @@ pub mod sim {
 
     pub use ffi::ctre::phoenix6::sim::{TalonFXSimState, TalonFXSimState_MotorType};
     pub use ffi::sim_helpers::*;
-    pub use ffi::{HALSIM_PauseTiming, HALSIM_StepTiming};
+    pub use ffi::{
+        HAL_GetJoystickAxes, HAL_JoystickAxes, HAL_JoystickButtons, HAL_JoystickPOVs,
+        HAL_RefreshDSData, HALSIM_NotifyDriverStationNewData, HALSIM_PauseTiming,
+        HALSIM_SetDriverStationDsAttached, HALSIM_SetJoystickAxes, HALSIM_SetJoystickButtons,
+        HALSIM_SetJoystickIsXbox, HALSIM_SetJoystickPOVs, HALSIM_SetJoystickType,
+        HALSIM_StepTiming,
+    };
 }
 
 pub use ffi::chooser::{
@@ -332,4 +366,5 @@ pub use ffi::ctre::phoenix6::configs::{
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,
 };
+pub use ffi::frc::DriverStation;
 pub use ffi::frc::XboxController;

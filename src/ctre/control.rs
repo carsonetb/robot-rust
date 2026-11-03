@@ -100,6 +100,7 @@ impl MotionMagicVoltage {
         self
     }
 
+    /// TODO: Creates a new struct everytime.
     pub(crate) fn to_ffi(&self) -> cxx::UniquePtr<ffi::talon::MotionMagicVoltage> {
         ffi::talon::create_motionmagic_control(
             self.position.get::<revolution>(),
@@ -115,5 +116,141 @@ impl MotionMagicVoltage {
             self.update_frequency.get::<hertz>(),
         )
         .within_unique_ptr()
+    }
+}
+
+pub struct VelocityVoltage {
+    ffi: cxx::UniquePtr<ffi::talon::VelocityVoltage>,
+    pub velocity: AngularVelocity,
+    pub acceleration: AngularAcceleration,
+    pub enable_foc: bool,
+    pub feedfoward: Voltage,
+    pub slot: i32,
+    pub update_frequency: Frequency,
+}
+
+impl VelocityVoltage {
+    pub fn new(velocity: AngularVelocity) -> Self {
+        Self {
+            ffi: ffi::talon::velocityvoltage_create(velocity.get::<revolution_per_second>())
+                .within_unique_ptr(),
+            velocity,
+            acceleration: 0.0.radians_per_second_squared(),
+            enable_foc: false,
+            feedfoward: 0.0.volts(),
+            slot: 0,
+            update_frequency: 100.0.hertz(),
+        }
+    }
+
+    pub fn with_velocity(&mut self, velocity: AngularVelocity) -> &mut Self {
+        self.velocity = velocity;
+        self
+    }
+
+    pub fn with_acceleration(&mut self, acceleration: AngularAcceleration) -> &mut Self {
+        self.acceleration = acceleration;
+        self
+    }
+
+    pub fn with_enable_foc(&mut self, enable_foc: bool) -> &mut Self {
+        self.enable_foc = enable_foc;
+        self
+    }
+
+    pub fn with_feedfoward(&mut self, feedfoward: Voltage) -> &mut Self {
+        self.feedfoward = feedfoward;
+        self
+    }
+
+    pub fn with_slot(&mut self, slot: i32) -> &mut Self {
+        self.slot = slot;
+        self
+    }
+
+    pub fn with_update_frequency(&mut self, update_frequency: Frequency) -> &mut Self {
+        self.update_frequency = update_frequency;
+        self
+    }
+
+    pub(crate) fn get_ffi(&mut self) -> &mut cxx::UniquePtr<ffi::talon::VelocityVoltage> {
+        ffi::talon::velocityvoltage_update(
+            self.ffi.pin_mut(),
+            self.velocity.get::<revolution_per_second>(),
+            self.acceleration.get::<revolution_per_second_squared>(),
+            self.enable_foc,
+            self.feedfoward.get::<volt>(),
+            c_int(self.slot),
+            self.update_frequency.get::<hertz>(),
+        );
+        &mut self.ffi
+    }
+}
+
+pub struct PositionVoltage {
+    ffi: cxx::UniquePtr<ffi::talon::PositionVoltage>,
+    pub position: Angle,
+    pub velocity: AngularVelocity,
+    pub enable_foc: bool,
+    pub feedfoward: Voltage,
+    pub slot: i32,
+    pub update_frequency: Frequency,
+}
+
+impl PositionVoltage {
+    pub fn new(position: Angle) -> Self {
+        Self {
+            ffi: ffi::talon::positionvoltage_create(position.get::<revolution>())
+                .within_unique_ptr(),
+            position,
+            velocity: 0.0.radians_per_second(),
+            enable_foc: false,
+            feedfoward: 0.0.volts(),
+            slot: 0,
+            update_frequency: 100.0.hertz(),
+        }
+    }
+
+    pub fn with_position(&mut self, position: Angle) -> &mut Self {
+        self.position = position;
+        self
+    }
+
+    pub fn with_velocity(&mut self, velocity: AngularVelocity) -> &mut Self {
+        self.velocity = velocity;
+        self
+    }
+
+    pub fn with_enable_foc(&mut self, enable_foc: bool) -> &mut Self {
+        self.enable_foc = enable_foc;
+        self
+    }
+
+    pub fn with_feedfoward(&mut self, feedfoward: Voltage) -> &mut Self {
+        self.feedfoward = feedfoward;
+        self
+    }
+
+    pub fn with_slot(&mut self, slot: i32) -> &mut Self {
+        self.slot = slot;
+        self
+    }
+
+    pub fn with_update_frequency(&mut self, update_frequency: Frequency) -> &mut Self {
+        self.update_frequency = update_frequency;
+        self
+    }
+
+    pub(crate) fn get_ffi(&mut self) -> &mut cxx::UniquePtr<ffi::talon::PositionVoltage> {
+        ffi::talon::positionvoltage_update(
+            self.ffi.pin_mut(),
+            self.position.get::<revolution>(),
+            self.velocity.get::<revolution_per_second>(),
+            self.enable_foc,
+            self.feedfoward.get::<volt>(),
+            c_int(self.slot),
+            self.update_frequency.get::<hertz>(),
+        );
+        &mut self.ffi
     }
 }
