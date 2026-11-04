@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdio>
 #include "ctre/phoenix/StatusCodes.h"
 #include "ctre/phoenix6/CANcoder.hpp"
 #include "ctre/phoenix6/Pigeon2.hpp"

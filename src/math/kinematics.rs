@@ -36,6 +36,14 @@ pub struct ChassisSpeeds {
     pub omega: AngularVelocity,
 }
 
+impl AutoLog for ChassisSpeeds {
+    fn append_to(self, logger: &mut Logger, path: &str) {
+        self.vx.append_to(logger, &format!("{path}/vx"));
+        self.vy.append_to(logger, &format!("{path}/vy"));
+        self.omega.append_to(logger, &format!("{path}/omega"));
+    }
+}
+
 impl ChassisSpeeds {
     /// Create a new [`ChassisSpeeds`].
     pub fn new(vx: Velocity, vy: Velocity, omega: AngularVelocity) -> Self {
@@ -282,6 +290,13 @@ impl SwerveModulePosition {
 pub struct SwerveModuleState {
     pub speed: Velocity,
     pub angle: Rotation2D,
+}
+
+impl AutoLog for SwerveModuleState {
+    fn append_to(self, logger: &mut Logger, path: &str) {
+        self.speed.append_to(logger, &format!("{path}/speed"));
+        self.angle.value.append_to(logger, &format!("{path}/angle"));
+    }
 }
 
 impl SwerveModuleState {

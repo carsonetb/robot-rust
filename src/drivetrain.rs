@@ -132,6 +132,10 @@ impl<const N: usize, G: Gyro, T: TurningMotor, D: DrivingMotor> Drivetrain<N, G,
         std::array::from_fn(|i| self.modules[i].desired)
     }
 
+    pub fn get_states(&mut self) -> [SwerveModuleState; N] {
+        std::array::from_fn(|i| self.modules[i].state())
+    }
+
     pub fn simulate(&mut self) {
         self.gyro.simulate();
         for module in &mut self.modules {
