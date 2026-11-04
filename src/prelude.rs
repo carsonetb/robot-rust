@@ -9,7 +9,7 @@
 //! use robot_rust::prelude::*;
 //! ```
 
-pub use crate::auto::{PoseProvider, TankAuto, tank_auto};
+pub use crate::auto::{TankAuto, tank_auto};
 pub use crate::chooser::SendableChooser;
 pub use crate::chooser_enum;
 pub use crate::ctre::{CANCoder, KrakenX44, KrakenX60, Pigeon2, TalonFX};

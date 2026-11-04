@@ -203,12 +203,6 @@ impl DifferentialDriveOdometry {
     }
 }
 
-impl PoseProvider for DifferentialDriveOdometry {
-    fn get_pose(&mut self) -> Pose2D {
-        self.0.pose
-    }
-}
-
 /// Class for swerve drive odometry. Odometry allows you to track the robot's
 /// position on the field over a course of a match using readings from your
 /// swerve drive encoders and swerve azimuth encoders.
@@ -246,12 +240,6 @@ impl<const N: usize> SwerveDriveOdometry<N> {
             module_positions,
             initial_pose,
         ))
-    }
-}
-
-impl<const N: usize> PoseProvider for SwerveDriveOdometry<N> {
-    fn get_pose(&mut self) -> Pose2D {
-        self.0.pose
     }
 }
 

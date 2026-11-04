@@ -1,58 +1,53 @@
 use crate::math::prelude::*;
 use crate::prelude::*;
 
-pub trait PoseProvider {
+pub trait Drivetrain {
+    /// Drive with field-relative speeds and angular setpoint.
+    fn drive(&mut self, vx: Velocity, vy: Velocity, setpoint: Angle);
+    /// Get the robot-relative speeds of this drivetrain.
+    fn get_robot_relative_speeds(&mut self) -> ChassisSpeeds;
+    /// Get the field-relative speeds of this drivetrain.
+    fn get_field_relative_speeds(&mut self) -> ChassisSpeeds;
+    /// Get the field-relative pose of this drivetrain.
     fn get_pose(&mut self) -> Pose2D;
 }
 
 pub struct AutoPose {
     pub pose: Pose2D,
+    pub entry: Option<Angle>,
+    pub velocity: Velocity,
 }
 
 impl AutoPose {
-    pub fn new(pose: Pose2D) -> Self {
-        Self { pose }
+    pub fn new(pose: Pose2D, velocity: Velocity) -> Self {
+        Self { pose, entry: None, velocity }
+    }
+
+    pub fn with_entry_angle(mut self, angle: Angle) -> Self {
+        self.entry = Some(angle);
+        self
     }
 }
 
-enum AutoAction {
+pub enum AutoAction {
     Follow(Pose2D),
     Run(Box<dyn FnMut(&mut StateRes)>),
-}
-
-pub trait TankDrive {
-    fn drive(&mut self, velocity: Velocity, rotation: AngularVelocity);
+    Wait(Time),
 }
 
 pub trait IntoTankAuto {
     fn into(&mut self) -> &mut TankAuto;
 }
 
-pub struct TankAuto {
-    actions: Vec<AutoAction>,
-    velocity: LinearTrapezoidProfile,
-    angular_velocity: AngularTrapezoidProfile,
-    last_velocity: Velocity,
-    last_angular_velocity: AngularVelocity,
-    tolerance: Length,
-    angular_tolerance: Angle,
+pub struct Auto {
+    pub actions: Vec<AutoAction>,
 }
 
-impl TankAuto {
+impl Auto {
     pub fn new(
-        velocity: LinearTrapezoidProfile,
-        angular_velocity: AngularTrapezoidProfile,
-        tolerance: Length,
-        angular_tolerance: Angle,
     ) -> Self {
         Self {
             actions: Vec::new(),
-            velocity,
-            angular_velocity,
-            last_velocity: 0.0.meters_per_second(),
-            last_angular_velocity: 0.0.radians_per_second(),
-            tolerance,
-            angular_tolerance,
         }
     }
 
@@ -67,25 +62,56 @@ impl TankAuto {
     }
 }
 
-pub fn tank_auto<A: IntoTankAuto, D: TankDrive, P: PoseProvider>(
+pub struct TankAuto {
+    pub auto: Auto,
+    pub velocity: LinearTrapezoidProfile,
+    pub tolerance: Length,
+    pub angular_tolerance: Angle,
+    pub angular_velocity: AngularTrapezoidProfile,
+    pub last_velocity: Velocity,
+    pub last_angular_velocity: AngularVelocity,
+}
+
+impl TankAuto {
+    pub fn new(
+        auto: Auto,
+        velocity: LinearTrapezoidProfile,
+        angular_velocity: AngularTrapezoidProfile,
+        tolerance: Length,
+        angular_tolerance: Angle,
+    ) -> Self {
+        Self {
+            auto,
+            velocity,
+            angular_velocity,
+            last_velocity: 0.0.meters_per_second(),
+            last_angular_velocity: 0.0.radians_per_second(),
+            tolerance,
+            angular_tolerance,
+        }
+    }
+}
+
+pub fn tank_auto<A: IntoTankAuto, D: Drivetrain>(
     mut state: StateRes,
     mut auto: ResourceMut<A>,
     mut drive: ResourceMut<D>,
-    mut provider: ResourceMut<P>,
 ) {
     let auto = auto.as_mut().into();
 
-    while let Some(AutoAction::Run(run)) = auto.actions.last_mut() {
+    while let Some(AutoAction::Run(run)) = auto.auto.actions.last_mut() {
         run.as_mut()(&mut state);
-        auto.actions.pop();
+        auto.auto.actions.pop();
     }
 
-    let Some(AutoAction::Follow(target)) = auto.actions.last() else {
-        drive.drive(0.0.meters_per_second(), 0.0.radians_per_second());
+    let angle = drive.get_pose().rotation.value;
+
+    let Some(AutoAction::Follow(target)) = auto.auto.actions.last() else {
+        drive.drive(0.0.meters_per_second(), 0.0.meters_per_second(), angle);
         return;
     };
 
-    let current = provider.get_pose();
+    let current = drive.get_pose();
 
     let distance = current.pos.distance_to(&target.pos);
     let at_position = distance <= auto.tolerance;
@@ -104,18 +130,17 @@ pub fn tank_auto<A: IntoTankAuto, D: TankDrive, P: PoseProvider>(
     let at_angle = angle_dist.value.abs() <= auto.angular_tolerance;
 
     if at_position && at_angle {
-        drive.drive(0.0.meters_per_second(), 0.0.radians_per_second());
-        auto.actions.pop();
+        drive.drive(0.0.meters_per_second(), 0.0.meters_per_second(), angle);
+        auto.auto.actions.pop();
     }
 
-    let angular_velocity = auto
+    let angular_state = auto
         .angular_velocity
         .calculate(
             20.0.milliseconds(),
             AngularTrapezoidState::new(0.0.radians(), auto.last_angular_velocity),
             AngularTrapezoidState::new(angle_dist.value, 0.0.radians_per_second()),
-        )
-        .velocity;
+        );
 
     let velocity = if !at_position {
         auto.velocity
@@ -131,7 +156,25 @@ pub fn tank_auto<A: IntoTankAuto, D: TankDrive, P: PoseProvider>(
     };
 
     auto.last_velocity = velocity;
-    auto.last_angular_velocity = angular_velocity;
+    auto.last_angular_velocity = angular_state.velocity;
 
-    drive.drive(velocity, angular_velocity);
+    let field_relative_x = velocity * angle.cos();
+    let field_relative_y = velocity * angle.sin();
+    drive.drive(field_relative_x, field_relative_y, angular_state.position);
 }
+
+pub trait IntoSwerveAuto {
+    fn into(&mut self) -> SwerveAuto;
+}
+
+pub struct SwerveAuto {
+    pub auto: Auto,
+}
+
+impl SwerveAuto {
+    pub fn new(auto: Auto) -> Self {
+        Self { auto }
+    }
+}
+
+pub fn swerve_auto<D: Drivetrain>() {}
