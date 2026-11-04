@@ -1,5 +1,24 @@
 # Getting Started
 
+All you need installed is WPILib. If it's already installed it should appear in your home directory. You can follow the official guide [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html). This library officially supports Linux and MacOS, and Windows support is planned.
+
+You will also need to add the WPILib compiler toolchain to your PATH. On Mac and Linux, you have to add some code to the `.zshrc` or `.bashrc` file in your home directory. Open it in a text editor and add this line to the end:
+
+```bash
+export PATH="[home directory here]/wpilib/2026/roborio/bin:$PATH"
+```
+
+> [!WARNING]
+> The home directory cannot be `~`, it must be `/Users/username` on Mac or `/home/username` on Linux.
+
+Thirdly, you will need to install the Rust target for the roboRIO. To do this, you will need [rustup](https://rustup.rs/) installed. Then, run:
+
+```bash
+rustup target add arm-unknown-linux-gnueabi
+```
+
+## Project setup
+
 Let's create a new project. You can call it whatever you want, but I'm going to call it `robot`. In the directory you want your project directory to go in, run:
 
 ```Bash
@@ -24,10 +43,12 @@ Virtually every type and function you will ever need to use gets imported with t
 Now, we need to create a new `State`. In the main function, you will configure this state and then run it. The state is what holds all the resources and systems that you create for your project.
 
 ```Rust
-let mut state: State = State::new().unwrap();
+fn main() {
+    let mut state: State = State::new().unwrap();
+}
 ```
 
-Now, we have to create a _system_ that will run when the robot program starts. Later we'll learn exactly what a system is, but for now just think of it as a function. Outside of `main`, add:
+Now, we have to create a system that will run when the robot program starts. Later we'll learn exactly what a system is, but for now just think of it as a function. Outside of `main`, add:
 
 ```Rust
 fn hello_robot() {
@@ -38,8 +59,11 @@ fn hello_robot() {
 We then give this to `state`, which will handle running it at the right time, and run the program:
 
 ```Rust
-state.add_systems(Init, hello_robot);
-state.run();
+fn main() {
+    // ...
+    state.add_systems(Init, hello_robot);
+    state.run();
+}
 ```
 
 ## Viewing the full code

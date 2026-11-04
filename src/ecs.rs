@@ -398,6 +398,9 @@ impl<R: SimRuntime> State<R> {
         }
     }
 
+    /// Set the simulation runtime that will be used in simulation. WPILib
+    /// style simulation, you can use [BasicRuntime]. This function does nothing
+    /// when not in simulation.
     pub fn set_runtime(&mut self, #[allow(unused)] mut runtime: R) {
         #[cfg(simulation)]
         {
