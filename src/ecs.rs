@@ -1,3 +1,4 @@
+use std::any::TypeId;
 use std::marker::PhantomData;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -128,6 +129,7 @@ pub struct CommandInternal<T> {
     enabled: bool,
     just_ended: bool,
     just_started: bool,
+    next: Option<TypeId>,
 }
 
 impl<T> CommandInternal<T> {
@@ -137,6 +139,7 @@ impl<T> CommandInternal<T> {
             enabled: false,
             just_ended: false,
             just_started: false,
+            next: None,
         }
     }
 
@@ -517,6 +520,10 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         }
     }
 
+    fn get(&'_ mut self) -> Mut<'_, CommandInternal<C>> {
+        self.state.world.non_send_mut::<CommandInternal<C>>()
+    }
+
     /// Enable the command immediately.
     pub fn enabled(&mut self) -> &mut Self {
         enable_command::<C>(self.state.world);
@@ -581,6 +588,11 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         );
         self
     }
+
+    pub fn after<N: 'static>(&mut self) -> &mut Self {
+        self.get().next = Some(TypeId::of::<N>());
+        self
+    }
 }
 
 #[derive(Default)]
@@ -588,7 +600,10 @@ struct CommandSystemData {
     was_enabled: bool,
 }
 
-fn command_system<C: 'static>(mut command: CommandMut<C>, mut data: Local<CommandSystemData>) {
+fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemData>) {
+    let mut command = world.non_send_mut::<CommandInternal<C>>();
+    let enabled = command.enabled();
+
     if command.just_started {
         command.just_started = false;
     }
@@ -596,14 +611,22 @@ fn command_system<C: 'static>(mut command: CommandMut<C>, mut data: Local<Comman
         command.just_ended = false;
     }
 
-    if command.enabled && !data.was_enabled {
+    if enabled && !data.was_enabled {
         command.just_started = true;
     }
-    if !command.enabled && data.was_enabled {
+    if !enabled && data.was_enabled {
         command.just_ended = true;
+        if let Some(next) = command.next
+            && let Some(component) = world.components().get_valid_id(next)
+            && let Some(mut resource) = world.get_resource_mut_by_id(component)
+        {
+            {
+                let resource: &mut  = resource.as_mut();
+            }
+        }
     }
 
-    data.was_enabled = command.enabled;
+    data.was_enabled = enabled;
 }
 
 #[derive(Debug, Clone)]

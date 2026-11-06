@@ -20,7 +20,11 @@ pub struct AutoPose {
 
 impl AutoPose {
     pub fn new(pose: Pose2D, velocity: Velocity) -> Self {
-        Self { pose, entry: None, velocity }
+        Self {
+            pose,
+            entry: None,
+            velocity,
+        }
     }
 
     pub fn with_entry_angle(mut self, angle: Angle) -> Self {
@@ -44,8 +48,7 @@ pub struct Auto {
 }
 
 impl Auto {
-    pub fn new(
-    ) -> Self {
+    pub fn new() -> Self {
         Self {
             actions: Vec::new(),
         }
@@ -134,13 +137,11 @@ pub fn tank_auto<A: IntoTankAuto, D: Drivetrain>(
         auto.auto.actions.pop();
     }
 
-    let angular_state = auto
-        .angular_velocity
-        .calculate(
-            20.0.milliseconds(),
-            AngularTrapezoidState::new(0.0.radians(), auto.last_angular_velocity),
-            AngularTrapezoidState::new(angle_dist.value, 0.0.radians_per_second()),
-        );
+    let angular_state = auto.angular_velocity.calculate(
+        20.0.milliseconds(),
+        AngularTrapezoidState::new(0.0.radians(), auto.last_angular_velocity),
+        AngularTrapezoidState::new(angle_dist.value, 0.0.radians_per_second()),
+    );
 
     let velocity = if !at_position {
         auto.velocity

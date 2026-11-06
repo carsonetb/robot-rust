@@ -19,8 +19,8 @@ pub use crate::ecs::{
     DisabledInit, DisabledPeriodic, Init, Mode, Periodic, Resource, ResourceMut, State, StateRes,
     TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic, Timer,
 };
-pub use crate::hid::XboxController;
 pub use crate::hal::{Alliance, AllianceStation};
+pub use crate::hid::XboxController;
 pub use crate::logging::{AutoLog, Loggable, Logger, now};
 pub use crate::math::control::*;
 pub use crate::math::{Pose2D, Rotation2D, Vec2, timestamp};

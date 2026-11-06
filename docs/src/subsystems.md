@@ -85,3 +85,7 @@ fn main() {
     state.run();
 }
 ```
+
+## Subsystem commands
+
+Up until this point, we've ignored the use of commands with Subsystems. For this, depending on the complexity of the subsystem, you have two options. If the subsystem is relatively simple, like the intake we wrote earlier, you can replace the targets with a few commands (`Intake`, `Outtake`, `Stow`, and `Extend`, for example), and have the command handlers directly interface with the hardware. For more complex subsystems (like a drivetrain), it will probably make more sense for commands to interface with a targets type, which would be in turn handled by something like the `periodic` function we wrote earlier.
