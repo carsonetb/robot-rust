@@ -8,6 +8,7 @@ use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use derive_more::Display;
 
+use crate::hal::Alliance;
 use crate::sim::gui::GUICommunicator;
 #[cfg(simulation)]
 use crate::sim::gui::spawn_simgui;
@@ -232,6 +233,8 @@ impl<R: SimRuntime> State<R> {
                     AlertType::Error,
                     &format!("Failed to get alliance side: {err:?}"),
                 );
+                world.insert_non_send(Alliance::Unknown);
+                world.insert_non_send(AllianceStation::Unknown);
             }
         };
 

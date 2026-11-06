@@ -3,10 +3,10 @@
 This library _does_ feature a commands system. However, although it has the same name, it is very different from the commands you may have used in Java or C++. Commands are a type of resource, and thus each command is a unique type. For example, the type for a motor spinner command would look like this:
 
 ```Rust
-struct SpinMotorCommand
+struct SpinMotorCommand;
 ```
 
-Notice that the command has no member values. That is because you cannot set the speed of a `SpinMotorCommand`. That is specified by the implementation. We could also let the command dispatcher set the speed like so:
+Notice that the command has no member values. That is because you cannot set the speed of a `SpinMotorCommand`. That is specified by the implementation. We could also let the command dispatcher set the voltage like so:
 
 ```Rust
 struct SpinMotorCommand {
