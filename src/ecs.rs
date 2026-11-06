@@ -7,6 +7,8 @@ use autocxx::c_int;
 use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
+use bevy_reflect::std_traits::ReflectDefault;
+use bevy_reflect::{Reflect, reflect_trait};
 use derive_more::Display;
 
 use crate::hal::Alliance;
@@ -115,13 +117,23 @@ pub type Command<'a, T> = Resource<'a, CommandInternal<T>>;
 /// functions.
 pub type CommandMut<'a, T> = ResourceMut<'a, CommandInternal<T>>;
 
+#[reflect_trait]
+trait AnyCommand {
+    fn enable(&mut self);
+    fn disable(&mut self);
+    fn enabled(&self) -> bool;
+    fn just_ended(&self) -> bool;
+    fn just_started(&self) -> bool;
+}
+
 /// Internal data for a command wrapper. [`Command`] and [`CommandMut`] are
 /// specifically used for inputs to systems, whereas this is where the actual
 /// data is stored.
 ///
 /// These values are updated in a seperate schedule, so they will always be
 /// synchronized before robot code.
-#[derive(DerefMut, Deref)]
+#[derive(DerefMut, Deref, Reflect)]
+#[reflect(AnyCommand)]
 pub struct CommandInternal<T> {
     #[deref]
     #[deref_mut]
@@ -164,6 +176,28 @@ impl<T> CommandInternal<T> {
     /// If the command was just enabled.
     pub fn just_started(&self) -> bool {
         self.just_started
+    }
+}
+
+impl<T> AnyCommand for CommandInternal<T> {
+    fn enable(&mut self) {
+        self.enable();
+    }
+
+    fn disable(&mut self) {
+        self.disable();
+    }
+
+    fn enabled(&self) -> bool {
+        self.enabled()
+    }
+
+    fn just_ended(&self) -> bool {
+        self.just_ended()
+    }
+
+    fn just_started(&self) -> bool {
+        self.just_started()
     }
 }
 
@@ -616,12 +650,21 @@ fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemDa
     }
     if !enabled && data.was_enabled {
         command.just_ended = true;
-        if let Some(next) = command.next
-            && let Some(component) = world.components().get_valid_id(next)
-            && let Some(mut resource) = world.get_resource_mut_by_id(component)
-        {
+        if let Some(next) = command.next {
+            let registry = world
+                .resource::<bevy_ecs::reflect::AppTypeRegistry>()
+                .clone();
+            let read = registry.read();
+            if let Some(component) = world.components().get_valid_id(next)
+                && let Some(mut resource) = world.get_resource_mut_by_id(component)
+                && let Some(registration) = read.get(next)
+                && let Some(reflect) = registration.data::<ReflectAnyCommand>()
             {
-                let resource: &mut  = resource.as_mut();
+                let reflect_mut = resource.as_mut();
+                // safety: idk
+                unsafe {
+                    reflect.get_mut().unwrap().enable(); // brother
+                }
             }
         }
     }
