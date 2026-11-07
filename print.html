@@ -1,0 +1,561 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Robot-Rust Documentation</title>
+                <meta name="robots" content="noindex" />
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="favicon.svg">
+                        <link rel="shortcut icon" href="favicon.png">
+                <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+                <link rel="stylesheet" href="css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="systems.html"><strong aria-hidden="true">3.</strong> Systems, Resources, &amp; Schedules</a></li><li class="chapter-item expanded "><a href="commands.html"><strong aria-hidden="true">4.</strong> Commands</a></li><li class="chapter-item expanded "><a href="subsystems.html"><strong aria-hidden="true">5.</strong> Subsystem Design</a></li><li class="chapter-item expanded "><a href="logging.html"><strong aria-hidden="true">6.</strong> Logging</a></li><li class="chapter-item expanded "><a href="simulation.html"><strong aria-hidden="true">7.</strong> Simulation</a></li><li class="chapter-item expanded "><a href="advanced.html"><strong aria-hidden="true">8.</strong> Advanced</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advanced/segfaults.html"><strong aria-hidden="true">8.1.</strong> Segmentation Faults</a></li><li class="chapter-item expanded "><a href="advanced/bindings.html"><strong aria-hidden="true">8.2.</strong> Contributing &amp; Writing Bindings</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">Robot-Rust Documentation</h1>
+
+                    <div class="right-buttons">
+                                                <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>Welcome to the Robot in Rust project for FRC! This is a safe, all-in-one solution for writing robot code in Rust. If you are tired of using Java or C++, maybe this project is for you.</p>
+<p>This exact thing, of course, has been tried many times before. See <a href="https://github.com/first-rust-competition/first-rust-competition">FIRST Rust Competition</a>, <a href="https://github.com/Team-2502/frcrs">frcrs</a>, and a few others you might find online. This project is different, because it's more than just bindings to WPILib. We have a custom ECS-based scheduler (instead of Commands &amp; Subsystems), logging system, autonomous system, simulation system, as well as the traditional WPILib, CTRE, REV, and (subset of) NetworkTables bindings.</p>
+<h2 id="features"><a class="header" href="#features">Features</a></h2>
+<p>Normally, different functionality is separated into different modules created by different teams (Core functionality, CTRE motors, REV motors, Logging, Autonomoous, etc). In Rust, we don't get this luxury because there are no other teams to write modules! So, the goal of this library is to support all those needs:</p>
+<ul>
+<li>HAL bindings: A State type that sets everything up and runs your robot for you.</li>
+<li>CTRE bindings: TalonFX, CANCoder, Pigeon2, a subset of configs.</li>
+<li>REV bindings: SparkMax, Spark Relative &amp; Absolute Encoders, a subset of configs.</li>
+<li>Logging system: Similar to the <a href="https://docs.advantagekit.org/">AdvantageKit</a> system, supports logging basic Rust types, Units, and automatically making your own types loggable via the <code>AutoLog</code> derive-macro. NetworkTables is supported.</li>
+<li>Units: Everything, when possible, is unit-ed using <a href="https://docs.rs/uom/latest/uom/"><code>uom</code></a>. Helper functions are provided to make using these easier.</li>
+<li>Math: Feedback and feedforward controllers, simple math types, kinematics, odometry, ported manually from WPILib. If a math type exists, it should work the same as it does in WPILib.</li>
+<li>Autonomous System: Support for tank drive autonomous point-to-point path following, and (planned) support for swerve drive path following.</li>
+<li>Simulation: Many of the WPILib simulation types are manually ported, and future support for integrating <a href="https://mujoco.org/">MuJoCo</a> is planned.</li>
+</ul>
+<h2 id="commands-and-subsystems"><a class="header" href="#commands-and-subsystems">Commands and Subsystems</a></h2>
+<p>The main difference between this and WPILib is the absence of the Commands and Subsystems framework. Instead we use the <a href="https://docs.rs/bevy_ecs/latest/bevy_ecs/">ECS</a> from the <a href="https://bevy.org/">Bevy Game Engine</a>, which is lightweight and much more suited for Rust than Commands.</p>
+<h2 id="who-this-is-for"><a class="header" href="#who-this-is-for">Who this is for</a></h2>
+<p>To use this project for serious robot code (meaning you are bringing it to a competition or there will be time-pressure to fix bugs should they occur) you should be experienced in Rust and low-level programming, and have a backup robot program written in Java or C++.</p>
+<p>If you're using this for other less serious projects, regardless of your experience you should give this a try and see if you can figure it out.</p>
+<p>Regardless, you should still read through this book, and use it as a reference in the future. Good luck!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p>All you need installed is WPILib. If it's already installed it should appear in your home directory. You can follow the official guide <a href="https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html">here</a>. This library officially supports Linux and MacOS, and Windows support is planned.</p>
+<p>You will also need to add the WPILib compiler toolchain to your PATH. On Mac and Linux, you have to add some code to the <code>.zshrc</code> or <code>.bashrc</code> file in your home directory. Open it in a text editor and add this line to the end:</p>
+<pre><code class="language-bash">export PATH=&quot;[home directory here]/wpilib/2026/roborio/bin:$PATH&quot;
+</code></pre>
+<blockquote>
+<p>[!WARNING]
+The home directory cannot be <code>~</code>, it must be <code>/Users/username</code> on Mac or <code>/home/username</code> on Linux.</p>
+</blockquote>
+<p>Thirdly, you will need to install the Rust target for the roboRIO. To do this, you will need <a href="https://rustup.rs/">rustup</a> installed. Then, run:</p>
+<pre><code class="language-bash">rustup target add arm-unknown-linux-gnueabi
+</code></pre>
+<h2 id="project-setup"><a class="header" href="#project-setup">Project setup</a></h2>
+<p>Let's create a new project. You can call it whatever you want, but I'm going to call it <code>robot</code>. In the directory you want your project directory to go in, run:</p>
+<pre><code class="language-Bash">$ cargo new robot
+</code></pre>
+<p>Next, <code>cd</code> into the project directory and add the <code>robot-rust</code> crate (you don't have to rename it, but it will save you some typing in the future):</p>
+<pre><code class="language-Bash">$ cd robot
+$ cargo add robot-rust --rename frc
+</code></pre>
+<p>Now, to make sure cross-compiling to the roboRIO target goes smoothly, copy the <code>.cargo/config.toml</code> from the <a href="https://github.com/carsonetb/robot-rust">GitHub repository</a> into your project.</p>
+<p>You can now open up the <code>src/main.rs</code> file that Cargo generated. You should see the typical &quot;Hello, World&quot; main function. This would be enough if we were running it on our own computer, but we need more code to run it on the robot! First, import the <code>robot-rust</code> prelude:</p>
+<pre><code class="language-Rust">use frc::prelude::*;
+</code></pre>
+<p>Virtually every type and function you will ever need to use gets imported with the prelude. CTRE and REV each have their own preludes, though.</p>
+<p>Now, we need to create a new <code>State</code>. In the main function, you will configure this state and then run it. The state is what holds all the resources and systems that you create for your project.</p>
+<pre><code class="language-Rust">fn main() {
+    let mut state: State = State::new().unwrap();
+}
+</code></pre>
+<p>Now, we have to create a system that will run when the robot program starts. Later we'll learn exactly what a system is, but for now just think of it as a function. Outside of <code>main</code>, add:</p>
+<pre><code class="language-Rust">fn hello_robot() {
+    println!(&quot;Hello, Robot!&quot;);
+}
+</code></pre>
+<p>We then give this to <code>state</code>, which will handle running it at the right time, and run the program:</p>
+<pre><code class="language-Rust">fn main() {
+    // ...
+    state.add_systems(Init, hello_robot);
+    state.run();
+}
+</code></pre>
+<h2 id="viewing-the-full-code"><a class="header" href="#viewing-the-full-code">Viewing the full code</a></h2>
+<p>Each chapter where you learn to write code has a corresponding file in the <a href="https://github.com/carsonetb/robot-rust/tree/trunk/examples">examples directory</a> on GitHub. For example, this chapter's example is called <code>hello_robot.rs</code>.</p>
+<blockquote>
+<p>[!NOTE]
+In example code the library is not renamed, so it is still <code>robot_rust</code> instead of <code>frc</code>.</p>
+</blockquote>
+<h2 id="deploying-code"><a class="header" href="#deploying-code">Deploying code</a></h2>
+<p>Provided is a <code>deploy.sh</code> script that will automatically build and deploy the program to your robot. You can find it in the <a href="https://github.com/carsonetb/robot-rust">GitHub repository</a>. Download it and put it in your project directory, and run the following command to make it executable:</p>
+<pre><code class="language-Bash">$ chmod +x deploy.sh
+</code></pre>
+<p>Use your perferred text editor to open <code>deploy.sh</code></p>
+<p>You will need to edit the variables set in the program:</p>
+<ul>
+<li>Update <code>PROJECT_NAME</code> to be the name of your project (in this case we called it <code>robot</code>).</li>
+<li>Update <code>TEAM</code> to be your team number</li>
+<li>Update <code>ROBOT_IP</code> to be the IP address of the roboRIO when it is connected to your computer. If the script fails, it is most likely that this is wrong or the robot isn't connected properly. You can run <code>ping IP_HERE</code> to test if the address is working.</li>
+</ul>
+<p>Once these variables are set properly, save <code>deploy.sh</code>. You can run the deploy script, which will handle building, deploying, and running the robot program on the RIO.</p>
+<pre><code class="language-Bash">$ ./deploy.sh
+</code></pre>
+<p>If this works, the easiest way to see that the code ran is by looking in the DriverStation. Otherwise, if you know how you can look at the log file on the RIO.</p>
+<h2 id="viewing-documentation"><a class="header" href="#viewing-documentation">Viewing documentation</a></h2>
+<p>This documentation should be enough to get you understanding everything, but sometimes you need a more specific reference. For various reasons, the docs on <a href="https://docs.rs">docs.rs</a> can't build, so you need to generate them locally like so:</p>
+<pre><code class="language-Bash">$ cargo doc --package robot-rust --open
+</code></pre>
+<p>This will open the documentation in your browser.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="systems-resources-and-schedules"><a class="header" href="#systems-resources-and-schedules">Systems, Resources, and Schedules</a></h1>
+<p>This project manages everything using an ECS, which stands for <em>Entity Component System</em>.
+We will learn more later about the purpose of Entities and Components, but for now we only need to know how Systems work.</p>
+<p>A system is anything that takes some inputs, and modifies some of those inputs. You saw an example of a system called <code>hello_world</code> in the previous chapter, although this one took no inputs. In reality, systems can (and usually do) take many inputs and many types of inputs. The most common input you will be using is called a Resource.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<p>Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one <code>Intake</code> resource), and they must be instantiated when the program starts. If you've done some FRC programming before, you'll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things. For the most part, all the inputs to your systems will be resources. </p>
+<h2 id="creating-a-resource"><a class="header" href="#creating-a-resource">Creating a resource</a></h2>
+<p>For now, let's just create a resource that wraps a single motor. We'll derive <code>Deref</code> and <code>DerefMut</code> so that we can interact with the type as if it was just a motor.</p>
+<p>For this example we'll use CTRE's <code>TalonFX</code> motor controller. If you want to use REV, you can simply replace wherever it says <code>TalonFX</code> with <code>SparkMax</code>.</p>
+<p>We'll start by creating a <code>MyMotor</code> resource:</p>
+<pre><code class="language-Rust">#[derive(Deref, DerefMut)]
+struct MyMotor(TalonFX);
+</code></pre>
+<p>This resource can be added to <code>state</code> like so (you can set the CAN ID and CAN Bus to be whatever corresponds to your actual motor):</p>
+<pre><code class="language-Rust">state.insert_resource(MyMotor(TalonFX::new(1, &quot;*&quot;)));
+</code></pre>
+<h2 id="using-a-resource"><a class="header" href="#using-a-resource">Using a resource</a></h2>
+<p>The resource can now be used in a system. All resource arguments to a system need to be wrapped in either the <code>Resource</code> or <code>ResourceMut</code> type. For example, we'll create a system called <code>spin</code> that will spin <code>MyMotor</code>:</p>
+<pre><code class="language-Rust">fn spin(mut motor: ResourceMut&lt;MyMotor&gt;) {
+    motor.set_voltage(5.0.volts());
+}
+</code></pre>
+<p>The <code>volts</code> function is provided by the library so you can easily create unit-ed types. We use it because <code>TalonFX::set_voltage</code> requires a <code>Voltage</code> (or <code>ElectricPotential</code>) type.</p>
+<h2 id="schedules"><a class="header" href="#schedules">Schedules</a></h2>
+<p>In the previous chapter, we wrote <code>state.add_systems(Init, hello_robot)</code>. <code>Init</code> is a schedule, which specifies <em>when</em> a system should be ran. There are a lot of different schedules:</p>
+<ul>
+<li><code>Init</code>: Runs when the robot program starts</li>
+<li><code>DisabledInit</code>/<code>TeleopInit</code>/<code>AutonomousInit</code>/<code>TestInit</code>: Runs when a certain state of the robot program starts.</li>
+<li><code>DisabledExit</code>/<code>TeleopExit</code>/<code>AutonomousExit</code>/<code>TestExit</code>: Runs when a certain state of the robot program ends.</li>
+<li><code>Periodic</code>: Runs every ~20ms.</li>
+<li><code>DisabledPeriodic</code>/<code>TeleopPeriodic</code>/<code>AutonomousPeriodic</code>/<code>TestPeriodic</code>: Runs every ~20ms during a certain stage of the robot program.</li>
+</ul>
+<p>For our purposes, we will use the <code>TeleopPeriodic</code> schedule to spin our motor. So after registering the resource, we can register the system like so:</p>
+<pre><code class="language-Rust">state.add_systems(TeleopPeriodic, spin);
+</code></pre>
+<p>Now, you should have a spinning motor!</p>
+<blockquote>
+<p>[!WARNING]
+Systems in a schedule don't run in any specified order, and will usually run in different orders every iteration. If you want to specify the order systems are ran, you can use <code>state.add_systems(Schedule, (first, second).chain());</code>.</p>
+</blockquote>
+<h2 id="game-state"><a class="header" href="#game-state">Game state</a></h2>
+<p>There are some resources that are automatically added which can give you information about the game state. </p>
+<ul>
+<li>There is the <code>Mode</code> enum, which specifies whether the robot is disabled, in teleop, or autonomous (although using schedules is usually preferred). </li>
+<li>You can also get the <code>Alliance</code> (<code>Red</code>, <code>Blue</code>, or <code>Unknown</code>), and the <code>AllianceStation</code> (<code>Red1</code>, <code>Red2</code>, <code>Blue1</code>, etc).</li>
+<li>Lastly there is the <code>Model</code> enum, which is either <code>Simulation</code> or <code>Competition</code>. </li>
+</ul>
+<p>All these are added when the state is created, before the <code>Init</code> schedule (besides <code>Mode</code>, which will be <code>None</code>, but you can assume the robot will be disabled).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="commands"><a class="header" href="#commands">Commands</a></h1>
+<p>This library <em>does</em> feature a commands system. However, although it has the same name, it is very different from the commands you may have used in Java or C++. Commands are a type of resource, and thus each command is a unique type. For example, the type for a motor spinner command would look like this:</p>
+<pre><code class="language-Rust">struct SpinMotorCommand;
+</code></pre>
+<p>Notice that the command has no member values. That is because you cannot set the speed of a <code>SpinMotorCommand</code>. That is specified by the implementation. We could also let the command dispatcher set the voltage like so:</p>
+<pre><code class="language-Rust">struct SpinMotorCommand {
+    voltage: Voltage
+}
+</code></pre>
+<p>However, usually it's best practice to abstract these values into the implementation to ensure the behavior of the command is consistent across the entire program.</p>
+<p>We can then register the command using <code>state</code>:</p>
+<pre><code class="language-Rust">state.register_command(SpinMotorCommand);
+</code></pre>
+<p>Note that registering a command doesn't make it run. Commands are disabled by default. If we wanted the command to be enabled immediately, we could use <code>.enabled()</code> on the output of <code>register_command</code>:</p>
+<pre><code class="language-Rust">state.register_command(SpinMotorCommand).enabled();
+</code></pre>
+<p>If you don't do this, you can enable any command in a system like so:</p>
+<pre><code class="language-Rust">fn enables_command(mut command: CommandMut&lt;SpinMotorCommand&gt;) {
+    command.enable();
+}
+</code></pre>
+<p>Attaching this system to the <code>Init</code> schedule would function the same as calling <code>.enabled()</code> above.</p>
+<h2 id="handlers"><a class="header" href="#handlers">Handlers</a></h2>
+<p>Just as a command is itself a resource, the code that handles running the command is also a system. The system takes the command wrapped in the <code>Command</code> helper type, along with whatever other data it needs. The header for <code>SpinMotorCommand</code> would look like so:</p>
+<pre><code class="language-Rust">fn spin(command: Command&lt;SpinMotorCommand&gt;, mut spinner: ResourceMut&lt;Spinner&gt;) { ... }
+</code></pre>
+<p>Usually, we don't want to mutate the command itself, but if we did we could replace the first parameter with <code>mut command: CommandMut&lt;SpinMotorCommand&gt;</code>.</p>
+<p>When the command is enabled, the handler should set the voltage of the spinner to some positive value, and when the command ends we should set the voltage of the spinner to zero:</p>
+<pre><code class="language-Rust">fn spin(spin: Command&lt;SpinMotorCommand&gt;, mut spinner: ResourceMut&lt;Spinner&gt;) {
+    if spin.enabled() {
+        spinner.set_voltage(5.0.volts());
+    }
+
+    if spin.just_ended() {
+        spinner.set_voltage(0.0.volts());
+    }
+}
+</code></pre>
+<p>Usually it's a better idea to use <code>just_ended()</code> instead of <code>disabled()</code>, just in case some other command or system wants to set the voltage of the spinner in the future.</p>
+<p>This system can be registered like any normal system:</p>
+<pre><code class="language-Rust">state.add_systems(TeleopPeriodic, spin);
+</code></pre>
+<p>But usually it's easier to read when we group the command handler along with the code that registers the command itself:</p>
+<pre><code class="language-Rust">state
+    .register_command(SpinMotorCommand)
+    .with_handler(TeleopPeriodic, spin);
+</code></pre>
+<h2 id="triggers"><a class="header" href="#triggers">Triggers</a></h2>
+<p>A trigger is something that tells a command when to run. It is similar to a system in that it can take any arguments, but it must return a <code>bool</code>. Let's say we want to run the <code>SpinMotorCommand</code> command only when the user presses the &quot;A&quot; button on the controller:</p>
+<pre><code class="language-Rust">fn spin_trigger(controller: Resource&lt;XboxController&gt;) -&gt; bool {
+    controller.a()
+}
+</code></pre>
+<blockquote>
+<p>[!NOTE]
+The <code>XboxController</code> needs to be inserted as a resource.</p>
+</blockquote>
+<p>We can then tell the command to only run on the trigger:</p>
+<pre><code class="language-Rust">state
+    .register_command(SpinMotorCommand)
+    .with_handler(TeleopPeriodic, spin)
+    .while_trigger(spin_trigger);
+</code></pre>
+<p>The <code>while_trigger</code> function will constantly set the command's enabled state based on the value of the trigger. If this is used, it will have only bad affects to enable or disable the command anywhere else in your code. If you wish to only enable the command when a trigger changes from <code>false</code> to <code>true</code>, and not disable it, use <code>on_trigger</code>. If you wish to enable and disable the command only when the trigger's state changes, use <code>with_trigger</code>.</p>
+<p>With that, you have everything you need to use commands!</p>
+<blockquote>
+<p>[!NOTE]
+Creating triggers for each joystick button can be tedious. Assuming the <code>XboxController</code> is registered as a resource, the triggers you need already exist:</p>
+<pre><code class="language-Rust">state
+    .register_command(SpinMotorCommand)
+    .with_handler(TeleopPeriodic, spin)
+    .on_trigger(XboxController::a_trigger);
+</code></pre>
+<p>If you have a custom controller resource, these won't work and you'll have to create your own functions.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="subsystem-design"><a class="header" href="#subsystem-design">Subsystem Design</a></h1>
+<p>In Java and C++, the choice of how to encapsulate different systems on the robot was largely made up for you: Implement the <code>Subsystem</code> interface, and register commands on that subsystem. In Rust, that decision is completely yours, and truly it is. If you have a design you think would work better for your robot or for your team, by all means skip this chapter. Here, I will layout a design you can use that is both similar to the old framework, but still elegant and functional within the new.</p>
+<p>With that said, the first type that almost all subsystem designs have is the one that contains the hardware interface, like motors and encoders. This type will be private, so no other subsystems directly interface with it. For this section, we'll use an intake subsystem as an example:</p>
+<pre><code class="language-Rust">// In intake.rs, seperate file from main.rs
+
+struct Intake {
+    motor: TalonFX,
+    pivot_motor: TalonFX,
+    encoder: CANcoder,
+}
+
+impl Intake {
+    fn new() -&gt; Self {
+        // Code to do this not specified ...
+    }
+}
+</code></pre>
+<p>We will then define another type, <code>IntakeTargets</code>, that will be public. The intake subsystem will be responsible for getting the physical hardware to these targets. Any other code will be able to modify these targets, so you should make sure multiple peices of code aren't modifying it at the same time. Checks in the Commands system are planned to make sure this doesn't happen, but do not yet exist. </p>
+<p>For the intake, our targets specify the pivot position and the intake state.</p>
+<pre><code class="language-Rust">pub enum IntakeState {
+    Stopped,
+    Intake,
+    Outtake,
+}
+
+pub enum PivotState {
+    Stowed,
+    Extended,
+}
+
+pub struct IntakeTargets {
+    pub intake: IntakeState,
+    pub pivot: PivotState,
+}
+
+impl IntakeTargets {
+    pub fn new() -&gt; Self {
+        Self {
+            intake: IntakeState::Stopped,
+            pivot: PivotState::Stowed,
+        }
+    }
+}
+</code></pre>
+<p>We'll then create some function that reads the targets and modifies the hardware:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn periodic(mut intake: ResourceMut&lt;Intake&gt;, targets: Resource&lt;IntakeTargets&gt;) {
+    // Code to do this not specified ...
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>We are already almost finished making our Subsystem. We just need a function that can be called from <code>main.rs</code> that inserts the <code>Intake</code> and <code>IntakeTargets</code> resources and adds the <code>periodic</code> system:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn setup(state: &amp;mut State) {
+    state.insert_resource(Intake::new());
+    state.insert_resource(IntakeTargets::new());
+
+    // Make sure to add the system in both teleop and autonomous.
+    state.add_systems(TeleopPeriodic, periodic);
+    state.add_systems(AutonomousPeriodic, periodic);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Now we have a usable Subsystem. We can call the setup from the <code>main</code> function:</p>
+<pre><pre class="playground"><code class="language-rust">// main.rs
+
+mod intake;
+
+fn main() {
+    // ...
+    intake::setup(&amp;mut state);
+    state.run();
+}
+</code></pre></pre>
+<h2 id="subsystem-commands"><a class="header" href="#subsystem-commands">Subsystem commands</a></h2>
+<p>Up until this point, we've ignored the use of commands with Subsystems. For this, depending on the complexity of the subsystem, you have two options. If the subsystem is relatively simple, like the intake we wrote earlier, you can replace the targets with a few commands (<code>Intake</code>, <code>Outtake</code>, <code>Stow</code>, and <code>Extend</code>, for example), and have the command handlers directly interface with the hardware. For more complex subsystems (like a drivetrain), it will probably make more sense for commands to interface with a targets type, which would be in turn handled by something like the <code>periodic</code> function we wrote earlier.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
+<p>A logger is already setup for your use. It logs to the <code>wpilog</code> file on the roboRIO, as well as to NetworkTables. Tools such as <a href="https://docs.advantagescope.org/">AdvantageScope</a> can read these logged values.</p>
+<p>Most basic types implement the <code>Loggable</code> trait (booleans, floats, integers, <code>&amp;str</code>, <code>String</code>, and arrays of all those values). You can log them in a system using the <code>Logger</code> resource like so:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn log(mut logger: ResourceMut&lt;Logger&gt;) {
+    logger.append_value(&quot;Path/Number&quot;, 5.0);
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The <code>append_value</code> function is only for basic values that implement <code>Loggable</code>. If you want to log types that have multiple values, you should use the <code>append</code> function (which supports all <code>Loggable</code> types as well). </p>
+<h2 id="autolog"><a class="header" href="#autolog">AutoLog</a></h2>
+<p>Similar to <a href="https://docs.advantagekit.org/">AdvantageKit</a>, there is an <code>AutoLog</code> trait which you can automatically implement for any <code>struct</code> that is made up of types that themselves implement <code>AutoLog</code>. </p>
+<p>For example, the state for an intake subsystem could be specified like so:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(AutoLog)]
+struct IntakeState {
+    speed: AngularVelocity,
+    angle: Angle,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>You could then log this by calling <code>logger.append(&quot;Intake&quot;, intake_state)</code>. Note that unit types also can all be logged.</p>
+<p>You can also nest loggable types:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(AutoLog)]
+struct IntakePivotState {
+    angle: Angle,
+    velocity: AngularVelocity,
+}
+
+#[derive(AutoLog)]
+struct IntakeState {
+    velocity: AngularVelocity,
+    pivot: IntakePivotState,
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>The logging tree for the new <code>IntakeState</code> would look like this:</p>
+<ul>
+<li>Intake/velocity</li>
+<li>Intake/pivot/angle</li>
+<li>Intake/pivot/velocity</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="simulation"><a class="header" href="#simulation">Simulation</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="advanced"><a class="header" href="#advanced">Advanced</a></h1>
+<p>This project is not stable, and so before long you may find yourself looking for a feature or binding that does not yet exist, or seeing foreign-looking errors such as segmentation faults. The advanced section is designed to help you solve these problems yourself, instead of needing to wait for a maintainer to fix them.</p>
+<h2 id="development-environment"><a class="header" href="#development-environment">Development Environment</a></h2>
+<p>Most of these topics will involve modifying the source code, so if you do end up having to do that either to add a missing feature or to fix a bug, please contribute it via a pull request.</p>
+<p>The first step of setting up a dev environment is to clone</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="segmentation-faults"><a class="header" href="#segmentation-faults">Segmentation Faults</a></h1>
+<p><a href="https://en.wikipedia.org/wiki/Segmentation_fault">Segfaults</a> are a failure condition that occurs when the program tries to read memory that it doesn't have access to. Most of the time, this means a <a href="https://en.wikipedia.org/wiki/Pointer_(computer_programming)">pointer</a> that should have pointed to data actually pointed to <a href="https://en.wikipedia.org/wiki/Null_pointer"><code>NULL</code></a>. A segfault is similar to the <code>NullPointerException</code> in Java.</p>
+<p>One frustrating thing about segfaults in compiled programs is that, by default, when they occur no debug information is printed. Only the text <code>Segmentation fault (core dumped)</code> prints, and the program exits. After this occured once, I installed a simple signal handler into the library so that instead this is the text you will see:</p>
+<pre><code>====================================
+FATAL CRASH: SIGSEGV (Segmentation Fault); Signal 11.
+Sorry about this! This probably indicates a bug with the C/C++ bindings.
+This bug should be reported.
+If you're at a competition, try to run the program once more, and if it fails, switch to a backup.
+====================================
+
+&lt;rust stack trace here&gt;
+</code></pre>
+<h2 id="causes"><a class="header" href="#causes">Causes</a></h2>
+<p>In the simplest case, it may be possible that an explicitly null reference is being passed to the function. That should be pretty clear just by looking at the code.</p>
+<p>In other cases, it is likely a lifetime issue, which will probably be much harder to debug. When the rust compiler believes a value will no longer be used, it generates code to <a href="https://doc.rust-lang.org/book/ch15-03-drop.html">drop</a> it. If data still exists that referenced that dropped data, a segfault will occur when it is used.</p>
+<p>The safe wrappers do their best to prevent this from happening, for example by tying the lifetime of a configurator to its motor. Unfortunately, they aren't always perfect.</p>
+<p>One binding that is specifically of note is the NetworkTables binding. The <code>NetworkTablesTopic</code> type should have its lifetime bound to the <code>NetworkTablesInstance</code> type, and the <code>NetworkTablesPublisher</code> to its topic. To prevent complexity with internal references (fields that reference other data in the same struct) in the <code>Logger</code> system, and because these are generally not used by the end-user, these lifetimes don't exist. If you are using these manually, make sure that the instance is not dropped before the topic.</p>
+<p>Another possible culprit is the CTRE or REV bindings to devices and their configurators. The configurator bindings are vast and deal with many types of data, often with two layers of bindings. If you have the stack trace, it should be fairly easy to tell if this is the problem.</p>
+<p>Hopefully one of these helped. I will be adding more if I encounter more problems as the library goes through more testing.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contributing--writing-bindings"><a class="header" href="#contributing--writing-bindings">Contributing &amp; Writing Bindings</a></h1>
+<p>Many features are not yet complete. For some of those, such as the autonomous or simulation systems, it's not feasible to write documentation on how to expand them. Missing bindings to vendor libraries, however, are fairly trivial to write. There are two types of bindings: direct binding, where we call C++ code, and porting, where we entirely rewrite the code. Direct binding is generally used for hardware or some more complex types, while porting is used for types that are simple, or where we can't sacrifice the performance cost of bindings.</p>
+<p>For either of these methods, you will need experience in C/C++ and unsafe Rust.</p>
+<h2 id="direct-bindings"><a class="header" href="#direct-bindings">Direct Bindings</a></h2>
+<p>Once you know how to do it, writing direct bindings is definetely the easier, but more tedious, of the two methods.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+                        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+                
+    </body>
+</html>

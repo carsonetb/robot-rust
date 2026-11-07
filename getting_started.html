@@ -1,0 +1,264 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Getting Started - Robot-Rust Documentation</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="favicon.svg">
+                        <link rel="shortcut icon" href="favicon.png">
+                <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+                <link rel="stylesheet" href="css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html" class="active"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="systems.html"><strong aria-hidden="true">3.</strong> Systems, Resources, &amp; Schedules</a></li><li class="chapter-item expanded "><a href="commands.html"><strong aria-hidden="true">4.</strong> Commands</a></li><li class="chapter-item expanded "><a href="subsystems.html"><strong aria-hidden="true">5.</strong> Subsystem Design</a></li><li class="chapter-item expanded "><a href="logging.html"><strong aria-hidden="true">6.</strong> Logging</a></li><li class="chapter-item expanded "><a href="simulation.html"><strong aria-hidden="true">7.</strong> Simulation</a></li><li class="chapter-item expanded "><a href="advanced.html"><strong aria-hidden="true">8.</strong> Advanced</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advanced/segfaults.html"><strong aria-hidden="true">8.1.</strong> Segmentation Faults</a></li><li class="chapter-item expanded "><a href="advanced/bindings.html"><strong aria-hidden="true">8.2.</strong> Contributing &amp; Writing Bindings</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">Robot-Rust Documentation</h1>
+
+                    <div class="right-buttons">
+                                                <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p>All you need installed is WPILib. If it's already installed it should appear in your home directory. You can follow the official guide <a href="https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html">here</a>. This library officially supports Linux and MacOS, and Windows support is planned.</p>
+<p>You will also need to add the WPILib compiler toolchain to your PATH. On Mac and Linux, you have to add some code to the <code>.zshrc</code> or <code>.bashrc</code> file in your home directory. Open it in a text editor and add this line to the end:</p>
+<pre><code class="language-bash">export PATH=&quot;[home directory here]/wpilib/2026/roborio/bin:$PATH&quot;
+</code></pre>
+<blockquote>
+<p>[!WARNING]
+The home directory cannot be <code>~</code>, it must be <code>/Users/username</code> on Mac or <code>/home/username</code> on Linux.</p>
+</blockquote>
+<p>Thirdly, you will need to install the Rust target for the roboRIO. To do this, you will need <a href="https://rustup.rs/">rustup</a> installed. Then, run:</p>
+<pre><code class="language-bash">rustup target add arm-unknown-linux-gnueabi
+</code></pre>
+<h2 id="project-setup"><a class="header" href="#project-setup">Project setup</a></h2>
+<p>Let's create a new project. You can call it whatever you want, but I'm going to call it <code>robot</code>. In the directory you want your project directory to go in, run:</p>
+<pre><code class="language-Bash">$ cargo new robot
+</code></pre>
+<p>Next, <code>cd</code> into the project directory and add the <code>robot-rust</code> crate (you don't have to rename it, but it will save you some typing in the future):</p>
+<pre><code class="language-Bash">$ cd robot
+$ cargo add robot-rust --rename frc
+</code></pre>
+<p>Now, to make sure cross-compiling to the roboRIO target goes smoothly, copy the <code>.cargo/config.toml</code> from the <a href="https://github.com/carsonetb/robot-rust">GitHub repository</a> into your project.</p>
+<p>You can now open up the <code>src/main.rs</code> file that Cargo generated. You should see the typical &quot;Hello, World&quot; main function. This would be enough if we were running it on our own computer, but we need more code to run it on the robot! First, import the <code>robot-rust</code> prelude:</p>
+<pre><code class="language-Rust">use frc::prelude::*;
+</code></pre>
+<p>Virtually every type and function you will ever need to use gets imported with the prelude. CTRE and REV each have their own preludes, though.</p>
+<p>Now, we need to create a new <code>State</code>. In the main function, you will configure this state and then run it. The state is what holds all the resources and systems that you create for your project.</p>
+<pre><code class="language-Rust">fn main() {
+    let mut state: State = State::new().unwrap();
+}
+</code></pre>
+<p>Now, we have to create a system that will run when the robot program starts. Later we'll learn exactly what a system is, but for now just think of it as a function. Outside of <code>main</code>, add:</p>
+<pre><code class="language-Rust">fn hello_robot() {
+    println!(&quot;Hello, Robot!&quot;);
+}
+</code></pre>
+<p>We then give this to <code>state</code>, which will handle running it at the right time, and run the program:</p>
+<pre><code class="language-Rust">fn main() {
+    // ...
+    state.add_systems(Init, hello_robot);
+    state.run();
+}
+</code></pre>
+<h2 id="viewing-the-full-code"><a class="header" href="#viewing-the-full-code">Viewing the full code</a></h2>
+<p>Each chapter where you learn to write code has a corresponding file in the <a href="https://github.com/carsonetb/robot-rust/tree/trunk/examples">examples directory</a> on GitHub. For example, this chapter's example is called <code>hello_robot.rs</code>.</p>
+<blockquote>
+<p>[!NOTE]
+In example code the library is not renamed, so it is still <code>robot_rust</code> instead of <code>frc</code>.</p>
+</blockquote>
+<h2 id="deploying-code"><a class="header" href="#deploying-code">Deploying code</a></h2>
+<p>Provided is a <code>deploy.sh</code> script that will automatically build and deploy the program to your robot. You can find it in the <a href="https://github.com/carsonetb/robot-rust">GitHub repository</a>. Download it and put it in your project directory, and run the following command to make it executable:</p>
+<pre><code class="language-Bash">$ chmod +x deploy.sh
+</code></pre>
+<p>Use your perferred text editor to open <code>deploy.sh</code></p>
+<p>You will need to edit the variables set in the program:</p>
+<ul>
+<li>Update <code>PROJECT_NAME</code> to be the name of your project (in this case we called it <code>robot</code>).</li>
+<li>Update <code>TEAM</code> to be your team number</li>
+<li>Update <code>ROBOT_IP</code> to be the IP address of the roboRIO when it is connected to your computer. If the script fails, it is most likely that this is wrong or the robot isn't connected properly. You can run <code>ping IP_HERE</code> to test if the address is working.</li>
+</ul>
+<p>Once these variables are set properly, save <code>deploy.sh</code>. You can run the deploy script, which will handle building, deploying, and running the robot program on the RIO.</p>
+<pre><code class="language-Bash">$ ./deploy.sh
+</code></pre>
+<p>If this works, the easiest way to see that the code ran is by looking in the DriverStation. Otherwise, if you know how you can look at the log file on the RIO.</p>
+<h2 id="viewing-documentation"><a class="header" href="#viewing-documentation">Viewing documentation</a></h2>
+<p>This documentation should be enough to get you understanding everything, but sometimes you need a more specific reference. For various reasons, the docs on <a href="https://docs.rs">docs.rs</a> can't build, so you need to generate them locally like so:</p>
+<pre><code class="language-Bash">$ cargo doc --package robot-rust --open
+</code></pre>
+<p>This will open the documentation in your browser.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="systems.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="systems.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>

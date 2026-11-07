@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Systems, Resources, &amp; Schedules - Robot-Rust Documentation</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="favicon.svg">
+                        <link rel="shortcut icon" href="favicon.png">
+                <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+                <link rel="stylesheet" href="css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="systems.html" class="active"><strong aria-hidden="true">3.</strong> Systems, Resources, &amp; Schedules</a></li><li class="chapter-item expanded "><a href="commands.html"><strong aria-hidden="true">4.</strong> Commands</a></li><li class="chapter-item expanded "><a href="subsystems.html"><strong aria-hidden="true">5.</strong> Subsystem Design</a></li><li class="chapter-item expanded "><a href="logging.html"><strong aria-hidden="true">6.</strong> Logging</a></li><li class="chapter-item expanded "><a href="simulation.html"><strong aria-hidden="true">7.</strong> Simulation</a></li><li class="chapter-item expanded "><a href="advanced.html"><strong aria-hidden="true">8.</strong> Advanced</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="advanced/segfaults.html"><strong aria-hidden="true">8.1.</strong> Segmentation Faults</a></li><li class="chapter-item expanded "><a href="advanced/bindings.html"><strong aria-hidden="true">8.2.</strong> Contributing &amp; Writing Bindings</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">Robot-Rust Documentation</h1>
+
+                    <div class="right-buttons">
+                                                <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="systems-resources-and-schedules"><a class="header" href="#systems-resources-and-schedules">Systems, Resources, and Schedules</a></h1>
+<p>This project manages everything using an ECS, which stands for <em>Entity Component System</em>.
+We will learn more later about the purpose of Entities and Components, but for now we only need to know how Systems work.</p>
+<p>A system is anything that takes some inputs, and modifies some of those inputs. You saw an example of a system called <code>hello_world</code> in the previous chapter, although this one took no inputs. In reality, systems can (and usually do) take many inputs and many types of inputs. The most common input you will be using is called a Resource.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<p>Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one <code>Intake</code> resource), and they must be instantiated when the program starts. If you've done some FRC programming before, you'll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things. For the most part, all the inputs to your systems will be resources. </p>
+<h2 id="creating-a-resource"><a class="header" href="#creating-a-resource">Creating a resource</a></h2>
+<p>For now, let's just create a resource that wraps a single motor. We'll derive <code>Deref</code> and <code>DerefMut</code> so that we can interact with the type as if it was just a motor.</p>
+<p>For this example we'll use CTRE's <code>TalonFX</code> motor controller. If you want to use REV, you can simply replace wherever it says <code>TalonFX</code> with <code>SparkMax</code>.</p>
+<p>We'll start by creating a <code>MyMotor</code> resource:</p>
+<pre><code class="language-Rust">#[derive(Deref, DerefMut)]
+struct MyMotor(TalonFX);
+</code></pre>
+<p>This resource can be added to <code>state</code> like so (you can set the CAN ID and CAN Bus to be whatever corresponds to your actual motor):</p>
+<pre><code class="language-Rust">state.insert_resource(MyMotor(TalonFX::new(1, &quot;*&quot;)));
+</code></pre>
+<h2 id="using-a-resource"><a class="header" href="#using-a-resource">Using a resource</a></h2>
+<p>The resource can now be used in a system. All resource arguments to a system need to be wrapped in either the <code>Resource</code> or <code>ResourceMut</code> type. For example, we'll create a system called <code>spin</code> that will spin <code>MyMotor</code>:</p>
+<pre><code class="language-Rust">fn spin(mut motor: ResourceMut&lt;MyMotor&gt;) {
+    motor.set_voltage(5.0.volts());
+}
+</code></pre>
+<p>The <code>volts</code> function is provided by the library so you can easily create unit-ed types. We use it because <code>TalonFX::set_voltage</code> requires a <code>Voltage</code> (or <code>ElectricPotential</code>) type.</p>
+<h2 id="schedules"><a class="header" href="#schedules">Schedules</a></h2>
+<p>In the previous chapter, we wrote <code>state.add_systems(Init, hello_robot)</code>. <code>Init</code> is a schedule, which specifies <em>when</em> a system should be ran. There are a lot of different schedules:</p>
+<ul>
+<li><code>Init</code>: Runs when the robot program starts</li>
+<li><code>DisabledInit</code>/<code>TeleopInit</code>/<code>AutonomousInit</code>/<code>TestInit</code>: Runs when a certain state of the robot program starts.</li>
+<li><code>DisabledExit</code>/<code>TeleopExit</code>/<code>AutonomousExit</code>/<code>TestExit</code>: Runs when a certain state of the robot program ends.</li>
+<li><code>Periodic</code>: Runs every ~20ms.</li>
+<li><code>DisabledPeriodic</code>/<code>TeleopPeriodic</code>/<code>AutonomousPeriodic</code>/<code>TestPeriodic</code>: Runs every ~20ms during a certain stage of the robot program.</li>
+</ul>
+<p>For our purposes, we will use the <code>TeleopPeriodic</code> schedule to spin our motor. So after registering the resource, we can register the system like so:</p>
+<pre><code class="language-Rust">state.add_systems(TeleopPeriodic, spin);
+</code></pre>
+<p>Now, you should have a spinning motor!</p>
+<blockquote>
+<p>[!WARNING]
+Systems in a schedule don't run in any specified order, and will usually run in different orders every iteration. If you want to specify the order systems are ran, you can use <code>state.add_systems(Schedule, (first, second).chain());</code>.</p>
+</blockquote>
+<h2 id="game-state"><a class="header" href="#game-state">Game state</a></h2>
+<p>There are some resources that are automatically added which can give you information about the game state. </p>
+<ul>
+<li>There is the <code>Mode</code> enum, which specifies whether the robot is disabled, in teleop, or autonomous (although using schedules is usually preferred). </li>
+<li>You can also get the <code>Alliance</code> (<code>Red</code>, <code>Blue</code>, or <code>Unknown</code>), and the <code>AllianceStation</code> (<code>Red1</code>, <code>Red2</code>, <code>Blue1</code>, etc).</li>
+<li>Lastly there is the <code>Model</code> enum, which is either <code>Simulation</code> or <code>Competition</code>. </li>
+</ul>
+<p>All these are added when the state is created, before the <code>Init</code> schedule (besides <code>Mode</code>, which will be <code>None</code>, but you can assume the robot will be disabled).</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="getting_started.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="commands.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="getting_started.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="commands.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>
