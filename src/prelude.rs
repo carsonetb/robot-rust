@@ -31,6 +31,7 @@ pub use crate::units::revolution_per_second_squared::revolution_per_second_squar
 pub use crate::units::rpm::rpm;
 pub use crate::units::*;
 pub use bevy_ecs::prelude::{Component, Query};
+pub use bevy_reflect::Reflect;
 pub use derive_more::{Deref, DerefMut};
 pub use frc_autolog_macro::AutoLog;
 #[allow(unused)]

@@ -1,4 +1,5 @@
-use std::any::TypeId;
+use std::any::{Any, TypeId};
+use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -8,7 +9,9 @@ use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use bevy_reflect::std_traits::ReflectDefault;
-use bevy_reflect::{Reflect, reflect_trait};
+use bevy_reflect::{
+    FromReflect, GetTypeRegistration, Reflect, ReflectFromPtr, Typed, reflect_trait,
+};
 use derive_more::Display;
 
 use crate::hal::Alliance;
@@ -126,6 +129,18 @@ trait AnyCommand {
     fn just_started(&self) -> bool;
 }
 
+struct GetterRegistery {
+    getters: HashMap<TypeId, fn(&mut World) -> Option<&mut dyn AnyCommand>>,
+}
+
+fn getter_function<C: AnyCommand + 'static>() -> fn(&mut World) -> Option<&mut dyn AnyCommand> {
+    |world| {
+        world
+            .get_non_send_mut::<C>()
+            .map(|res| res.into_inner() as &mut dyn AnyCommand)
+    }
+}
+
 /// Internal data for a command wrapper. [`Command`] and [`CommandMut`] are
 /// specifically used for inputs to systems, whereas this is where the actual
 /// data is stored.
@@ -206,7 +221,7 @@ fn enable_command<C: 'static>(world: &mut World) {
 }
 
 fn disable_command<C: 'static>(world: &mut World) {
-    world.non_send_mut::<CommandInternal<C>>().enabled = true;
+    world.non_send_mut::<CommandInternal<C>>().enabled = false;
 }
 
 /// The owned state, used to setup a robot program.
@@ -278,6 +293,9 @@ impl<R: SimRuntime> State<R> {
         if model == Model::Simulation {
             world.insert_non_send(DriverStationSim::new());
         }
+
+        // for commands
+        world.init_resource::<AppTypeRegistry>();
 
         Some(Self {
             world,
@@ -477,7 +495,16 @@ impl<R: SimRuntime> State<R> {
     /// Under the hood, a command is just a resource. But
     /// this also registers a special system that will help update all the
     /// command's values.
-    pub fn register_command<C: 'static>(&'_ mut self, command: C) -> CommandSettings<'_, C> {
+    pub fn register_command<C: FromReflect + GetTypeRegistration + Typed + 'static>(
+        &'_ mut self,
+        command: C,
+    ) -> CommandSettings<'_, C> {
+        let registry = self.world.resource::<AppTypeRegistry>();
+        {
+            let mut write = registry.write();
+            write.register::<CommandInternal<C>>();
+        }
+
         self.add_systems(CommandsPeriodic, command_system::<C>);
         self.insert_resource(CommandInternal::new(command));
         CommandSettings::<C>::new(StateRes {
@@ -623,8 +650,11 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         self
     }
 
+    /// Add a Command you would like to run after this command is finished.
+    ///
+    /// Make sure to schedule the command!
     pub fn after<N: 'static>(&mut self) -> &mut Self {
-        self.get().next = Some(TypeId::of::<N>());
+        self.get().next = Some(TypeId::of::<CommandInternal<N>>());
         self
     }
 }
@@ -656,15 +686,17 @@ fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemDa
                 .clone();
             let read = registry.read();
             if let Some(component) = world.components().get_valid_id(next)
-                && let Some(mut resource) = world.get_resource_mut_by_id(component)
+                && let Some(resource) = world.get_non_send_mut_by_id(component)
                 && let Some(registration) = read.get(next)
-                && let Some(reflect) = registration.data::<ReflectAnyCommand>()
+                && let Some(reflect) = registration.data::<ReflectFromPtr>()
+                && let Some(reflect_trait) = registration.data::<ReflectAnyCommand>()
+                // SAFETY: honestly idrk
+                && let Some(resource) = reflect_trait
+                    .get_mut(unsafe { reflect.ptr_as_reflect_mut(resource.into_inner()) })
             {
-                let reflect_mut = resource.as_mut();
-                // safety: idk
-                unsafe {
-                    reflect.get_mut().unwrap().enable(); // brother
-                }
+                resource.enable();
+            } else {
+                error!("Failed to run next command: {:?}. Is it registered?", next)
             }
         }
     }

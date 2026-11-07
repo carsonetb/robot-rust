@@ -32,6 +32,8 @@ $ cd robot
 $ cargo add robot-rust --rename frc
 ```
 
+Now, to make sure cross-compiling to the roboRIO target goes smoothly, copy the `.cargo/config.toml` from the [GitHub repository](https://github.com/carsonetb/robot-rust) into your project.
+
 You can now open up the `src/main.rs` file that Cargo generated. You should see the typical "Hello, World" main function. This would be enough if we were running it on our own computer, but we need more code to run it on the robot! First, import the `robot-rust` prelude:
 
 ```Rust
