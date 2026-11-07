@@ -23,7 +23,7 @@ frc = { package = "robot-rust", version = "0" }
 
 ## Reading the book
 
-I am writing a book for this project, which you can use to learn how to use the library. It is not currently hosted online, but you can easily view it locally by cloning the [repository](https://github.com/carsonetb/robot-rust). These are the commands you need to run to do it:
+I am writing a book for this project, which you can use to learn how to use the library. You can view it [here](https://carsonetb.github.io/robot-rust/). If you want to view it offline (for example, while you are connected to the robot) view it locally by cloning the [repository](https://github.com/carsonetb/robot-rust). These are the commands you need to run to do it:
 
 ```Bash
 # Install mdbook, which renders the documentation, make sure the Cargo install
