@@ -82,6 +82,7 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix6::configs::MotionMagicConfigs")
     generate!("ctre::phoenix6::configs::FeedbackConfigs")
     generate!("ctre::phoenix6::configs::MotorOutputConfigs")
+    generate!("ctre::phoenix6::configs::ClosedLoopGeneralConfigs")
 
     generate!("ctre::phoenix6::configs::CANcoderConfigurator")
     generate!("ctre::phoenix6::configs::CANcoderConfiguration")
@@ -358,8 +359,8 @@ pub use ffi::chooser::{
 };
 pub use ffi::ctre::phoenix::StatusCode;
 pub use ffi::ctre::phoenix6::configs::{
-    CANcoderConfiguration, CANcoderConfigurator, FeedbackConfigs, GyroTrimConfigs,
-    MagnetSensorConfigs, MotionMagicConfigs, MotorOutputConfigs, MountPoseConfigs,
+    CANcoderConfiguration, CANcoderConfigurator, ClosedLoopGeneralConfigs, FeedbackConfigs,
+    GyroTrimConfigs, MagnetSensorConfigs, MotionMagicConfigs, MotorOutputConfigs, MountPoseConfigs,
     Pigeon2Configuration, Pigeon2Configurator, Pigeon2FeaturesConfigs, Slot0Configs,
     TalonFXConfiguration, TalonFXConfigurator,
 };

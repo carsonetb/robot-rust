@@ -334,17 +334,13 @@ impl SwerveModuleState {
 #[derive(Debug, Clone)]
 pub struct SwerveDriveKinematics<const N: usize> {
     modules: [Vec2; N],
-    prev_headings: [Rotation2D; N],
 }
 
 impl<const N: usize> SwerveDriveKinematics<N> {
     /// Create a new kinematics object with the positions of each module
     /// relative to the center of the drivetrain.
     pub fn new(modules: [Vec2; N]) -> Self {
-        Self {
-            modules,
-            prev_headings: [Rotation2D::default(); N],
-        }
+        Self { modules }
     }
 
     pub fn to_swerve_module_states(
@@ -361,7 +357,7 @@ impl<const N: usize> SwerveDriveKinematics<N> {
             for i in 0..N {
                 states[i] = SwerveModuleState {
                     speed: 0.0.meters_per_second(),
-                    angle: self.prev_headings[i],
+                    angle: Rotation2D::new(0.0.radians()),
                 };
             }
             return states;
@@ -378,10 +374,9 @@ impl<const N: usize> SwerveDriveKinematics<N> {
             let angle = if speed > 1e-6.meters_per_second() {
                 Rotation2D::new(vy.atan2(vx))
             } else {
-                self.prev_headings[i]
+                Rotation2D::new(0.0.radians())
             };
 
-            self.prev_headings[i] = angle;
             states[i] = SwerveModuleState { speed, angle };
         }
 

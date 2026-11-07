@@ -63,6 +63,11 @@ impl TalonFXConfiguration {
         self.conf.pin_mut().WithMotorOutput(configs.conf);
         self
     }
+
+    pub fn with_closed_loop_general(mut self, configs: ClosedLoopGeneralConfigs) -> Self {
+        self.conf.pin_mut().WithClosedLoopGeneral(configs.conf);
+        self
+    }
 }
 
 pub struct Slot0Configs {
@@ -367,6 +372,28 @@ impl GyroTrimConfigs {
 
     pub fn with_scalar_z(mut self, value: f64) -> Self {
         ffi::pigeon2::set_scalar_z(self.conf.pin_mut(), value);
+        self
+    }
+}
+
+pub struct ClosedLoopGeneralConfigs {
+    conf: cxx::UniquePtr<ffi::ClosedLoopGeneralConfigs>,
+}
+
+impl ClosedLoopGeneralConfigs {
+    pub fn new() -> Self {
+        Self {
+            conf: ffi::ClosedLoopGeneralConfigs::new().within_unique_ptr(),
+        }
+    }
+
+    pub fn with_continuous_wrap(mut self, value: bool) -> Self {
+        self.conf.pin_mut().WithContinuousWrap(value);
+        self
+    }
+
+    pub fn with_differential_continuous_wrap(mut self, value: bool) -> Self {
+        self.conf.pin_mut().WithDifferentialContinuousWrap(value);
         self
     }
 }

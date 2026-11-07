@@ -160,14 +160,6 @@ impl TalonFX {
             let mut inputs = SimulatorInputs::get();
             let mut outputs = SimulatorOutputs::get();
 
-            let outputs = outputs.motor(self.bus, self.id);
-            ffi::sim::talonfx_set_physics(
-                self.motor.pin_mut(),
-                outputs.supply_voltage.value,
-                outputs.position.get::<revolution>(),
-                outputs.velocity.get::<revolution_per_second>(),
-            );
-
             let inputs = inputs.motor(self.bus, self.id);
             inputs.motor_type = self.motor_type;
             inputs.gearing = self.gearing;
@@ -175,6 +167,14 @@ impl TalonFX {
             inputs.applied_voltage = ffi::sim::talonfx_get_voltage(self.motor.pin_mut()).volts();
             inputs.torque_current =
                 ffi::sim::talonfx_get_torque_current(self.motor.pin_mut()).amps();
+
+            let outputs = outputs.motor(self.bus, self.id);
+            ffi::sim::talonfx_set_physics(
+                self.motor.pin_mut(),
+                outputs.supply_voltage.value,
+                outputs.position.get::<revolution>() / self.gearing,
+                outputs.velocity.get::<revolution_per_second>(),
+            );
         }
     }
 

@@ -75,14 +75,14 @@ impl<T: TurningMotor, D: DrivingMotor> SwerveModule<T, D> {
     pub fn state(&mut self) -> SwerveModuleState {
         SwerveModuleState::new(
             self.driving.get_velocity().to_linear(self.wheel_radius),
-            Rotation2D::new(self.turning.get_position()) + self.chassis_angle,
+            Rotation2D::new(self.turning.get_position()),
         )
     }
 
     pub fn position(&mut self) -> SwerveModulePosition {
         SwerveModulePosition::new(
             self.driving.get_position().to_linear(self.wheel_radius),
-            Rotation2D::new(self.turning.get_position()) + self.chassis_angle,
+            Rotation2D::new(self.turning.get_position()),
         )
     }
 
@@ -92,9 +92,9 @@ impl<T: TurningMotor, D: DrivingMotor> SwerveModule<T, D> {
 
     pub fn set_desired_state(&mut self, value: SwerveModuleState) {
         let current_angle = Rotation2D::new(self.turning.get_position());
-        let mut corrected = SwerveModuleState::new(value.speed, value.angle - self.chassis_angle);
+        let mut corrected = SwerveModuleState::new(value.speed, value.angle);
         corrected.optimize(current_angle);
-        corrected.cosine_scale(current_angle);
+        // corrected.cosine_scale(current_angle);
 
         self.driving.set_velocity(
             (corrected.speed
@@ -129,7 +129,7 @@ impl<const N: usize, G: Gyro, T: TurningMotor, D: DrivingMotor> Drivetrain<N, G,
     }
 
     pub fn get_desired_states(&self) -> [SwerveModuleState; N] {
-        std::array::from_fn(|i| self.modules[i].desired)
+        std::array::from_fn(|i| self.modules[i].get_desired_state())
     }
 
     pub fn get_states(&mut self) -> [SwerveModuleState; N] {
