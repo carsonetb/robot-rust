@@ -51,7 +51,9 @@ fn local(path: &str, so: &str, extension: &str) {
     let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).unwrap();
-        if file.name().contains(&format!(".{extension}")) && !file.name().contains(&format!(".{extension}.debug")) {
+        if file.name().contains(&format!(".{extension}"))
+            && !file.name().contains(&format!(".{extension}.debug"))
+        {
             let mut out = File::create(&dest).unwrap();
             copy(&mut file, &mut out).unwrap();
             return;

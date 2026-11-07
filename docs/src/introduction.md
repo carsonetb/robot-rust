@@ -28,7 +28,3 @@ To use this project for serious robot code (meaning you are bringing it to a com
 If you're using this for other less serious projects, regardless of your experience you should give this a try and see if you can figure it out.
 
 Regardless, you should still read through this book, and use it as a reference in the future. Good luck!
-
-## Installation
-
-All you need installed is WPILib. If it's already installed it should appear in your home directory. You can follow the official guide [here](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html). This library officially supports Linux and MacOS, and Windows support is planned.

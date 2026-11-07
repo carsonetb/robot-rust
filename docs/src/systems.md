@@ -7,7 +7,7 @@ A system is anything that takes some inputs, and modifies some of those inputs. 
 
 ## Resources
 
-Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one `Intake` resource), and they must be instantiated when the program starts. If you've done some FRC programming before, you'll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things.
+Any type can be a resource. There can only be one resource per type (put simply, there can't be more than one `Intake` resource), and they must be instantiated when the program starts. If you've done some FRC programming before, you'll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things. For the most part, all the inputs to your systems will be resources. 
 
 ## Creating a resource
 
@@ -57,3 +57,16 @@ state.add_systems(TeleopPeriodic, spin);
 ```
 
 Now, you should have a spinning motor!
+
+> [!WARNING]
+> Systems in a schedule don't run in any specified order, and will usually run in different orders every iteration. If you want to specify the order systems are ran, you can use `state.add_systems(Schedule, (first, second).chain());`.
+
+## Game state
+
+There are some resources that are automatically added which can give you information about the game state. 
+
+- There is the `Mode` enum, which specifies whether the robot is disabled, in teleop, or autonomous (although using schedules is usually preferred). 
+- You can also get the `Alliance` (`Red`, `Blue`, or `Unknown`), and the `AllianceStation` (`Red1`, `Red2`, `Blue1`, etc).
+- Lastly there is the `Model` enum, which is either `Simulation` or `Competition`. 
+
+All these are added when the state is created, before the `Init` schedule (besides `Mode`, which will be `None`, but you can assume the robot will be disabled).

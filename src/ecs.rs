@@ -1,3 +1,4 @@
+use std::any::TypeId;
 use std::marker::PhantomData;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -6,8 +7,11 @@ use autocxx::c_int;
 use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
+use bevy_reflect::std_traits::ReflectDefault;
+use bevy_reflect::{Reflect, reflect_trait};
 use derive_more::Display;
 
+use crate::hal::Alliance;
 use crate::sim::gui::GUICommunicator;
 #[cfg(simulation)]
 use crate::sim::gui::spawn_simgui;
@@ -113,13 +117,23 @@ pub type Command<'a, T> = Resource<'a, CommandInternal<T>>;
 /// functions.
 pub type CommandMut<'a, T> = ResourceMut<'a, CommandInternal<T>>;
 
+#[reflect_trait]
+trait AnyCommand {
+    fn enable(&mut self);
+    fn disable(&mut self);
+    fn enabled(&self) -> bool;
+    fn just_ended(&self) -> bool;
+    fn just_started(&self) -> bool;
+}
+
 /// Internal data for a command wrapper. [`Command`] and [`CommandMut`] are
 /// specifically used for inputs to systems, whereas this is where the actual
 /// data is stored.
 ///
 /// These values are updated in a seperate schedule, so they will always be
 /// synchronized before robot code.
-#[derive(DerefMut, Deref)]
+#[derive(DerefMut, Deref, Reflect)]
+#[reflect(AnyCommand)]
 pub struct CommandInternal<T> {
     #[deref]
     #[deref_mut]
@@ -127,6 +141,7 @@ pub struct CommandInternal<T> {
     enabled: bool,
     just_ended: bool,
     just_started: bool,
+    next: Option<TypeId>,
 }
 
 impl<T> CommandInternal<T> {
@@ -136,6 +151,7 @@ impl<T> CommandInternal<T> {
             enabled: false,
             just_ended: false,
             just_started: false,
+            next: None,
         }
     }
 
@@ -160,6 +176,28 @@ impl<T> CommandInternal<T> {
     /// If the command was just enabled.
     pub fn just_started(&self) -> bool {
         self.just_started
+    }
+}
+
+impl<T> AnyCommand for CommandInternal<T> {
+    fn enable(&mut self) {
+        self.enable();
+    }
+
+    fn disable(&mut self) {
+        self.disable();
+    }
+
+    fn enabled(&self) -> bool {
+        self.enabled()
+    }
+
+    fn just_ended(&self) -> bool {
+        self.just_ended()
+    }
+
+    fn just_started(&self) -> bool {
+        self.just_started()
     }
 }
 
@@ -232,6 +270,8 @@ impl<R: SimRuntime> State<R> {
                     AlertType::Error,
                     &format!("Failed to get alliance side: {err:?}"),
                 );
+                world.insert_non_send(Alliance::Unknown);
+                world.insert_non_send(AllianceStation::Unknown);
             }
         };
 
@@ -398,6 +438,9 @@ impl<R: SimRuntime> State<R> {
         }
     }
 
+    /// Set the simulation runtime that will be used in simulation. WPILib
+    /// style simulation, you can use [BasicRuntime]. This function does nothing
+    /// when not in simulation.
     pub fn set_runtime(&mut self, #[allow(unused)] mut runtime: R) {
         #[cfg(simulation)]
         {
@@ -511,6 +554,10 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         }
     }
 
+    fn get(&'_ mut self) -> Mut<'_, CommandInternal<C>> {
+        self.state.world.non_send_mut::<CommandInternal<C>>()
+    }
+
     /// Enable the command immediately.
     pub fn enabled(&mut self) -> &mut Self {
         enable_command::<C>(self.state.world);
@@ -575,6 +622,11 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         );
         self
     }
+
+    pub fn after<N: 'static>(&mut self) -> &mut Self {
+        self.get().next = Some(TypeId::of::<N>());
+        self
+    }
 }
 
 #[derive(Default)]
@@ -582,7 +634,10 @@ struct CommandSystemData {
     was_enabled: bool,
 }
 
-fn command_system<C: 'static>(mut command: CommandMut<C>, mut data: Local<CommandSystemData>) {
+fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemData>) {
+    let mut command = world.non_send_mut::<CommandInternal<C>>();
+    let enabled = command.enabled();
+
     if command.just_started {
         command.just_started = false;
     }
@@ -590,14 +645,31 @@ fn command_system<C: 'static>(mut command: CommandMut<C>, mut data: Local<Comman
         command.just_ended = false;
     }
 
-    if command.enabled && !data.was_enabled {
+    if enabled && !data.was_enabled {
         command.just_started = true;
     }
-    if !command.enabled && data.was_enabled {
+    if !enabled && data.was_enabled {
         command.just_ended = true;
+        if let Some(next) = command.next {
+            let registry = world
+                .resource::<bevy_ecs::reflect::AppTypeRegistry>()
+                .clone();
+            let read = registry.read();
+            if let Some(component) = world.components().get_valid_id(next)
+                && let Some(mut resource) = world.get_resource_mut_by_id(component)
+                && let Some(registration) = read.get(next)
+                && let Some(reflect) = registration.data::<ReflectAnyCommand>()
+            {
+                let reflect_mut = resource.as_mut();
+                // safety: idk
+                unsafe {
+                    reflect.get_mut().unwrap().enable(); // brother
+                }
+            }
+        }
     }
 
-    data.was_enabled = command.enabled;
+    data.was_enabled = enabled;
 }
 
 #[derive(Debug, Clone)]

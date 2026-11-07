@@ -9,7 +9,7 @@
 //! use robot_rust::prelude::*;
 //! ```
 
-pub use crate::auto::{PoseProvider, TankAuto, tank_auto};
+pub use crate::auto::{TankAuto, tank_auto};
 pub use crate::chooser::SendableChooser;
 pub use crate::chooser_enum;
 pub use crate::ctre::{CANCoder, KrakenX44, KrakenX60, Pigeon2, TalonFX};
@@ -19,6 +19,7 @@ pub use crate::ecs::{
     DisabledInit, DisabledPeriodic, Init, Mode, Periodic, Resource, ResourceMut, State, StateRes,
     TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic, Timer,
 };
+pub use crate::hal::{Alliance, AllianceStation};
 pub use crate::hid::XboxController;
 pub use crate::logging::{AutoLog, Loggable, Logger, now};
 pub use crate::math::control::*;
