@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3a78fc85.js";
+            window.path_to_searchindex_js = "searchindex-770e646c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-98c2b214.js"></script>
@@ -272,23 +272,6 @@ We will learn more later about the purpose of Entities and Components, but for n
 <p>A system is anything that takes some inputs, and modifies some of those inputs. You saw an example of a system called <code>hello_world</code> in the previous chapter, although this one took no inputs. In reality, systems can (and usually do) take many inputs and many types of inputs. The most common input you will be using is called a Resource.</p>
 <h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
 <p>Any type can be a resource. There can only be one resource per type (put simply, there can’t be more than one <code>Intake</code> resource), and they must be instantiated when the program starts. If you’ve done some FRC programming before, you’ll probably notice that this design is very similar to what a Subsystem is. Subsystems are stored in resources, but also are controllers, program state, and many other things. For the most part, all the inputs to your systems will be resources.</p>
-<h2 id="creating-a-resource"><a class="header" href="#creating-a-resource">Creating a resource</a></h2>
-<p>For now, let’s just create a resource that wraps a single motor. We’ll derive <code>Deref</code> and <code>DerefMut</code> so that we can interact with the type as if it was just a motor.</p>
-<p>For this example we’ll use CTRE’s <code>TalonFX</code> motor controller. If you want to use REV, you can simply replace wherever it says <code>TalonFX</code> with <code>SparkMax</code>.</p>
-<p>We’ll start by creating a <code>MyMotor</code> resource:</p>
-<pre><code class="language-Rust">#[derive(Deref, DerefMut)]
-struct MyMotor(TalonFX);
-</code></pre>
-<p>This resource can be added to <code>state</code> like so (you can set the CAN ID and CAN Bus to be whatever corresponds to your actual motor):</p>
-<pre><code class="language-Rust">state.insert_resource(MyMotor(TalonFX::new(1, "*")));
-</code></pre>
-<h2 id="using-a-resource"><a class="header" href="#using-a-resource">Using a resource</a></h2>
-<p>The resource can now be used in a system. All resource arguments to a system need to be wrapped in either the <code>Resource</code> or <code>ResourceMut</code> type. For example, we’ll create a system called <code>spin</code> that will spin <code>MyMotor</code>:</p>
-<pre><code class="language-Rust">fn spin(mut motor: ResourceMut&lt;MyMotor&gt;) {
-    motor.set_voltage(5.0.volts());
-}
-</code></pre>
-<p>The <code>volts</code> function is provided by the library so you can easily create unit-ed types. We use it because <code>TalonFX::set_voltage</code> requires a <code>Voltage</code> (or <code>ElectricPotential</code>) type.</p>
 <h2 id="schedules"><a class="header" href="#schedules">Schedules</a></h2>
 <p>In the previous chapter, we wrote <code>state.add_systems(Init, hello_robot)</code>. <code>Init</code> is a schedule, which specifies <em>when</em> a system should be ran. There are a lot of different schedules:</p>
 <ul>
@@ -298,9 +281,46 @@ struct MyMotor(TalonFX);
 <li><code>Periodic</code>: Runs every ~20ms.</li>
 <li><code>DisabledPeriodic</code>/<code>TeleopPeriodic</code>/<code>AutonomousPeriodic</code>/<code>TestPeriodic</code>: Runs every ~20ms during a certain stage of the robot program.</li>
 </ul>
-<p>For our purposes, we will use the <code>TeleopPeriodic</code> schedule to spin our motor. So after registering the resource, we can register the system like so:</p>
-<pre><code class="language-Rust">state.add_systems(TeleopPeriodic, spin);
+<h2 id="the-state"><a class="header" href="#the-state">The <code>State</code></a></h2>
+<p>In the main function, the program creates the State. You can configure how the program will run using the state, which holds both the systems and the resources used by the systems. Then, after calling <code>state.run()</code>, the state will handle running systems at the correct time, and passing the resources into the systems.</p>
+<p>We saw a basic example of the usage of the State in the previous chapter:</p>
+<pre class="playground"><code class="language-rust">fn main() {
+    let mut state: State = State::new().unwrap(); // Create the state.
+    state.add_systems(Init, hello_robot); // Tell the state to run hello_robot when the program initializes
+    state.run(); // Now the program runs, and state will handle calling hello_robot at the correct time.
+}</code></pre>
+<p>When calling <code>run</code>, the state first runs the <code>Init</code> schedule. Then, it enters into a loop that runs until the program is terminated:</p>
+<ul>
+<li>First it polls all the data from the driver station.</li>
+<li>Then, if the mode changes (for example from Disabled to Teleop), it runs the matching schedules (DisabledExit, TeleopInit).</li>
+<li>Then, it runs the periodic schedule for the respective mode (like TeleopPeriodic).</li>
+<li>Lastly, it runs the general Periodic schedule.</li>
+</ul>
+<p>During each schedule, the system you assigned to it will run. The resources you specified (if available) will be passed into the system, which the system can then modify. Resources are global, so if you modify them in one system or in one schedule, it will be modified for everything else.</p>
+<p>Now that we’ve got all the theory out of the way, we can see how to actually do things.</p>
+<h2 id="creating-a-resource"><a class="header" href="#creating-a-resource">Creating a resource</a></h2>
+<p>For now, let’s just create a resource that wraps a single motor. We’ll derive <code>Deref</code> and <code>DerefMut</code> so that we can interact with the type as if it was just a motor (you can read about what those do <a href="https://doc.rust-lang.org/std/ops/trait.Deref.html">here</a>).</p>
+<p>For this example we’ll use CTRE’s <code>TalonFX</code> motor controller. If you want to use REV, you can simply replace wherever it says <code>TalonFX</code> with <code>SparkMax</code>.</p>
+<p>We’ll start by creating a <code>MyMotor</code> resource:</p>
+<pre><code class="language-Rust">#[derive(Deref, DerefMut)]
+struct MyMotor(TalonFX);
 </code></pre>
+<p>This resource can be added to <code>state</code> like so (you can set the CAN ID and CAN Bus to be whatever corresponds to your actual motor):</p>
+<pre><code class="language-Rust">state.insert_resource(MyMotor(TalonFX::new(1, "*")));
+</code></pre>
+<p>The resource we’ve added will now be available for use in systems. We can now write a system that will use it.</p>
+<h2 id="using-a-resource"><a class="header" href="#using-a-resource">Using a resource</a></h2>
+<p>The resource can now be used in a system. All resource arguments to a system need to be wrapped in either the <code>Resource</code> or <code>ResourceMut</code> type. For example, we’ll create a system called <code>spin</code> that will spin <code>MyMotor</code>:</p>
+<pre><code class="language-Rust">fn spin(mut motor: ResourceMut&lt;MyMotor&gt;) {
+    motor.set_voltage(5.0.volts());
+}
+</code></pre>
+<p>The <code>volts</code> function is provided by the library so you can easily create unit-ed types. We use it because <code>TalonFX::set_voltage</code> requires a <code>Voltage</code> (or <code>ElectricPotential</code>) type.</p>
+<p>For our purposes, we will use the <code>TeleopPeriodic</code> schedule to spin our motor. So after registering the resource, we can add the system like so:</p>
+<pre><code class="language-Rust">state.add_systems(TeleopPeriodic, spin);
+state.run();
+</code></pre>
+<p>When you call <code>state.run()</code> and go into Teleop mode, the state will see that the <code>spin</code> system takes the <code>MyMotor</code> resource. Knowing that, it will automatically route the resource into the system, which can then modify the resource.</p>
 <p>Now, you should have a spinning motor!</p>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
