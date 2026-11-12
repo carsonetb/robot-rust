@@ -20,7 +20,7 @@ impl Intake {
 }
 ```
 
-We will then define another type, `IntakeTargets`, that will be public. The intake subsystem will be responsible for getting the physical hardware to these targets. Any other code will be able to modify these targets, so you should make sure multiple peices of code aren't modifying it at the same time. Checks in the Commands system are planned to make sure this doesn't happen, but do not yet exist. 
+We will then define another type, `IntakeTargets`, that will be public. The intake subsystem will be responsible for getting the physical hardware to these targets. Any other code will be able to modify these targets, so you should make sure multiple peices of code aren't modifying it at the same time.
 
 For the intake, our targets specify the pivot position and the intake state.
 
@@ -86,6 +86,4 @@ fn main() {
 }
 ```
 
-## Subsystem commands
-
-Up until this point, we've ignored the use of commands with Subsystems. For this, depending on the complexity of the subsystem, you have two options. If the subsystem is relatively simple, like the intake we wrote earlier, you can replace the targets with a few commands (`Intake`, `Outtake`, `Stow`, and `Extend`, for example), and have the command handlers directly interface with the hardware. For more complex subsystems (like a drivetrain), it will probably make more sense for commands to interface with a targets type, which would be in turn handled by something like the `periodic` function we wrote earlier.
+When building your subsystems, you may want to modify this pattern. Maybe the subsystem is simple enough that a targets type isn't necessary? Adding extra code just to follow a pattern is usually not a good idea.

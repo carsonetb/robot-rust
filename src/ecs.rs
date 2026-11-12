@@ -1,5 +1,3 @@
-use std::any::{Any, TypeId};
-use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -8,12 +6,9 @@ use autocxx::c_int;
 use bevy_ecs::prelude::*;
 use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
-use bevy_reflect::std_traits::ReflectDefault;
-use bevy_reflect::{
-    FromReflect, GetTypeRegistration, Reflect, ReflectFromPtr, Typed, reflect_trait,
-};
 use derive_more::Display;
 
+use crate::commands::CommandInternal;
 use crate::hal::Alliance;
 use crate::sim::gui::GUICommunicator;
 #[cfg(simulation)]
@@ -101,7 +96,13 @@ pub struct TestPeriodic;
 pub struct SimulatorPeriodic;
 
 #[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
-struct CommandsPeriodic;
+pub(crate) struct CommandsPeriodic;
+
+#[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
+pub(crate) struct CompoundCommandsPeriodic;
+
+#[derive(ScheduleLabel, Debug, Clone, PartialEq, Eq, Hash)]
+pub(crate) struct CommandTriggers;
 
 /// Used as an input to a system, gets a reference to any resource registered
 /// with [`State::insert_resource`].
@@ -110,119 +111,6 @@ pub type Resource<'a, T> = NonSend<'a, T>;
 /// Used as an input to a system, gets a mutable reference to any resource
 /// registered with [`State::insert_resource`].
 pub type ResourceMut<'a, T> = NonSendMut<'a, T>;
-
-/// Used as an input to a system, gets a reference to any command registered
-/// with [`State::register_command`]. Commands also have some extra functions.
-pub type Command<'a, T> = Resource<'a, CommandInternal<T>>;
-
-/// Used as an input to a system, gets a mutable reference to any command
-/// registered with [`State::register_command`]. Commands also have some extra
-/// functions.
-pub type CommandMut<'a, T> = ResourceMut<'a, CommandInternal<T>>;
-
-#[reflect_trait]
-trait AnyCommand {
-    fn enable(&mut self);
-    fn disable(&mut self);
-    fn enabled(&self) -> bool;
-    fn just_ended(&self) -> bool;
-    fn just_started(&self) -> bool;
-}
-
-struct GetterRegistery {
-    getters: HashMap<TypeId, fn(&mut World) -> Option<&mut dyn AnyCommand>>,
-}
-
-fn getter_function<C: AnyCommand + 'static>() -> fn(&mut World) -> Option<&mut dyn AnyCommand> {
-    |world| {
-        world
-            .get_non_send_mut::<C>()
-            .map(|res| res.into_inner() as &mut dyn AnyCommand)
-    }
-}
-
-/// Internal data for a command wrapper. [`Command`] and [`CommandMut`] are
-/// specifically used for inputs to systems, whereas this is where the actual
-/// data is stored.
-///
-/// These values are updated in a seperate schedule, so they will always be
-/// synchronized before robot code.
-#[derive(DerefMut, Deref, Reflect)]
-#[reflect(AnyCommand)]
-pub struct CommandInternal<T> {
-    #[deref]
-    #[deref_mut]
-    command: T,
-    enabled: bool,
-    just_ended: bool,
-    just_started: bool,
-    next: Option<TypeId>,
-}
-
-impl<T> CommandInternal<T> {
-    fn new(command: T) -> Self {
-        Self {
-            command,
-            enabled: false,
-            just_ended: false,
-            just_started: false,
-            next: None,
-        }
-    }
-
-    pub fn enable(&mut self) {
-        self.enabled = true;
-    }
-
-    pub fn disable(&mut self) {
-        self.enabled = false;
-    }
-
-    /// If the command is currently enabled.
-    pub fn enabled(&self) -> bool {
-        self.enabled
-    }
-
-    /// If the command was just disabled.
-    pub fn just_ended(&self) -> bool {
-        self.just_ended
-    }
-
-    /// If the command was just enabled.
-    pub fn just_started(&self) -> bool {
-        self.just_started
-    }
-}
-
-impl<T> AnyCommand for CommandInternal<T> {
-    fn enable(&mut self) {
-        self.enable();
-    }
-
-    fn disable(&mut self) {
-        self.disable();
-    }
-
-    fn enabled(&self) -> bool {
-        self.enabled()
-    }
-
-    fn just_ended(&self) -> bool {
-        self.just_ended()
-    }
-
-    fn just_started(&self) -> bool {
-        self.just_started()
-    }
-}
-
-fn enable_command<C: 'static>(world: &mut World) {
-    world.non_send_mut::<CommandInternal<C>>().enabled = true;
-}
-
-fn disable_command<C: 'static>(world: &mut World) {
-    world.non_send_mut::<CommandInternal<C>>().enabled = false;
-}
 
 /// The owned state, used to setup a robot program.
 pub struct State<R: SimRuntime = BasicRuntime> {
@@ -263,6 +151,8 @@ impl<R: SimRuntime> State<R> {
         schedules.insert(Schedule::new(AutonomousPeriodic));
         schedules.insert(Schedule::new(TestPeriodic));
         schedules.insert(Schedule::new(CommandsPeriodic));
+        schedules.insert(Schedule::new(CompoundCommandsPeriodic));
+        schedules.insert(Schedule::new(CommandTriggers));
         schedules.insert(Schedule::new(SimulatorPeriodic));
 
         world.insert_non_send(Logger::new("log.wpilog", true));
@@ -293,9 +183,6 @@ impl<R: SimRuntime> State<R> {
         if model == Model::Simulation {
             world.insert_non_send(DriverStationSim::new());
         }
-
-        // for commands
-        world.init_resource::<AppTypeRegistry>();
 
         Some(Self {
             world,
@@ -398,7 +285,15 @@ impl<R: SimRuntime> State<R> {
 
             {
                 let _commands = commands_update.enter();
+                // to ensure commands are updated for the compound commands, and
+                // that they get updated after compound commands
+                // modify them.
+                // println!("-- triggers --");
+                self.world.run_schedule(CommandTriggers);
+                // println!("-- commands --");
                 self.world.run_schedule(CommandsPeriodic);
+                // println!("-- compounds --");
+                self.world.run_schedule(CompoundCommandsPeriodic);
             }
 
             {
@@ -495,22 +390,29 @@ impl<R: SimRuntime> State<R> {
     /// Under the hood, a command is just a resource. But
     /// this also registers a special system that will help update all the
     /// command's values.
-    pub fn register_command<C: FromReflect + GetTypeRegistration + Typed + 'static>(
-        &'_ mut self,
-        command: C,
-    ) -> CommandSettings<'_, C> {
-        let registry = self.world.resource::<AppTypeRegistry>();
-        {
-            let mut write = registry.write();
-            write.register::<CommandInternal<C>>();
-        }
-
-        self.add_systems(CommandsPeriodic, command_system::<C>);
+    pub fn register_command<C: 'static>(&'_ mut self, command: C) -> CommandSettings<'_, C> {
         self.insert_resource(CommandInternal::new(command));
+        self.add_systems(CommandsPeriodic, command_system::<C>);
         CommandSettings::<C>::new(StateRes {
             world: &mut self.world,
         })
     }
+
+    //     pub fn register_command_group<G: IsCommandGroup + 'static>(
+    //         &mut self,
+    //         behavior: CommandGroupBehavior,
+    //     ) -> CommandGroupSettings<'_, G::Target> {
+    //         self.world
+    //             .non_send_mut::<CommandRegistry>()
+    //             .register::<G, CommandInternal<CommandGroup<G::Target>>>();
+    // // compatability, not actual type
+    //
+    //         self.add_systems(CommandsPeriodic, command_group_system::<G>);
+    //         self.insert_resource(CommandInternal::new(G::create(behavior)));
+    //         CommandGroupSettings::<G::Target>::new(StateRes {
+    //             world: &mut self.world,
+    //         })
+    //     }
 }
 
 /// The same as [`State`], but can be used as a parameter to a system. Because
@@ -567,6 +469,17 @@ impl<'w> StateRes<'w> {
     }
 }
 
+fn enable_command<C: 'static>(world: &mut World) {
+    // println!("enable command {}", std::any::type_name::<C>());
+    world.non_send_mut::<CommandInternal<C>>().enabled = true;
+    dbg!(world.non_send_mut::<CommandInternal<C>>().enabled());
+}
+
+fn disable_command<C: 'static>(world: &mut World) {
+    // println!("disable command {}", std::any::type_name::<C>());
+    world.non_send_mut::<CommandInternal<C>>().enabled = false;
+}
+
 /// Used to apply extra settings to a command.
 pub struct CommandSettings<'w, C: 'static> {
     _phantom: PhantomData<C>,
@@ -581,10 +494,6 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         }
     }
 
-    fn get(&'_ mut self) -> Mut<'_, CommandInternal<C>> {
-        self.state.world.non_send_mut::<CommandInternal<C>>()
-    }
-
     /// Enable the command immediately.
     pub fn enabled(&mut self) -> &mut Self {
         enable_command::<C>(self.state.world);
@@ -594,10 +503,10 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
     /// Add a system specifically designed to respond to when this command is
     /// enabled.
     pub fn with_handler<L: ScheduleLabel + Clone, M, S: IntoScheduleConfigs<ScheduleSystem, M>>(
-        &mut self,
+        mut self,
         label: L,
         systems: S,
-    ) -> &mut Self {
+    ) -> Self {
         self.state.add_systems(label, systems);
         self
     }
@@ -609,11 +518,9 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
     /// If you wish the command to be ran when two triggers are true, or when
     /// one of two triggers are true, you can use `trigger.and(another)` or
     /// `trigger.or(another)`.
-    pub fn while_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self {
-        self.state.add_systems(
-            CommandsPeriodic,
-            enable_command::<C>.run_if(trigger.clone()),
-        );
+    pub fn while_trigger<M, T: SystemCondition<M, ()> + Clone>(mut self, trigger: T) -> Self {
+        self.state
+            .add_systems(CommandTriggers, enable_command::<C>.run_if(trigger.clone()));
         self.state
             .add_systems(CommandsPeriodic, disable_command::<C>.run_if(not(trigger)));
         self
@@ -626,9 +533,9 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
     /// If you wish the command to be ran when two triggers are true, or when
     /// one of two triggers are true, you can use `trigger.and(another)` or
     /// `trigger.or(another)`.
-    pub fn on_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self {
+    pub fn on_trigger<M, T: SystemCondition<M, ()> + Clone>(mut self, trigger: T) -> Self {
         self.state.add_systems(
-            CommandsPeriodic,
+            CommandTriggers,
             enable_command::<C>.run_if(condition_changed_to(true, trigger)),
         );
         self
@@ -642,22 +549,119 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
     /// If you wish the command to be ran when two triggers are true, or when
     /// one of two triggers are true, you can use `trigger.and(another)` or
     /// `trigger.or(another)`.
-    pub fn with_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self {
+    pub fn with_trigger<M, T: SystemCondition<M, ()> + Clone>(mut self, trigger: T) -> Self {
         self.state.add_systems(
-            CommandsPeriodic,
-            enable_command::<C>.run_if(condition_changed(trigger)),
+            CommandTriggers,
+            enable_command::<C>.run_if(condition_changed_to(true, trigger.clone())),
+        );
+        self.state.add_systems(
+            CommandTriggers,
+            disable_command::<C>.run_if(condition_changed_to(false, trigger)),
         );
         self
     }
 
-    /// Add a Command you would like to run after this command is finished.
+    /// Add systems that will automatically disable a command when a trigger's
+    /// value get sets to true. Do not call this function twice for the same
+    /// command.
     ///
-    /// Make sure to schedule the command!
-    pub fn after<N: 'static>(&mut self) -> &mut Self {
-        self.get().next = Some(TypeId::of::<CommandInternal<N>>());
+    /// If you wish the command to be stopped when two triggers are true, or
+    /// when one of two triggers are true, you can use
+    /// `trigger.and(another)` or `trigger.or(another)`.
+    pub fn until_trigger<M, T: SystemCondition<M, ()> + Clone>(mut self, trigger: T) -> Self {
+        self.state.add_systems(
+            CommandTriggers,
+            disable_command::<C>.run_if(condition_changed_to(true, trigger)),
+        );
         self
     }
 }
+
+/// Used to apply extra settings to a command.
+// pub struct CommandGroupSettings<'w, G: IsCommandGroup + 'static> {
+//     _phantom: PhantomData<G>,
+//     state: StateRes<'w>,
+// }
+//
+// impl<'w, G: IsCommandGroup + 'static> CommandGroupSettings<'w, G> {
+//     fn new(state: StateRes<'w>) -> Self {
+//         Self {
+//             _phantom: PhantomData,
+//             state,
+//         }
+//     }
+//
+//     /// Enable the command immediately.
+//     pub fn enabled(&mut self) -> &mut Self {
+//         enable_command::<CommandGroup<G>>(self.state.world);
+//         self
+//     }
+//
+//     /// Add systems that will automatically enable and disable the command
+//     /// based on the value of the trigger. Do not call this function twice for
+//     /// the same command.
+//     ///
+//     /// If you wish the command to be ran when two triggers are true, or when
+//     /// one of two triggers are true, you can use `trigger.and(another)` or
+//     /// `trigger.or(another)`.
+//     pub fn while_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut
+// Self {         self.state.add_systems(
+//             CommandsPeriodic,
+//             enable_command::<CommandGroup<G>>.run_if(trigger.clone()),
+//         );
+//         self.state.add_systems(
+//             CommandsPeriodic,
+//             disable_command::<CommandGroup<G>>.run_if(not(trigger)),
+//         );
+//         self
+//     }
+//
+//     /// Add systems that will automatically enable a command when a trigger's
+//     /// value gets set to true. Do not call this function twice for the same
+//     /// command.
+//     ///
+//     /// If you wish the command to be ran when two triggers are true, or when
+//     /// one of two triggers are true, you can use `trigger.and(another)` or
+//     /// `trigger.or(another)`.
+//     pub fn on_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self {
+//         self.state.add_systems(
+//             CommandsPeriodic,
+//             enable_command::<CommandGroup<G>>.run_if(condition_changed_to(true, trigger)),
+//         );
+//         self
+//     }
+//
+//     /// Add systems that will automatically enable a command when a trigger's
+//     /// value gets set to true and disable the command when the trigger's value
+//     /// gets set to false. Do not call this function twice for the same
+//     /// command.
+//     ///
+//     /// If you wish the command to be ran when two triggers are true, or when
+//     /// one of two triggers are true, you can use `trigger.and(another)` or
+//     /// `trigger.or(another)`.
+//     pub fn with_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self
+// {         self.state.add_systems(
+//             CommandsPeriodic,
+//             enable_command::<CommandGroup<G>>.run_if(condition_changed(trigger)),
+//         );
+//         self
+//     }
+//
+//     /// Add systems that will automatically disable a command when a trigger's
+//     /// value get sets to true. Do not call this function twice for the same
+//     /// command.
+//     ///
+//     /// If you wish the command to be stopped when two triggers are true, or
+//     /// when one of two triggers are true, you can use
+//     /// `trigger.and(another)` or `trigger.or(another)`.
+//     pub fn until_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut
+// Self {         self.state.add_systems(
+//             CommandsPeriodic,
+//             disable_command::<CommandGroup<G>>.run_if(trigger),
+//         );
+//         self
+//     }
+// }
 
 #[derive(Default)]
 struct CommandSystemData {
@@ -667,6 +671,7 @@ struct CommandSystemData {
 fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemData>) {
     let mut command = world.non_send_mut::<CommandInternal<C>>();
     let enabled = command.enabled();
+    // println!("{} {enabled}", std::any::type_name::<C>());
 
     if command.just_started {
         command.just_started = false;
@@ -676,29 +681,12 @@ fn command_system<C: 'static>(world: &mut World, mut data: Local<CommandSystemDa
     }
 
     if enabled && !data.was_enabled {
+        // println!("Just started");
         command.just_started = true;
     }
     if !enabled && data.was_enabled {
+        // println!("Just ended");
         command.just_ended = true;
-        if let Some(next) = command.next {
-            let registry = world
-                .resource::<bevy_ecs::reflect::AppTypeRegistry>()
-                .clone();
-            let read = registry.read();
-            if let Some(component) = world.components().get_valid_id(next)
-                && let Some(resource) = world.get_non_send_mut_by_id(component)
-                && let Some(registration) = read.get(next)
-                && let Some(reflect) = registration.data::<ReflectFromPtr>()
-                && let Some(reflect_trait) = registration.data::<ReflectAnyCommand>()
-                // SAFETY: honestly idrk
-                && let Some(resource) = reflect_trait
-                    .get_mut(unsafe { reflect.ptr_as_reflect_mut(resource.into_inner()) })
-            {
-                resource.enable();
-            } else {
-                error!("Failed to run next command: {:?}. Is it registered?", next)
-            }
-        }
     }
 
     data.was_enabled = enabled;

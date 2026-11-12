@@ -104,6 +104,9 @@ pub struct TalonFX {
     gearing: f64,
     moi: MomentOfInertia,
     motor: cxx::UniquePtr<ffi::talon::TalonFX>,
+    stored_position: Angle,
+    stored_velocity: AngularVelocity,
+    stored_acceleration: AngularAcceleration,
 }
 
 impl TalonFX {
@@ -120,6 +123,9 @@ impl TalonFX {
             motor_type: MotorType::KrakenX60,
             gearing: 1.0,
             moi: 1.0.moment_of_inertia(),
+            stored_position: 0.0.degrees(),
+            stored_velocity: 0.0.degrees_per_second(),
+            stored_acceleration: 0.0.degrees_per_second_squared(),
         }
     }
 
@@ -151,6 +157,12 @@ impl TalonFX {
         self
     }
 
+    fn update_stored(&mut self) {
+        self.stored_position = self.get_position_direct();
+        self.stored_velocity = self.get_velocity_direct();
+        self.stored_acceleration = self.get_acceleration_direct();
+    }
+
     /// Allows the motor to simulate when running in simulation mode. This
     /// function does nothing when running on the roboRIO and can be called at
     /// no performance cost.
@@ -176,6 +188,7 @@ impl TalonFX {
                 outputs.velocity.get::<revolution_per_second>(),
             );
         }
+        self.update_stored();
     }
 
     pub fn configurator(&'_ mut self) -> TalonFXConfigurator<'_> {
@@ -186,25 +199,30 @@ impl TalonFX {
     /// you can use the `set_voltage` function to specify the exact voltage.
     pub fn set(&mut self, speed: f64) {
         ffi::talon::set(self.motor.pin_mut(), speed);
+        self.update_stored();
     }
 
     /// Supply a voltage to the motor. This should generally be somewheremewhere
     /// from -12.0 volts to 12.0 volts.
     pub fn set_voltage(&mut self, voltage: ElectricPotential) {
         ffi::talon::set_voltage(self.motor.pin_mut(), voltage.get::<volt>());
+        self.update_stored();
     }
 
     /// Set this motor to use a MotionMagic controller.
     pub fn set_motionmagic_voltage(&mut self, control: &MotionMagicVoltage) {
         ffi::talon::set_motionmagic_voltage(self.motor.pin_mut(), control.to_ffi().pin_mut());
+        self.update_stored();
     }
 
     pub fn set_velocity_voltage(&mut self, control: &mut VelocityVoltage) {
-        ffi::talon::set_velocity_voltage(self.motor.pin_mut(), control.get_ffi().pin_mut())
+        ffi::talon::set_velocity_voltage(self.motor.pin_mut(), control.get_ffi().pin_mut());
+        self.update_stored();
     }
 
     pub fn set_position_voltage(&mut self, control: &mut PositionVoltage) {
         ffi::talon::set_position_voltage(self.motor.pin_mut(), control.get_ffi().pin_mut());
+        self.update_stored();
     }
 
     /// Resets the position of the encoder on this motor.
@@ -221,16 +239,37 @@ impl TalonFX {
         ffi::talon::get_duty_cycle(self.motor.pin_mut())
     }
 
-    pub fn get_position(&mut self) -> Angle {
+    pub fn get_position_direct(&mut self) -> Angle {
         ffi::talon::get_position(self.motor.pin_mut()).rotations()
     }
 
-    pub fn get_velocity(&mut self) -> AngularVelocity {
+    /// This value was only updated during the last call to `set_*` or
+    /// `simulate`. If you want to get a more time-precise position, use
+    /// `get_position_direct`.
+    pub fn get_position(&self) -> Angle {
+        self.stored_position
+    }
+
+    pub fn get_velocity_direct(&mut self) -> AngularVelocity {
         ffi::talon::get_velocity(self.motor.pin_mut()).rotations_per_second()
     }
 
-    pub fn get_acceleration(&mut self) -> AngularAcceleration {
+    /// This value was only updated during the last call to `set_*` or
+    /// `simulate`. If you want to get a more time-precise velocity, use
+    /// `get_velocity_direct`.
+    pub fn get_velocity(&self) -> AngularVelocity {
+        self.stored_velocity
+    }
+
+    pub fn get_acceleration_direct(&mut self) -> AngularAcceleration {
         ffi::talon::get_acceleration(self.motor.pin_mut()).rotations_per_second_squared()
+    }
+
+    /// This value was only updated during the last call to `set_*` or
+    /// `simulate`. If you want to get a more time-precise acceleration, use
+    /// `get_acceleration_direct`.
+    pub fn get_acceleration(&self) -> AngularAcceleration {
+        self.stored_acceleration
     }
 
     /// Stops applying voltage to the motor, but leaves it free-spinning.

@@ -1,6 +1,10 @@
 # Commands
 
-This library _does_ feature a commands system. However, although it has the same name, it is very different from the commands you may have used in Java or C++. Commands are a type of resource, and thus each command is a unique type. For example, the type for a motor spinner command would look like this:
+This library _does_ feature a commands system. However, although it has the same name, it is different from the commands you may have used in Java or C++.
+
+When possible, you should prioritize not using commands, and instead sticking to the patterns outlined in the previous chapter. Commands are useful when you want to start and stop something based on a trigger, or when you want to chain multiple things together to create a complex behavior.
+
+Commands are a type of resource, and thus each command is a unique type. For example, the type for a motor spinner command would look like this:
 
 ```Rust
 struct SpinMotorCommand;
@@ -115,3 +119,43 @@ With that, you have everything you need to use commands!
 > ```
 >
 > If you have a custom controller resource, these won't work and you'll have to create your own functions.
+
+## Compound commands
+
+Some functionality can be represented well with just a single command. But usually, using the targets model from the previous chapter you can implement that functionality in a simpler way. Commands are only useful when they can be represented as a state machine.
+
+Compound commands take multiple commands, and enable and disable them in different patterns to represent different functionality.
+
+Compound commands are identified by a unique type. For example, for a command that spins shooter flywheels and feeds game pieces into it, we would create a type called `ShootAndFeed`:
+
+```rust
+struct ShootAndFeed;
+```
+
+We would then create the `CompoundCommand` like so:
+
+```rust
+fn main() {
+    // ...
+
+    CompoundCommand::<ShootAndFeed>::new(CompoundBehavior::Parallel)
+        .add::<ShootCommand>() // these types MUST be registered commands.
+        .add::<FeedCommand>()
+        .add_to(&mut state);
+}
+```
+
+While you _can_ write commands manually like this, it is highly not recommended, especially when nesting compound commands. The `command!` macro can replace the exact functionality above by simply writing:
+
+```rust
+command!(state, ShootAndFeed: Parallel(ShootCommand, FeedCommand));
+```
+
+For more usage examples of this macro, see the `command_group` example.
+
+There are currently four types of compound command behaviors:
+
+- `Just`: Wraps a command directly. Useful to create a command with triggers without adding triggers to the original command.
+- `Sequence`: Runs commands one by one. When an item in the sequence is disabled, the next one is ran. When the entire command is disabled, the sequence is reset. When the last item finishes, the sequence command finishes.
+- `Parallel`: Runs a bunch of commands, disabling when all the commands are finished.
+- `Race`: Runs a bunch of commands, disabling all commands when the first one finishes.

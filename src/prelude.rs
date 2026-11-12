@@ -11,13 +11,13 @@
 
 pub use crate::auto::{TankAuto, tank_auto};
 pub use crate::chooser::SendableChooser;
-pub use crate::chooser_enum;
+pub use crate::commands::{Command, CommandMut, CompoundBehavior, CompoundCommand};
 pub use crate::ctre::{CANCoder, KrakenX44, KrakenX60, Pigeon2, TalonFX};
 pub use crate::ds::{AlertType, alert};
 pub use crate::ecs::{
-    AutonomousExit, AutonomousInit, AutonomousPeriodic, Command, CommandInternal, DisabledExit,
-    DisabledInit, DisabledPeriodic, Init, Mode, Periodic, Resource, ResourceMut, State, StateRes,
-    TeleopExit, TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic, Timer,
+    AutonomousExit, AutonomousInit, AutonomousPeriodic, DisabledExit, DisabledInit,
+    DisabledPeriodic, Init, Mode, Periodic, Resource, ResourceMut, State, StateRes, TeleopExit,
+    TeleopInit, TeleopPeriodic, TestExit, TestInit, TestPeriodic, Timer,
 };
 pub use crate::hal::{Alliance, AllianceStation};
 pub use crate::hid::XboxController;
@@ -30,6 +30,7 @@ pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;
 pub use crate::units::revolution_per_second_squared::revolution_per_second_squared;
 pub use crate::units::rpm::rpm;
 pub use crate::units::*;
+pub use crate::{chooser_enum, command};
 pub use bevy_ecs::prelude::{Component, Query};
 pub use bevy_reflect::Reflect;
 pub use derive_more::{Deref, DerefMut};

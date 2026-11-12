@@ -1,7 +1,11 @@
-use proc_macro::TokenStream;
+use proc_macro::{TokenStream, TokenTree};
 use proc_macro_crate::{FoundCrate, crate_name};
 use quote::quote;
-use syn::{Data, DeriveInput, Fields, parse_macro_input};
+use syn::{
+    Data, DeriveInput, Expr, Fields, Ident, Token, parenthesized,
+    parse::{Parse, ParseStream},
+    parse_macro_input, token,
+};
 
 #[proc_macro_derive(AutoLog)]
 pub fn derive_auto_log(input: TokenStream) -> TokenStream {
