@@ -32,7 +32,7 @@ extern crate uom;
 
 pub mod auto;
 pub mod chooser;
-pub mod commands;
+pub mod compound;
 pub mod ctre;
 pub mod drivetrain;
 pub mod ds;

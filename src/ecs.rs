@@ -8,7 +8,7 @@ use bevy_ecs::schedule::{ScheduleLabel, SingleThreadedExecutor};
 use bevy_ecs::system::{ScheduleSystem, SystemParam};
 use derive_more::Display;
 
-use crate::commands::CommandInternal;
+use crate::compound::CommandInternal;
 use crate::hal::Alliance;
 use crate::sim::gui::GUICommunicator;
 #[cfg(simulation)]
@@ -397,22 +397,6 @@ impl<R: SimRuntime> State<R> {
             world: &mut self.world,
         })
     }
-
-    //     pub fn register_command_group<G: IsCommandGroup + 'static>(
-    //         &mut self,
-    //         behavior: CommandGroupBehavior,
-    //     ) -> CommandGroupSettings<'_, G::Target> {
-    //         self.world
-    //             .non_send_mut::<CommandRegistry>()
-    //             .register::<G, CommandInternal<CommandGroup<G::Target>>>();
-    // // compatability, not actual type
-    //
-    //         self.add_systems(CommandsPeriodic, command_group_system::<G>);
-    //         self.insert_resource(CommandInternal::new(G::create(behavior)));
-    //         CommandGroupSettings::<G::Target>::new(StateRes {
-    //             world: &mut self.world,
-    //         })
-    //     }
 }
 
 /// The same as [`State`], but can be used as a parameter to a system. Because
@@ -576,92 +560,6 @@ impl<'w, C: 'static> CommandSettings<'w, C> {
         self
     }
 }
-
-/// Used to apply extra settings to a command.
-// pub struct CommandGroupSettings<'w, G: IsCommandGroup + 'static> {
-//     _phantom: PhantomData<G>,
-//     state: StateRes<'w>,
-// }
-//
-// impl<'w, G: IsCommandGroup + 'static> CommandGroupSettings<'w, G> {
-//     fn new(state: StateRes<'w>) -> Self {
-//         Self {
-//             _phantom: PhantomData,
-//             state,
-//         }
-//     }
-//
-//     /// Enable the command immediately.
-//     pub fn enabled(&mut self) -> &mut Self {
-//         enable_command::<CommandGroup<G>>(self.state.world);
-//         self
-//     }
-//
-//     /// Add systems that will automatically enable and disable the command
-//     /// based on the value of the trigger. Do not call this function twice for
-//     /// the same command.
-//     ///
-//     /// If you wish the command to be ran when two triggers are true, or when
-//     /// one of two triggers are true, you can use `trigger.and(another)` or
-//     /// `trigger.or(another)`.
-//     pub fn while_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut
-// Self {         self.state.add_systems(
-//             CommandsPeriodic,
-//             enable_command::<CommandGroup<G>>.run_if(trigger.clone()),
-//         );
-//         self.state.add_systems(
-//             CommandsPeriodic,
-//             disable_command::<CommandGroup<G>>.run_if(not(trigger)),
-//         );
-//         self
-//     }
-//
-//     /// Add systems that will automatically enable a command when a trigger's
-//     /// value gets set to true. Do not call this function twice for the same
-//     /// command.
-//     ///
-//     /// If you wish the command to be ran when two triggers are true, or when
-//     /// one of two triggers are true, you can use `trigger.and(another)` or
-//     /// `trigger.or(another)`.
-//     pub fn on_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self {
-//         self.state.add_systems(
-//             CommandsPeriodic,
-//             enable_command::<CommandGroup<G>>.run_if(condition_changed_to(true, trigger)),
-//         );
-//         self
-//     }
-//
-//     /// Add systems that will automatically enable a command when a trigger's
-//     /// value gets set to true and disable the command when the trigger's value
-//     /// gets set to false. Do not call this function twice for the same
-//     /// command.
-//     ///
-//     /// If you wish the command to be ran when two triggers are true, or when
-//     /// one of two triggers are true, you can use `trigger.and(another)` or
-//     /// `trigger.or(another)`.
-//     pub fn with_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut Self
-// {         self.state.add_systems(
-//             CommandsPeriodic,
-//             enable_command::<CommandGroup<G>>.run_if(condition_changed(trigger)),
-//         );
-//         self
-//     }
-//
-//     /// Add systems that will automatically disable a command when a trigger's
-//     /// value get sets to true. Do not call this function twice for the same
-//     /// command.
-//     ///
-//     /// If you wish the command to be stopped when two triggers are true, or
-//     /// when one of two triggers are true, you can use
-//     /// `trigger.and(another)` or `trigger.or(another)`.
-//     pub fn until_trigger<M, T: SystemCondition<M, ()> + Clone>(&mut self, trigger: T) -> &mut
-// Self {         self.state.add_systems(
-//             CommandsPeriodic,
-//             disable_command::<CommandGroup<G>>.run_if(trigger),
-//         );
-//         self
-//     }
-// }
 
 #[derive(Default)]
 struct CommandSystemData {

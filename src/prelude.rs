@@ -11,7 +11,7 @@
 
 pub use crate::auto::{TankAuto, tank_auto};
 pub use crate::chooser::SendableChooser;
-pub use crate::commands::{Command, CommandMut, CompoundBehavior, CompoundCommand};
+pub use crate::compound::{Command, CommandMut, CompoundBehavior, CompoundCommand};
 pub use crate::ctre::{CANCoder, KrakenX44, KrakenX60, Pigeon2, TalonFX};
 pub use crate::ds::{AlertType, alert};
 pub use crate::ecs::{
