@@ -260,6 +260,178 @@ impl Kinematics<DifferentialDriveWheelSpeeds, DifferentialDriveWheelPositions>
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MecanumDriveWheelPositions {
+    pub front_left: Length,
+    pub front_right: Length,
+    pub rear_left: Length,
+    pub rear_right: Length,
+}
+
+impl MecanumDriveWheelPositions {
+    pub fn new(
+        front_left: Length,
+        front_right: Length,
+        rear_left: Length,
+        rear_right: Length,
+    ) -> Self {
+        Self {
+            front_left,
+            front_right,
+            rear_left,
+            rear_right,
+        }
+    }
+
+    pub fn interpolate(self, end: Self, t: f64) -> Self {
+        Self::new(
+            self.front_left + t * (end.front_left - self.front_left),
+            self.front_right + t * (end.front_right - self.front_right),
+            self.rear_left + t * (end.rear_left - self.rear_left),
+            self.rear_right + t * (end.rear_right - self.rear_right),
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign)]
+pub struct MecanumDriveWheelSpeeds {
+    pub front_left: Velocity,
+    pub front_right: Velocity,
+    pub rear_left: Velocity,
+    pub rear_right: Velocity,
+}
+
+impl MecanumDriveWheelSpeeds {
+    pub fn new(
+        front_left: Velocity,
+        front_right: Velocity,
+        rear_left: Velocity,
+        rear_right: Velocity,
+    ) -> Self {
+        Self {
+            front_left,
+            front_right,
+            rear_left,
+            rear_right,
+        }
+    }
+
+    pub fn desaturate(&mut self, max_speed: Velocity) {
+        let mut wheel_speeds = [
+            self.front_left,
+            self.front_right,
+            self.rear_left,
+            self.rear_right,
+        ];
+        let real_max_speed = wheel_speeds
+            .iter()
+            .max_by(|a, b| a.abs().partial_cmp(&b.abs()).unwrap())
+            .unwrap()
+            .abs();
+
+        if real_max_speed > max_speed {
+            for speed in &mut wheel_speeds {
+                *speed = *speed / real_max_speed * max_speed;
+            }
+            self.front_left = wheel_speeds[0];
+            self.front_right = wheel_speeds[1];
+            self.rear_left = wheel_speeds[2];
+            self.rear_right = wheel_speeds[3];
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct MecanumDriveKinematics {
+    ik: nalgebra::SMatrix<f64, 4, 3>,
+    fk: nalgebra::SVD<f64, nalgebra::Const<4>, nalgebra::Const<3>>,
+}
+
+impl MecanumDriveKinematics {
+    pub fn new(front_left: Vec2, front_right: Vec2, rear_left: Vec2, rear_right: Vec2) -> Self {
+        let mut out = Self {
+            ik: nalgebra::SMatrix::default(),
+            fk: nalgebra::SVD::new(nalgebra::SMatrix::default(), true, true),
+        };
+        out.set_inverse_kinematics(front_left, front_right, rear_left, rear_right);
+        out.fk = out.ik.svd(true, true);
+        out
+    }
+
+    pub fn to_twist2d_deltas(&self, deltas: MecanumDriveWheelPositions) -> Twist2D {
+        let wheel_deltas = nalgebra::vector![
+            deltas.front_left.value,
+            deltas.front_right.value,
+            deltas.rear_left.value,
+            deltas.rear_right.value,
+        ];
+        let twist = self.fk.solve(&wheel_deltas, 1e-12).unwrap();
+        Twist2D::new(twist[0].meters(), twist[1].meters(), twist[2].radians())
+    }
+
+    fn set_inverse_kinematics(&mut self, fl: Vec2, fr: Vec2, rl: Vec2, rr: Vec2) {
+        self.ik = nalgebra::matrix![
+            1.0, -1.0, (-(fl.x + fl.y)).value;
+            1.0, 1.0, (fr.x - fr.y).value;
+            1.0, 1.0, (rl.x - rl.y).value;
+            1.0, -1.0, (-(rr.x + rr.y)).value;
+        ];
+    }
+}
+
+impl Kinematics<MecanumDriveWheelSpeeds, MecanumDriveWheelPositions> for MecanumDriveKinematics {
+    fn to_chassis_speeds(&mut self, speeds: &MecanumDriveWheelSpeeds) -> ChassisSpeeds {
+        let wheel_speeds_vector = nalgebra::vector![
+            speeds.front_left.value,
+            speeds.front_right.value,
+            speeds.rear_left.value,
+            speeds.rear_right.value
+        ];
+        let speeds = self.fk.solve(&wheel_speeds_vector, 1e-12).unwrap();
+        ChassisSpeeds::new(
+            speeds[0].meters_per_second(),
+            speeds[1].meters_per_second(),
+            speeds[2].radians_per_second(),
+        )
+    }
+
+    fn to_wheel_speeds(&mut self, speeds: &ChassisSpeeds) -> MecanumDriveWheelSpeeds {
+        let chassis_speeds_vector =
+            nalgebra::vector![speeds.vx.value, speeds.vy.value, speeds.omega.value];
+        let wheels = self.ik * chassis_speeds_vector;
+        MecanumDriveWheelSpeeds::new(
+            wheels[0].meters_per_second(),
+            wheels[1].meters_per_second(),
+            wheels[2].meters_per_second(),
+            wheels[3].meters_per_second(),
+        )
+    }
+
+    fn to_twist2d(
+        &mut self,
+        start: &MecanumDriveWheelPositions,
+        end: &MecanumDriveWheelPositions,
+    ) -> Twist2D {
+        let wheel_deltas = nalgebra::vector![
+            end.front_left.value - start.front_left.value,
+            end.front_right.value - start.front_right.value,
+            end.rear_left.value - start.rear_left.value,
+            end.rear_right.value - start.rear_right.value,
+        ];
+        let twist = self.fk.solve(&wheel_deltas, 1e-12).unwrap();
+        Twist2D::new(twist[0].meters(), twist[1].meters(), twist[2].radians())
+    }
+
+    fn interpolate(
+        &mut self,
+        start: &MecanumDriveWheelPositions,
+        end: &MecanumDriveWheelPositions,
+        t: f64,
+    ) -> MecanumDriveWheelPositions {
+        start.interpolate(*end, t)
+    }
+}
+
 /// Represents the position of a swerve module. Often these are used to
 /// represent change in position instead of position itself.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]

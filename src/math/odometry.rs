@@ -243,6 +243,27 @@ impl<const N: usize> SwerveDriveOdometry<N> {
     }
 }
 
+#[derive(Debug, Clone, Deref, DerefMut)]
+pub struct MecanumDriveOdometry(
+    pub Odometry<MecanumDriveWheelSpeeds, MecanumDriveWheelPositions, MecanumDriveKinematics>,
+);
+
+impl MecanumDriveOdometry {
+    pub fn new(
+        kinematics: MecanumDriveKinematics,
+        gyro_angle: Rotation2D,
+        wheel_positions: MecanumDriveWheelPositions,
+        initial_pose: Pose2D,
+    ) -> Self {
+        Self(Odometry::new(
+            kinematics,
+            gyro_angle,
+            wheel_positions,
+            initial_pose,
+        ))
+    }
+}
+
 /// See documentation for [`Odometry`].
 #[derive(Debug, Clone)]
 pub struct Odometry3D<S, P, K: Kinematics<S, P>> {
@@ -379,6 +400,27 @@ impl<const N: usize> SwerveDriveOdometry3D<N> {
             kinematics,
             gyro_angle,
             module_positions,
+            initial_pose,
+        ))
+    }
+}
+
+#[derive(Debug, Clone, Deref, DerefMut)]
+pub struct MecanumDriveOdometry3D(
+    pub Odometry3D<MecanumDriveWheelSpeeds, MecanumDriveWheelPositions, MecanumDriveKinematics>,
+);
+
+impl MecanumDriveOdometry3D {
+    pub fn new(
+        kinematics: MecanumDriveKinematics,
+        gyro_angle: Rotation3D,
+        wheel_positions: MecanumDriveWheelPositions,
+        initial_pose: Pose3D,
+    ) -> Self {
+        Self(Odometry3D::new(
+            kinematics,
+            gyro_angle,
+            wheel_positions,
             initial_pose,
         ))
     }
