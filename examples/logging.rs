@@ -8,7 +8,7 @@ fn spin(mut motor: ResourceMut<MyMotor>) {
     motor.simulate();
 }
 
-fn log(mut motor: ResourceMut<MyMotor>, mut logger: ResourceMut<Logger>) {
+fn log(motor: ResourceMut<MyMotor>, mut logger: ResourceMut<Logger>) {
     logger.append("Velocity", motor.get_velocity());
 }
 

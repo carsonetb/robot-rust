@@ -29,19 +29,16 @@ nalgebra = "0.35.0"
 ordered-float = "5.5.0"
 num_enum = "0.7.6"
 glam = "0.34.1"
-libc = "0.2.191"
-rand = "0.10.3"
-rand_distr = "0.6.0"
 tracing = "0.1.44"
 tracing-subscriber = "0.3.23"
-backtrace = "0.3.76"
-bevy_reflect = "0.20.1"
 paste = "1.0.15"
 
 [target.'cfg(not(all(target_arch = "arm", target_os = "linux")))'.dependencies]
 eframe = "0.37"
 winit = "0.30"
 gilrs = "0.11"
+rand = "0.10.3"
+rand_distr = "0.6.0"
 
 # [profile.dev]
 # debug = true

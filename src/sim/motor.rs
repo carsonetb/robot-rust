@@ -3,6 +3,7 @@ use crate::math::system::LinearSystem;
 use crate::prelude::*;
 use crate::sim::system::LinearSystemSim;
 
+/// https://github.wpilib.org/allwpilib/docs/release/cpp/classfrc_1_1sim_1_1_d_c_motor_sim.html
 #[derive(Debug, Clone)]
 pub struct DCMotorSim {
     pub plant: LinearSystemSim<2, 1, 2>,
@@ -13,23 +14,6 @@ pub struct DCMotorSim {
 
 impl DCMotorSim {
     pub fn new(plant: LinearSystem<2, 1, 2>, gearbox: DCMotor) -> Self {
-        // By theorem 6.10.1 of
-        // https://file.tavsys.net/control/controls-engineering-in-frc.pdf, the
-        // flywheel state-space model is:
-        //
-        //   dx/dt = -G²Kₜ/(KᵥRJ)x + (GKₜ)/(RJ)u
-        //   A = -G²Kₜ/(KᵥRJ)
-        //   B = GKₜ/(RJ)
-        //
-        // Solve for G.
-        //
-        //   A/B = -G/Kᵥ
-        //   G = -KᵥA/B
-        //
-        // Solve for J.
-        //
-        //   B = GKₜ/(RJ)
-        //   J = GKₜ/(RB)
         let gearing = -gearbox.kv.value * plant.a[(1, 1)] / plant.b[(1, 0)];
         let moi = (gearing * gearbox.kt.value / (gearbox.resistance.value * plant.b[(1, 0)]))
             .moment_of_inertia();
@@ -43,6 +27,47 @@ impl DCMotorSim {
 
     pub fn neo(kv: f64, ka: f64) -> Self {
         Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo())
+    }
+
+    pub fn neo_550(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo_550())
+    }
+
+    pub fn neo_vortex(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::neo_vortex())
+    }
+
+    pub fn falcon_500(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::falcon_500())
+    }
+
+    pub fn falcon_500_foc(kv: f64, ka: f64) -> Self {
+        Self::new(
+            LinearSystem::dc_motor_system(kv, ka),
+            DCMotor::falcon_500_foc(),
+        )
+    }
+
+    pub fn kraken_x60(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::kraken_x60())
+    }
+
+    pub fn kraken_x60_foc(kv: f64, ka: f64) -> Self {
+        Self::new(
+            LinearSystem::dc_motor_system(kv, ka),
+            DCMotor::kraken_x60_foc(),
+        )
+    }
+
+    pub fn kraken_x44(kv: f64, ka: f64) -> Self {
+        Self::new(LinearSystem::dc_motor_system(kv, ka), DCMotor::kraken_x44())
+    }
+
+    pub fn kraken_x44_foc(kv: f64, ka: f64) -> Self {
+        Self::new(
+            LinearSystem::dc_motor_system(kv, ka),
+            DCMotor::kraken_x44_foc(),
+        )
     }
 
     pub fn with_std_devs(mut self, measurement_std_devs: [f64; 2]) -> Self {

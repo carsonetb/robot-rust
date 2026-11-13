@@ -6,18 +6,19 @@ use std::time::Duration;
 use crate::prelude::*;
 
 #[derive(Default)]
-pub struct GUICommunicator {
-    pub selected: Mode,
-    pub enable: bool,
-    pub disable: bool,
+pub(crate) struct GUICommunicator {
+    pub(crate) selected: Mode,
+    pub(crate) enable: bool,
+    pub(crate) disable: bool,
 
-    pub enabled: bool,
-    pub mode: Mode,
+    #[allow(unused)]
+    pub(crate) enabled: bool,
+    pub(crate) mode: Mode,
 }
 
 #[cfg(simulation)]
 #[allow(unused)]
-pub fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
+pub(crate) fn spawn_simgui(comms: Arc<Mutex<GUICommunicator>>) {
     use eframe::egui;
 
     std::thread::spawn(move || {
