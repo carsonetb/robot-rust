@@ -1,3 +1,5 @@
+// example used for testing, not finished.
+
 use bevy_ecs::schedule::IntoScheduleConfigs;
 use robot_rust::ctre::control::{PositionVoltage, VelocityVoltage};
 use robot_rust::ctre::prelude::*;
@@ -13,6 +15,7 @@ const STEER_GEAR_RATIO: f64 = 26.09;
 
 struct Mk5nDrivingMotor {
     pub motor: KrakenX60,
+    #[allow(unused)]
     pub control: VelocityVoltage,
 }
 
@@ -52,7 +55,7 @@ impl DrivingMotor for Mk5nDrivingMotor {
         self.motor.get_velocity()
     }
 
-    fn set_velocity(&mut self, velocity: AngularVelocity) {
+    fn set_velocity(&mut self, #[allow(unused)] velocity: AngularVelocity) {
         // self.motor
         //     .set_velocity_voltage(self.control.with_velocity(velocity));
     }

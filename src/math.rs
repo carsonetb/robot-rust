@@ -16,6 +16,8 @@ pub mod odometry;
 pub mod plant;
 pub mod prelude;
 pub mod system;
+#[cfg(test)]
+mod tests;
 pub mod trajectory;
 
 pub static START_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);

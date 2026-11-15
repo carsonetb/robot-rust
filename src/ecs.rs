@@ -196,6 +196,114 @@ impl<R: SimRuntime> State<R> {
         tracing::subscriber::set_global_default(subscriber).unwrap();
     }
 
+    /// Step the program once. This is useful for testing.
+    pub fn step(&mut self, model: Model, comms: &Arc<Mutex<GUICommunicator>>) {
+        if model == Model::Competition {
+            if !ds::refresh() {
+                warn!("DS failed to refresh data.");
+                return;
+            }
+        }
+
+        let mode = if model == Model::Competition {
+            let word = hal::ControlWord::new().unwrap();
+
+            if word.disabled() {
+                Mode::Disabled
+            } else if word.autonomous() {
+                Mode::Autonomous
+            } else if word.teleop() {
+                Mode::Teleop
+            } else if word.test() {
+                Mode::Test
+            } else {
+                Mode::None
+            }
+        } else {
+            let mut ds = self.world.non_send_mut::<DriverStationSim>();
+
+            let mut comms = comms.lock().unwrap();
+            let request = comms.selected;
+            if comms.enable {
+                comms.enable = false;
+                info!("Enabling!");
+                match request {
+                    Mode::Autonomous => ds.autonomous(),
+                    Mode::Teleop => ds.teleop(),
+                    _ => warn!("Selected mode {request} is not supported yet."),
+                }
+            }
+            if comms.disable {
+                comms.disable = false;
+                info!("Disable");
+                ds.disable();
+            }
+
+            ds.process();
+            if ds.mode != Mode::Disabled {
+                ffi::sim::ctre_feed_enable(c_int(100));
+            }
+            comms.mode = ds.mode;
+            ds.mode
+        };
+
+        *self.world.non_send_mut::<Mode>() = mode;
+
+        // to ensure commands are updated for the compound commands, and
+        // that they get updated after compound commands
+        // modify them.
+        self.world.run_schedule(CommandTriggers);
+        self.world.run_schedule(CommandsPeriodic);
+        self.world.run_schedule(CompoundCommandsPeriodic);
+
+        let last_mode = *self.world.non_send::<Mode>();
+        if mode != last_mode {
+            debug!("Exit mode {last_mode} into {mode}");
+            match last_mode {
+                Mode::Disabled => self.world.run_schedule(DisabledExit),
+                Mode::Autonomous => self.world.run_schedule(AutonomousExit),
+                Mode::Teleop => self.world.run_schedule(TeleopExit),
+                Mode::Test => self.world.run_schedule(TestExit),
+                _ => {}
+            }
+
+            match mode {
+                Mode::Disabled => self.world.run_schedule(DisabledInit),
+                Mode::Autonomous => self.world.run_schedule(AutonomousInit),
+                Mode::Teleop => self.world.run_schedule(TeleopInit),
+                Mode::Test => self.world.run_schedule(TestInit),
+                _ => {}
+            }
+        }
+
+        match mode {
+            Mode::Disabled => {
+                hal::observe_disabled();
+                self.world.run_schedule(DisabledPeriodic)
+            }
+            Mode::Autonomous => {
+                hal::observe_autonomous();
+                self.world.run_schedule(AutonomousPeriodic)
+            }
+            Mode::Teleop => {
+                hal::observe_teleop();
+                self.world.run_schedule(TeleopPeriodic)
+            }
+            Mode::Test => {
+                hal::observe_test();
+                self.world.run_schedule(TestPeriodic)
+            }
+            _ => {}
+        }
+
+        self.world.run_schedule(Periodic);
+
+        if model == Model::Simulation {
+            self.world.run_schedule(SimulatorPeriodic);
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
+
     /// Run the main loop, starting by running the Init schedule. The loop
     /// follows a specific order:
     ///
@@ -223,131 +331,8 @@ impl<R: SimRuntime> State<R> {
         debug!("Run user init code.");
         self.world.run_schedule(Init);
 
-        let mainloop = debug_span!("mainloop");
-        let commands_update = trace_span!("update commands");
-        let user_code = trace_span!("user code");
-        let refresh = trace_span!("driver station refresh");
-
         loop {
-            let _mainloop = mainloop.enter();
-
-            if model == Model::Competition {
-                let _refresh = refresh.enter();
-                if !ds::refresh() {
-                    warn!("DS failed to refresh data.");
-                    continue;
-                }
-            }
-
-            let mode = if model == Model::Competition {
-                let word = hal::ControlWord::new().unwrap();
-
-                if word.disabled() {
-                    Mode::Disabled
-                } else if word.autonomous() {
-                    Mode::Autonomous
-                } else if word.teleop() {
-                    Mode::Teleop
-                } else if word.test() {
-                    Mode::Test
-                } else {
-                    Mode::None
-                }
-            } else {
-                let mut ds = self.world.non_send_mut::<DriverStationSim>();
-
-                let mut comms = comms.lock().unwrap();
-                let request = comms.selected;
-                if comms.enable {
-                    comms.enable = false;
-                    info!("Enabling!");
-                    match request {
-                        Mode::Autonomous => ds.autonomous(),
-                        Mode::Teleop => ds.teleop(),
-                        _ => warn!("Selected mode {request} is not supported yet."),
-                    }
-                }
-                if comms.disable {
-                    comms.disable = false;
-                    info!("Disable");
-                    ds.disable();
-                }
-
-                ds.process();
-                if ds.mode != Mode::Disabled {
-                    ffi::sim::ctre_feed_enable(c_int(100));
-                }
-                comms.mode = ds.mode;
-                ds.mode
-            };
-
-            *self.world.non_send_mut::<Mode>() = mode;
-
-            {
-                let _commands = commands_update.enter();
-                // to ensure commands are updated for the compound commands, and
-                // that they get updated after compound commands
-                // modify them.
-                // println!("-- triggers --");
-                self.world.run_schedule(CommandTriggers);
-                // println!("-- commands --");
-                self.world.run_schedule(CommandsPeriodic);
-                // println!("-- compounds --");
-                self.world.run_schedule(CompoundCommandsPeriodic);
-            }
-
-            {
-                let _user = user_code.enter();
-                let last_mode = *self.world.non_send::<Mode>();
-                if mode != last_mode {
-                    debug!("Exit mode {last_mode} into {mode}");
-                    match last_mode {
-                        Mode::Disabled => self.world.run_schedule(DisabledExit),
-                        Mode::Autonomous => self.world.run_schedule(AutonomousExit),
-                        Mode::Teleop => self.world.run_schedule(TeleopExit),
-                        Mode::Test => self.world.run_schedule(TestExit),
-                        _ => {}
-                    }
-
-                    match mode {
-                        Mode::Disabled => self.world.run_schedule(DisabledInit),
-                        Mode::Autonomous => self.world.run_schedule(AutonomousInit),
-                        Mode::Teleop => self.world.run_schedule(TeleopInit),
-                        Mode::Test => self.world.run_schedule(TestInit),
-                        _ => {}
-                    }
-                }
-
-                trace!("Periodic for {mode}.");
-                match mode {
-                    Mode::Disabled => {
-                        hal::observe_disabled();
-                        self.world.run_schedule(DisabledPeriodic)
-                    }
-                    Mode::Autonomous => {
-                        hal::observe_autonomous();
-                        self.world.run_schedule(AutonomousPeriodic)
-                    }
-                    Mode::Teleop => {
-                        hal::observe_teleop();
-                        self.world.run_schedule(TeleopPeriodic)
-                    }
-                    Mode::Test => {
-                        hal::observe_test();
-                        self.world.run_schedule(TestPeriodic)
-                    }
-                    _ => {}
-                }
-
-                trace!("General periodic function.");
-                self.world.run_schedule(Periodic);
-
-                if model == Model::Simulation {
-                    trace!("Simulator update.");
-                    self.world.run_schedule(SimulatorPeriodic);
-                    std::thread::sleep(Duration::from_millis(20));
-                }
-            }
+            self.step(model, &comms);
         }
     }
 

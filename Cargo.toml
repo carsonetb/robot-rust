@@ -52,3 +52,6 @@ gilrs = "0.11"
 
 [lints.rust]
 unsafe_op_in_unsafe_fn = "allow"
+
+[lib]
+doctest = false
