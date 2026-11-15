@@ -1,9 +1,10 @@
-use rand_distr::Distribution;
-
 use crate::math::prelude::*;
 use crate::prelude::*;
 
+#[cfg(simulation)]
 fn make_white_noise_vector<const N: usize>(std_devs: [f64; N]) -> nalgebra::SVector<f64, N> {
+    use rand_distr::Distribution;
+
     let mut rng = rand::rng();
 
     nalgebra::SVector::from_fn(|i, _| {
@@ -60,10 +61,13 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
         self
     }
 
-    pub fn update(&mut self, dt: Time) {
-        self.x = self.update_x(self.x, self.u, dt);
-        self.y = self.plant.calculate_y(self.x, self.u)
-            + make_white_noise_vector(self.measurement_std_devs);
+    pub fn update(&mut self, #[allow(unused)] dt: Time) {
+        #[cfg(simulation)]
+        {
+            self.x = self.update_x(self.x, self.u, dt);
+            self.y = self.plant.calculate_y(self.x, self.u)
+                + make_white_noise_vector(self.measurement_std_devs);
+        }
     }
 
     pub fn set_state(&mut self, state: nalgebra::SVector<f64, STATES>) {
@@ -71,6 +75,7 @@ impl<const STATES: usize, const INPUTS: usize, const OUTPUTS: usize>
         self.y = self.plant.calculate_y(self.x, self.u);
     }
 
+    #[allow(unused)]
     fn update_x(
         &self,
         current_x_hat: nalgebra::SVector<f64, STATES>,

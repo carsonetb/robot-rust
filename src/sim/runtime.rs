@@ -6,12 +6,17 @@ use crate::math::plant::DCMotor;
 use crate::math::system::LinearSystem;
 use crate::prelude::*;
 
+/// A simulation runtime creates systems that run on [`SimulatorPeriodic`], and
+/// convert [`SimulatorInputs`] into [`SimulatorOutputs`]. Both of these are
+/// global statics, not resources.
 pub trait SimRuntime: Sized {
     const NAME: &'static str;
 
+    /// Init function called by state.
     fn init(&mut self, state: &mut State<Self>);
 }
 
+/// A basic runtime that creates instances of [DCMotorSim] to simulate motors.
 #[derive(Default, Debug, Clone, Copy)]
 pub struct BasicRuntime;
 
