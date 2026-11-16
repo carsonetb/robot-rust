@@ -309,6 +309,10 @@ impl BezierTarget {
     }
 }
 
+/// A feedforward that moves along a bezier curve using a trapezoid profile for
+/// linear and rotational velocity.
+///
+/// WARNING: Logic breaks down at sharp bends.
 #[derive(Debug, Clone)]
 pub struct BezierCurveFeedforward {
     curve: BezierCurve,

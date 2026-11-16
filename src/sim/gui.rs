@@ -6,14 +6,13 @@ use std::time::Duration;
 use crate::prelude::*;
 
 #[derive(Default)]
-pub(crate) struct GUICommunicator {
-    pub(crate) selected: Mode,
-    pub(crate) enable: bool,
-    pub(crate) disable: bool,
+pub struct GUICommunicator {
+    pub selected: Mode,
+    pub enable: bool,
+    pub disable: bool,
 
-    #[allow(unused)]
-    pub(crate) enabled: bool,
-    pub(crate) mode: Mode,
+    pub enabled: bool,
+    pub mode: Mode,
 }
 
 #[cfg(simulation)]
