@@ -23,7 +23,10 @@ pub use crate::hal::{Alliance, AllianceStation};
 pub use crate::hid::XboxController;
 pub use crate::logging::{AutoLog, Loggable, Logger, now};
 pub use crate::math::control::*;
-pub use crate::math::{Pose2D, Rotation2D, Vec2, timestamp};
+pub use crate::math::{
+    Acceleration2, Pose2D, RobotAcceleration2D, RobotVelocity2D, Rotation2D, Vec2, Velocity2,
+    timestamp,
+};
 pub use crate::rev::SparkMax;
 pub use crate::sim::runtime::BasicRuntime;
 pub use crate::units::revolution_per_second_cubed::revolution_per_second_cubed;

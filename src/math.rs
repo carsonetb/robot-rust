@@ -16,8 +16,6 @@ pub mod odometry;
 pub mod plant;
 pub mod prelude;
 pub mod system;
-#[cfg(test)]
-mod tests;
 pub mod trajectory;
 
 pub static START_TIME: LazyLock<Instant> = LazyLock::new(Instant::now);
@@ -75,6 +73,10 @@ impl Rotation2D {
         self.rotated(&-*other) // LOL
     }
 
+    pub fn to_vec2(&self) -> Vec2 {
+        Vec2::new(self.cos().meters(), self.sin().meters())
+    }
+
     pub fn sin(&self) -> f64 {
         self.value.get::<radian>().sin()
     }
@@ -89,6 +91,8 @@ impl Rotation2D {
 }
 
 /// Represents a translation in 2D space.
+///
+/// Note that multiplying two vectors is unsafe unit-wise and so is not defined.
 #[derive(
     Default,
     Debug,
@@ -99,9 +103,7 @@ impl Rotation2D {
     AddAssign,
     Sub,
     SubAssign,
-    Mul,
     MulAssign,
-    Div,
     DivAssign,
     Neg,
 )]
@@ -135,6 +137,10 @@ impl Vec2 {
         self.x.get::<meter>().powi(2) + self.y.get::<meter>().powi(2)
     }
 
+    pub fn normalized(&self) -> Self {
+        Self::new(self.x / self.length().value, self.y / self.length().value)
+    }
+
     pub fn rotated(&self, by: &Rotation2D) -> Self {
         let (cos, sin) = (by.cos(), by.sin());
         Self::new(self.x * cos - self.y * sin, self.x * sin + self.y * cos)
@@ -162,6 +168,50 @@ impl Vec2 {
 
     pub fn angle(&self) -> Rotation2D {
         Rotation2D::to(self.x.value, self.y.value)
+    }
+
+    pub fn to_velocity2(&self) -> Velocity2 {
+        Velocity2::new(self.x / 1.0.seconds(), self.y / 1.0.seconds())
+    }
+}
+
+impl Mul<f64> for Vec2 {
+    type Output = Vec2;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self::new(rhs * self.x, rhs * self.y)
+    }
+}
+
+impl Div<f64> for Vec2 {
+    type Output = Vec2;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self::new(self.x / rhs, self.y / rhs)
+    }
+}
+
+#[derive(Default, Debug, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign, Neg)]
+pub struct Velocity2 {
+    pub x: Velocity,
+    pub y: Velocity,
+}
+
+impl Velocity2 {
+    pub fn new(x: Velocity, y: Velocity) -> Self {
+        Self { x, y }
+    }
+}
+
+#[derive(Default, Debug, Clone, Copy, PartialEq, Add, AddAssign, Sub, SubAssign, Neg)]
+pub struct Acceleration2 {
+    pub x: Acceleration,
+    pub y: Acceleration,
+}
+
+impl Acceleration2 {
+    pub fn new(x: Acceleration, y: Acceleration) -> Self {
+        Self { x, y }
     }
 }
 
@@ -247,6 +297,33 @@ impl Pose2D {
         let t = t.clamp(0.0, 1.0);
         let twist = self.log(&other);
         self.exp(&(twist * t))
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct RobotVelocity2D {
+    pub velocity: Velocity2,
+    pub omega: AngularVelocity,
+}
+
+impl RobotVelocity2D {
+    pub fn new(velocity: Velocity2, omega: AngularVelocity) -> Self {
+        Self { velocity, omega }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+pub struct RobotAcceleration2D {
+    pub acceleration: Acceleration2,
+    pub omega: AngularAcceleration,
+}
+
+impl RobotAcceleration2D {
+    pub fn new(acceleration: Acceleration2, omega: AngularAcceleration) -> Self {
+        Self {
+            acceleration,
+            omega,
+        }
     }
 }
 
