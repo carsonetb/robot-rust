@@ -5,6 +5,8 @@
 #include "ctre/phoenix6/CANcoder.hpp"
 #include "ctre/phoenix6/Pigeon2.hpp"
 #include "ctre/phoenix6/TalonFX.hpp"
+#include "ctre/phoenix6/configs/CurrentLimitsConfigs.hpp"
+#include "ctre/phoenix6/configs/TorqueCurrentConfigs.hpp"
 #include "ctre/phoenix6/controls/CoastOut.hpp"
 #include "ctre/phoenix6/controls/DutyCycleOut.hpp"
 #include "ctre/phoenix6/controls/MotionMagicVoltage.hpp"
@@ -20,6 +22,7 @@
 #include "units/angular_acceleration.h"
 #include "units/angular_jerk.h"
 #include "units/angular_velocity.h"
+#include "units/current.h"
 #include "units/frequency.h"
 #include "units/time.h"
 #include "units/voltage.h"
@@ -269,6 +272,42 @@ inline void set_discontinuity_point(ctre::phoenix6::configs::MagnetSensorConfigs
 }
 
 }  // namespace mangetsensor
+
+namespace currentlimits {
+
+inline void set_stator(ctre::phoenix6::configs::CurrentLimitsConfigs& conf, double amperes) {
+    conf.StatorCurrentLimit = units::current::ampere_t{amperes};
+}
+
+inline void set_supply(ctre::phoenix6::configs::CurrentLimitsConfigs& conf, double amps) {
+    conf.SupplyCurrentLimit = units::current::ampere_t{amps};
+}
+
+inline void set_supply_lower(ctre::phoenix6::configs::CurrentLimitsConfigs& conf, double amps) {
+    conf.SupplyCurrentLowerLimit = units::current::ampere_t{amps};
+}
+
+inline void set_supply_lower_time(ctre::phoenix6::configs::CurrentLimitsConfigs& conf, double seconds) {
+    conf.SupplyCurrentLowerTime = units::time::second_t{seconds};
+}
+
+}
+
+namespace torquecurrent {
+
+inline void set_peak_forward(ctre::phoenix6::configs::TorqueCurrentConfigs& conf, double amps) {
+    conf.PeakForwardTorqueCurrent = units::current::ampere_t{amps};
+}
+
+inline void set_peak_reverse(ctre::phoenix6::configs::TorqueCurrentConfigs& conf, double amps) {
+    conf.PeakReverseTorqueCurrent = units::current::ampere_t{amps};
+}
+
+inline void set_neutral_deadband(ctre::phoenix6::configs::TorqueCurrentConfigs& conf, double amps) {
+    conf.TorqueNeutralDeadband = units::current::ampere_t{amps};
+}
+
+}
 
 namespace pigeon2 {
 

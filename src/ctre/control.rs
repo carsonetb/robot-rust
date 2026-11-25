@@ -143,32 +143,32 @@ impl VelocityVoltage {
         }
     }
 
-    pub fn with_velocity(&mut self, velocity: AngularVelocity) -> &mut Self {
+    pub fn with_velocity(mut self, velocity: AngularVelocity) -> Self {
         self.velocity = velocity;
         self
     }
 
-    pub fn with_acceleration(&mut self, acceleration: AngularAcceleration) -> &mut Self {
+    pub fn with_acceleration(mut self, acceleration: AngularAcceleration) -> Self {
         self.acceleration = acceleration;
         self
     }
 
-    pub fn with_enable_foc(&mut self, enable_foc: bool) -> &mut Self {
+    pub fn with_enable_foc(mut self, enable_foc: bool) -> Self {
         self.enable_foc = enable_foc;
         self
     }
 
-    pub fn with_feedfoward(&mut self, feedfoward: Voltage) -> &mut Self {
+    pub fn with_feedfoward(mut self, feedfoward: Voltage) -> Self {
         self.feedfoward = feedfoward;
         self
     }
 
-    pub fn with_slot(&mut self, slot: i32) -> &mut Self {
+    pub fn with_slot(mut self, slot: i32) -> Self {
         self.slot = slot;
         self
     }
 
-    pub fn with_update_frequency(&mut self, update_frequency: Frequency) -> &mut Self {
+    pub fn with_update_frequency(mut self, update_frequency: Frequency) -> Self {
         self.update_frequency = update_frequency;
         self
     }
@@ -211,32 +211,32 @@ impl PositionVoltage {
         }
     }
 
-    pub fn with_position(&mut self, position: Angle) -> &mut Self {
+    pub fn with_position(mut self, position: Angle) -> Self {
         self.position = position;
         self
     }
 
-    pub fn with_velocity(&mut self, velocity: AngularVelocity) -> &mut Self {
+    pub fn with_velocity(mut self, velocity: AngularVelocity) -> Self {
         self.velocity = velocity;
         self
     }
 
-    pub fn with_enable_foc(&mut self, enable_foc: bool) -> &mut Self {
+    pub fn with_enable_foc(mut self, enable_foc: bool) -> Self {
         self.enable_foc = enable_foc;
         self
     }
 
-    pub fn with_feedfoward(&mut self, feedfoward: Voltage) -> &mut Self {
+    pub fn with_feedfoward(mut self, feedfoward: Voltage) -> Self {
         self.feedfoward = feedfoward;
         self
     }
 
-    pub fn with_slot(&mut self, slot: i32) -> &mut Self {
+    pub fn with_slot(mut self, slot: i32) -> Self {
         self.slot = slot;
         self
     }
 
-    pub fn with_update_frequency(&mut self, update_frequency: Frequency) -> &mut Self {
+    pub fn with_update_frequency(mut self, update_frequency: Frequency) -> Self {
         self.update_frequency = update_frequency;
         self
     }

@@ -83,6 +83,8 @@ autocxx::include_cpp! {
     generate!("ctre::phoenix6::configs::FeedbackConfigs")
     generate!("ctre::phoenix6::configs::MotorOutputConfigs")
     generate!("ctre::phoenix6::configs::ClosedLoopGeneralConfigs")
+    generate!("ctre::phoenix6::configs::CurrentLimitsConfigs")
+    generate!("ctre::phoenix6::configs::TorqueCurrentConfigs")
 
     generate!("ctre::phoenix6::configs::CANcoderConfigurator")
     generate!("ctre::phoenix6::configs::CANcoderConfiguration")
@@ -154,6 +156,15 @@ autocxx::include_cpp! {
 
     generate!("ctre_helpers::magnetsensor::set_magnet_offset")
     generate!("ctre_helpers::magnetsensor::set_discontinuity_point")
+
+    generate!("ctre_helpers::currentlimits::set_stator")
+    generate!("ctre_helpers::currentlimits::set_supply")
+    generate!("ctre_helpers::currentlimits::set_supply_lower")
+    generate!("ctre_helpers::currentlimits::set_supply_lower_time")
+
+    generate!("ctre_helpers::torquecurrent::set_peak_forward")
+    generate!("ctre_helpers::torquecurrent::set_peak_reverse")
+    generate!("ctre_helpers::torquecurrent::set_neutral_deadband")
 
     generate!("ctre_helpers::pigeon2::get_configurator")
     generate!("ctre_helpers::pigeon2::get_yaw")
@@ -281,6 +292,12 @@ pub mod talon {
     pub use ffi::ctre_helpers::talonfx::slot0::{
         set_kA, set_kD, set_kG, set_kI, set_kP, set_kS, set_kV,
     };
+    pub use ffi::ctre_helpers::currentlimits::{
+        set_stator, set_supply, set_supply_lower, set_supply_lower_time
+    };
+    pub use ffi::ctre_helpers::torquecurrent::{
+        set_peak_forward, set_neutral_deadband, set_peak_reverse
+    };
     pub use ffi::ctre_helpers::talonfx::{
         coast, get_acceleration, get_configurator, get_device_temp, get_duty_cycle, get_kt, get_kv,
         get_output_voltage, get_position, get_stall_current, get_stator_current,
@@ -362,7 +379,7 @@ pub use ffi::ctre::phoenix6::configs::{
     CANcoderConfiguration, CANcoderConfigurator, ClosedLoopGeneralConfigs, FeedbackConfigs,
     GyroTrimConfigs, MagnetSensorConfigs, MotionMagicConfigs, MotorOutputConfigs, MountPoseConfigs,
     Pigeon2Configuration, Pigeon2Configurator, Pigeon2FeaturesConfigs, Slot0Configs,
-    TalonFXConfiguration, TalonFXConfigurator,
+    TalonFXConfiguration, TalonFXConfigurator, CurrentLimitsConfigs, TorqueCurrentConfigs,
 };
 pub use ffi::ctre::phoenix6::signals::{
     FeedbackSensorSourceValue, InvertedValue, NeutralModeValue, SensorDirectionValue,

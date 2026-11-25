@@ -90,8 +90,8 @@ impl ChassisSpeeds {
     }
 
     /// See [`Self::discretize`].
-    pub fn discretize_speeds(speeds: Self, dt: Time) -> Self {
-        Self::discretize(speeds.vx, speeds.vy, speeds.omega, dt)
+    pub fn discretize_speeds(&self, dt: Time) -> Self {
+        Self::discretize(self.vx, self.vy, self.omega, dt)
     }
 
     pub fn from_field_relative(
@@ -505,7 +505,7 @@ impl SwerveModuleState {
 /// implementation.
 #[derive(Debug, Clone)]
 pub struct SwerveDriveKinematics<const N: usize> {
-    modules: [Vec2; N],
+    pub modules: [Vec2; N],
 }
 
 impl<const N: usize> SwerveDriveKinematics<N> {

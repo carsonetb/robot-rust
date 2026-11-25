@@ -68,6 +68,16 @@ impl TalonFXConfiguration {
         self.conf.pin_mut().WithClosedLoopGeneral(configs.conf);
         self
     }
+
+    pub fn with_current_limits(mut self, configs: CurrentLimitsConfigs) -> Self {
+        self.conf.pin_mut().WithCurrentLimits(configs.conf);
+        self
+    }
+
+    pub fn with_torque_current(mut self, configs: TorqueCurrentConfigs) -> Self {
+        self.conf.pin_mut().WithTorqueCurrent(configs.conf);
+        self
+    }
 }
 
 pub struct Slot0Configs {
@@ -118,6 +128,10 @@ impl Slot0Configs {
 
     pub fn with_pid(self, pid: PIDGains) -> Self {
         self.with_kp(pid.p).with_ki(pid.i).with_kd(pid.d)
+    }
+
+    pub fn with_ff(self, ff: FFGains) -> Self {
+        self.with_ks(ff.s).with_kv(ff.v).with_ka(ff.a)
     }
 }
 
@@ -222,6 +236,71 @@ impl MotorOutputConfigs {
         self.conf
             .pin_mut()
             .WithNeutralMode(ffi::NeutralModeValue::new(c_int(mode as i32)).within_unique_ptr());
+        self
+    }
+}
+
+pub struct CurrentLimitsConfigs {
+    conf: cxx::UniquePtr<ffi::CurrentLimitsConfigs>,
+}
+
+impl CurrentLimitsConfigs {
+    pub fn new() -> Self {
+        Self { conf: ffi::CurrentLimitsConfigs::new().within_unique_ptr() }
+    }
+
+    pub fn with_stator_current_limit(mut self, value: Amps) -> Self {
+        ffi::talon::set_stator(self.conf.pin_mut(), value.value);
+        self
+    }
+
+    pub fn with_stator_current_limit_enable(mut self, value: bool) -> Self {
+        self.conf.pin_mut().WithStatorCurrentLimitEnable(value);
+        self
+    }
+
+    pub fn with_supply_current_limit(mut self, value: Amps) -> Self {
+        ffi::talon::set_supply(self.conf.pin_mut(), value.value);
+        self
+    }
+
+    pub fn with_supply_current_limit_enable(mut self, value: bool) -> Self {
+        self.conf.pin_mut().WithSupplyCurrentLimitEnable(value);
+        self
+    }
+
+    pub fn with_supply_current_lower_limit(mut self, value: Amps) -> Self {
+        ffi::talon::set_supply_lower(self.conf.pin_mut(), value.value);
+        self
+    }
+
+    pub fn with_supply_current_lower_time(mut self, value: Amps) -> Self {
+        ffi::talon::set_supply_lower_time(self.conf.pin_mut(), value.value);
+        self
+    }
+}
+
+pub struct TorqueCurrentConfigs {
+    conf: cxx::UniquePtr<ffi::TorqueCurrentConfigs>,
+}
+
+impl TorqueCurrentConfigs {
+    pub fn new() -> Self {
+        Self { conf: ffi::TorqueCurrentConfigs::new().within_unique_ptr() }
+    }
+
+    pub fn with_peak_forward_torque_current(mut self, value: Amps) -> Self {
+        ffi::talon::set_peak_forward(self.conf.pin_mut(), value.value);
+        self
+    }
+
+    pub fn with_peak_reverse_torque_current(mut self, value: Amps) -> Self {
+        ffi::talon::set_peak_reverse(self.conf.pin_mut(), value.value);
+        self
+    }
+
+    pub fn with_torque_neutral_deadband(mut self, value: Amps) -> Self {
+        ffi::talon::set_neutral_deadband(self.conf.pin_mut(), value.value);
         self
     }
 }

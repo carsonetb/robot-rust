@@ -31,6 +31,18 @@ impl PIDGains {
     }
 }
 
+pub struct FFGains {
+    pub s: f64,
+    pub v: f64,
+    pub a: f64,
+}
+
+impl FFGains {
+    pub const fn new(s: f64, v: f64, a: f64) -> Self {
+        Self { s, v, a }
+    }
+}
+
 /// A simple feedback controller. After setting the parameters, every update
 /// you should call `with_current` and `with_setpoint` to update those
 /// parameters, if necessary.
